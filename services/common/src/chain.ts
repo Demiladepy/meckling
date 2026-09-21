@@ -1,15 +1,15 @@
 // viem helpers shared by the agent, keeper and app: read account state, simulate and send `execute` with a tight
 // gas limit (Monad charges the gas limit, not gas used), and measure block time at startup (PRD rule 6).
 import {
-  BaseError,
-  ContractFunctionRevertedError,
+  decodeErrorResult,
+  encodeErrorResult,
   type Account,
   type Address,
   type Hex,
   type PublicClient,
   type WalletClient,
 } from "viem";
-import { mandateAccountAbi, mandateRegistryAbi, perplAdapterAbi } from "./abis.ts";
+import { mandateAccountAbi, mandateRegistryAbi, perplAdapterAbi, perplErrorsAbi } from "./abis.ts";
 import type { Call } from "./perpl.ts";
 import type { Rule } from "./rules.ts";
 
@@ -67,13 +67,32 @@ export async function readMonitors(client: PublicClient, account: Address, count
   );
 }
 
+type ErrLike = { name?: string; cause?: unknown; data?: unknown; raw?: Hex };
+
+/** Walks an error's cause chain. Duck-typed by name, so it works whichever viem copy created the error. */
+function walk(err: unknown, pick: (e: ErrLike) => boolean): ErrLike | undefined {
+  let e = err as ErrLike | undefined;
+  for (let depth = 0; e && depth < 20; depth++) {
+    if (pick(e)) return e;
+    e = e.cause as ErrLike | undefined;
+  }
+  return undefined;
+}
+
 /** Pulls revert data out of a viem error, for decodeViolation. */
 export function revertData(err: unknown): Hex | undefined {
-  if (!(err instanceof BaseError)) return undefined;
-  const reverted = err.walk((e) => e instanceof ContractFunctionRevertedError);
-  if (reverted instanceof ContractFunctionRevertedError) return reverted.raw;
-  const withData = err.walk((e) => typeof (e as { data?: unknown }).data === "string") as { data?: Hex } | null;
-  return withData?.data;
+  const reverted = walk(err, (e) => e.name === "ContractFunctionRevertedError") as
+    | (ErrLike & { data?: { abiItem?: unknown; errorName: string; args?: readonly unknown[] } })
+    | undefined;
+  if (reverted) {
+    if (reverted.raw) return reverted.raw;
+    // viem decodes errors it finds in the ABI and drops the raw bytes; re-encode them.
+    if (reverted.data?.abiItem) {
+      return encodeErrorResult({ abi: [reverted.data.abiItem], errorName: reverted.data.errorName, args: reverted.data.args ?? [] } as never);
+    }
+  }
+  const withData = walk(err, (e) => typeof e.data === "string" && (e.data as string).startsWith("0x"));
+  return withData?.data as Hex | undefined;
 }
 
 export type ExecuteResult =
@@ -148,7 +167,25 @@ export async function measureBlockTimeMs(client: PublicClient, span = 1000n): Pr
   return (Number(latest.timestamp - earlier.timestamp) * 1000) / Number(span);
 }
 
-function shortError(err: unknown): string {
-  if (err instanceof BaseError) return err.shortMessage;
-  return err instanceof Error ? err.message : String(err);
+/** Names a revert from Mandate or Perpl, e.g. "CallNotAllowed(0x…, 0x…)" or Perpl's own error; undefined if unknown. */
+export function describeRevert(data: Hex | undefined): string | undefined {
+  if (!data || data === "0x") return undefined;
+  for (const abi of [mandateAccountAbi, perplErrorsAbi] as const) {
+    try {
+      const e = decodeErrorResult({ abi, data });
+      const args = (e.args ?? []).map((a) => (typeof a === "bigint" ? a.toString() : String(a)));
+      return `${e.errorName}(${args.join(", ")})`;
+    } catch {
+      // try the next ABI
+    }
+  }
+  return `unknown error ${data.slice(0, 10)}`;
+}
+
+export function shortError(err: unknown): string {
+  const named = describeRevert(revertData(err));
+  if (named) return `reverted: ${named}`;
+  const short = (err as { shortMessage?: string }).shortMessage;
+  if (short) return short;
+  return err instanceof Error ? err.message.split("\n")[0]! : String(err);
 }

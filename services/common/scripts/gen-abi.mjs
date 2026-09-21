@@ -17,5 +17,10 @@ for (const [name, file] of Object.entries(contracts)) {
   const { abi } = JSON.parse(readFileSync(join(root, file), "utf8"));
   out += `\nexport const ${name} = ${JSON.stringify(abi, null, 2)} as const;\n`;
 }
+// Perpl custom errors, from dex-sdk (contracts/abi/PerplErrors.json), to decode exchange reverts.
+const errs = JSON.parse(readFileSync(join(root, "../abi/PerplErrors.json"), "utf8"));
+out += `
+export const perplErrorsAbi = ${JSON.stringify(errs.abi ?? errs, null, 2)} as const;
+`;
 writeFileSync(join(dirname(fileURLToPath(import.meta.url)), "../src/abis.ts"), out);
 console.log("wrote src/abis.ts");
