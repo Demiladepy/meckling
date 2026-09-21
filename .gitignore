@@ -1,0 +1,33 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# node
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+dist/
+.next/
+out/
+next-env.d.ts
+
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+contracts/broadcast/**/dry-run/
+
+# envio
+indexer/generated/
+indexer/.envio/
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# local run data
+*.log
+services/**/data/
