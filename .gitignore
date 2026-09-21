@@ -15,8 +15,7 @@ next-env.d.ts
 # foundry
 contracts/out/
 contracts/cache/
-contracts/broadcast/*/31337/
-contracts/broadcast/**/dry-run/
+contracts/broadcast/
 
 # envio
 indexer/generated/
@@ -31,3 +30,4 @@ Thumbs.db
 # local run data
 *.log
 services/**/data/
+contracts/deployments/local.json

@@ -14,7 +14,7 @@ remappings = [
 ]
 # Fork tests are excluded from the default run; see profile.fork.
 no_match_path = "test/fork/**"
-fs_permissions = [{ access = "read", path = "./abi" }]
+fs_permissions = [{ access = "read", path = "./abi" }, { access = "read-write", path = "./deployments" }]
 
 [profile.default.invariant]
 runs = 256
@@ -31,3 +31,7 @@ monad_testnet = "${MONAD_TESTNET_RPC_URL}"
 
 [fmt]
 line_length = 120
+
+[lint]
+# Perpl field names (CNS/PNS/LNS suffixes) must match its ABI.
+exclude_lints = ["mixed-case-variable", "mixed-case-function"]
