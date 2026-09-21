@@ -3,10 +3,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "node --env-file-if-exists=../../.env --experimental-strip-types src/index.ts",
+    "setup:local": "node --env-file-if-exists=../../.env --experimental-strip-types src/setup-local.ts",
+    "test": "node --test --experimental-strip-types src/*.test.ts",
+    "fork:sync": "node --env-file-if-exists=../../.env --experimental-strip-types src/fork-sync.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
+    "@mandate/common": "workspace:*",
+    "underwriter": "workspace:*",
+    "viem": "^2.56.8",
+    "zod": "^4.6.5"
   }
 }
