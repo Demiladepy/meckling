@@ -168,7 +168,13 @@ export async function assessMarket(
       return { data: summarizePositioning(res.data), credits: res.creditsCost ?? 0 };
     }, credits),
     signal(async () => {
-      const res = await nansen.smartMoneyNetflow({ chains: [u.chain], filters: { token_address: u.token }, pagination: { page: 1, per_page: 1 } });
+      // Nansen matches EVM token addresses in lowercase only (verified against the live API, docs/spikes.md S6).
+      const token = u.token.startsWith("0x") ? u.token.toLowerCase() : u.token;
+      const res = await nansen.smartMoneyNetflow({
+        chains: [u.chain],
+        filters: { token_address: token, include_native_tokens: true, include_stablecoins: true },
+        pagination: { page: 1, per_page: 1 },
+      });
       const row = res.data[0];
       if (!row) throw new Error(`no smart-money flow row for ${u.label}`);
       return {
@@ -180,7 +186,7 @@ export async function assessMarket(
       const [all, smart] = await Promise.all([
         nansen.tokenHolders({
           chain: u.chain,
-          token_address: u.token,
+          token_address: u.token.startsWith("0x") ? u.token.toLowerCase() : u.token,
           label_type: "all_holders",
           pagination: { page: 1, per_page: 10 },
           order_by: [{ field: "token_amount", direction: "DESC" }],

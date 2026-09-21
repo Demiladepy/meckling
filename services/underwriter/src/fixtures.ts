@@ -33,7 +33,7 @@ const handlers: Record<string, Handler> = {
   "/tgm/perp-positions": (b) => ({ data: perpPositions[String(b.token_symbol)] ?? [], pagination: page }),
   "/smart-money/netflow": (b) => {
     const addr = String((b.filters as { token_address?: string } | undefined)?.token_address);
-    const row = netflow[addr];
+    const row = Object.entries(netflow).find(([k]) => k.toLowerCase() === addr.toLowerCase())?.[1];
     return { data: row ? [row] : [], pagination: page };
   },
   "/tgm/holders": (b) => {
@@ -47,7 +47,7 @@ const handlers: Record<string, Handler> = {
       balance_change_24h: 0,
       balance_change_7d: 0,
       balance_change_30d: 0,
-      ownership_percentage: String(b.token_address).startsWith("0x3bd3") ? 7.5 : 3.1,
+      ownership_percentage: String(b.token_address).toLowerCase().startsWith("0x3bd3") ? 7.5 : 3.1,
       value_usd: 1,
     }));
     return { data: rows, pagination: page };

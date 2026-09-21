@@ -9,7 +9,7 @@ Run on Sep 21, 2026. Chain state was read at mainnet block ~106,715,000 and test
 | S3 Mera passkeys | **Pass, with one open item** | Mera EOAs own `MandateAccount`s. Test standalone PWA mode on a real iPhone and Android device early in M3. |
 | S4 Chainlink CRE on Monad | **Pass on paper** | CRE lists Monad mainnet and testnet with EVM write. Confirm with `cre workflow supported-chains` once the owner's CRE account exists. The relayer fallback stays. |
 | S5 Price sources | **Pass** | OracleGuard compares Perpl's mark against a Chainlink Data Feed. Perpl's own Data Streams oracle price is recorded as a third reference. |
-| S6 Nansen API | **Pass on docs; plan access unverified** | Nansen covers Monad. Typed clients are written for four endpoints. Verify them against the owner's key (`NANSEN_API_KEY`). |
+| S6 Nansen API | **Pass (verified live, Sep 21)** | All four endpoints respond on the owner's key at 5 credits per call. Nansen matches EVM token addresses in lowercase only. |
 | S7 Envio on Monad | **Pass** | HyperSync supports 143 and 10143. Perpl events can be indexed from its ABI. |
 
 ---
@@ -177,7 +177,10 @@ Source: `docs.nansen.ai`. Base `https://api.nansen.ai/api/v1`, header `apikey: <
 | `POST /smart-money/pnl-leaderboard` (`chains[]`, `timeframe`) | Leaders' PnL, used to weight the positioning signal |
 
 - **Monad is supported** (`monad`) for smart-money, Token God Mode and Profiler endpoints. Netflow covers a rolling 30 days only.
-- **Unverified:** plan access and credit costs on the owner's key. `services/underwriter/src/nansen.ts` implements these four endpoints only. Run `pnpm --filter underwriter smoke` with `NANSEN_API_KEY` set to confirm. **Owner action: add the key to `.env`.**
+- **Verified live (Sep 21, owner's key, CLI reports "Plan: free").** `pnpm --filter underwriter smoke` got an OK from all four endpoints at 5 credits per call. One live BTC+ETH underwriting cost 30 credits. Findings:
+  - **The netflow `token_address` filter only matches lowercase addresses.** A checksummed WBTC address returned no rows; lowercase returned the WBTC row. The underwriter now lowercases EVM addresses and sets `include_native_tokens` and `include_stablecoins`.
+  - Perp positions come back with `leverage` as uppercase strings such as "5X". `parseFloat` handles them.
+  - Live result on Sep 21: smart money on Hyperliquid was 66% net short BTC (100 traders, 14.0x average leverage) and 71% net short ETH (9.4x). Both markets are risk-off, so the mandate is 1.5x max leverage and $400 per market on a $1,000 base.
 
 ---
 
