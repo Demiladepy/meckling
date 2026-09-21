@@ -4,10 +4,18 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "smoke": "node --env-file-if-exists=../../.env --experimental-strip-types src/smoke.ts"
+    "smoke": "node --env-file-if-exists=../../.env --experimental-strip-types src/smoke.ts",
+    "test": "node --test --experimental-strip-types src/*.test.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "typescript": "^5.9.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@mandate/common": "workspace:*",
+    "viem": "^2.56.8"
   }
 }
