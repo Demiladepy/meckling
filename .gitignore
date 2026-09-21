@@ -31,3 +31,4 @@ Thumbs.db
 *.log
 services/**/data/
 contracts/deployments/local.json
+/data/
