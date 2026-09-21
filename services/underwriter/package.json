@@ -1,0 +1,13 @@
+{
+  "name": "underwriter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "smoke": "node --env-file-if-exists=../../.env --experimental-strip-types src/smoke.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.0"
+  }
+}
