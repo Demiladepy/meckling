@@ -1,0 +1,40 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 20px 16px;
+}
+
+.brand {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 17px;
+  text-decoration: none;
+}
+
+.signin,
+.account {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color var(--ease);
+}
+
+.signin:hover,
+.account:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.signin:focus-visible,
+.account:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}

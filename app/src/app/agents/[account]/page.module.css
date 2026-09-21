@@ -1,0 +1,279 @@
+.main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 20px max(80px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 32px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 24px;
+}
+
+.head p {
+  margin: 8px 0 0;
+}
+
+.summary {
+  display: flex;
+  gap: 32px;
+  margin: 0;
+}
+
+.summary dt {
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.summary dd {
+  margin: 2px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.h2 {
+  font-size: 22px;
+  letter-spacing: -0.3px;
+}
+
+/* ---------------------------------------------------------------- split screen */
+
+.split {
+  display: grid;
+}
+
+.labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--graphite);
+  padding-bottom: 12px;
+}
+
+.labels span:last-child {
+  padding-left: 28px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.agent {
+  padding: 20px 28px 20px 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.row[data-first] .agent {
+  border-top: 0;
+}
+
+/* The chain is one midnight island: rows join into a single surface with 28px outer corners. */
+.chain {
+  background: var(--midnight);
+  color: rgba(255, 255, 255, 0.92);
+  padding: 20px 28px;
+}
+
+.row[data-first] .chain {
+  border-top-left-radius: var(--radius-media);
+  border-top-right-radius: var(--radius-media);
+  padding-top: 28px;
+}
+
+.row[data-last] .chain {
+  border-bottom-left-radius: var(--radius-media);
+  border-bottom-right-radius: var(--radius-media);
+  padding-bottom: 28px;
+}
+
+.row + .row .chain {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.agent p,
+.chain p {
+  margin: 0;
+}
+
+.block,
+.blockDark {
+  font-size: 14px;
+  color: var(--graphite);
+  margin-bottom: 8px !important;
+}
+
+.blockDark {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.reasoning {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 18px;
+  line-height: 1.56;
+  letter-spacing: normal;
+  text-wrap: pretty;
+}
+
+.proposed {
+  margin-top: 8px !important;
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+.verdict {
+  display: grid;
+  gap: 4px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.row[data-last] .verdict {
+  animation: verdict-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.headline {
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.headline[data-tone="breach"] {
+  color: var(--breach);
+}
+
+.headline[data-tone="held"] {
+  color: #4cc27f; /* --held lifted for contrast on midnight */
+}
+
+.quiet {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.agent .quiet {
+  color: var(--graphite);
+}
+
+@keyframes verdict-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------- headroom */
+
+.headroom {
+  display: grid;
+  gap: 16px;
+}
+
+.bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 140px 1fr 160px;
+  align-items: center;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.barLabel {
+  color: var(--graphite);
+}
+
+.track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--held);
+  transition: width 200ms ease;
+}
+
+.fill[data-state="pending"] {
+  background: var(--pending);
+}
+
+.fill[data-state="breach"] {
+  background: var(--breach);
+}
+
+.fill[data-pulse] {
+  animation: pulse-breach 900ms ease-out 1;
+}
+
+@keyframes pulse-breach {
+  0%,
+  55% {
+    background: var(--breach);
+    opacity: 1;
+  }
+  25% {
+    background: var(--breach);
+    opacity: 0.45;
+  }
+}
+
+.barText {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- mobile: chain verdict on top, reasoning below */
+
+@media (max-width: 720px) {
+  .labels {
+    display: none;
+  }
+  .row {
+    grid-template-columns: 1fr;
+    margin-bottom: 16px;
+  }
+  .row .chain {
+    order: -1;
+    border-radius: var(--radius-card) var(--radius-card) 0 0 !important;
+    padding: 16px 20px !important;
+    border-top: 0 !important;
+  }
+  .agent {
+    padding: 16px 20px;
+    border: 1px solid var(--hairline);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    background: var(--surface);
+  }
+  .row[data-first] .agent {
+    border-top: 0;
+  }
+  .bar {
+    grid-template-columns: 96px 1fr;
+  }
+  .barText {
+    grid-column: 2;
+    text-align: left;
+    color: var(--graphite);
+  }
+}

@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  transpilePackages: ["@mandate/common", "underwriter"],
+  serverExternalPackages: [],
   async headers() {
     return [
       {
