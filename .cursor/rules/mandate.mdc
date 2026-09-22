@@ -1,0 +1,45 @@
+---
+description: Mandate — project rules, architecture and current state. Read before any change.
+alwaysApply: true
+---
+
+# Mandate
+
+A risk-enforcement and capital layer for AI trading agents on Monad. An agent trades Perpl through a `MandateAccount`; any trade that breaks the backer's risk rules reverts inside the same transaction.
+
+**Read `docs/PRD.md` (spec), `docs/plan.md` (done/next), `docs/handoff.md` (live addresses), `docs/decisions.md` (rulings) and `CLAUDE.md` before changing anything.** `CLAUDE.md` holds the full working agreement; these are the rules that break the project when ignored.
+
+## Non-negotiables
+
+- The PRD is the source of truth. Work milestone by milestone. Out-of-scope ideas go in `docs/ideas.md`.
+- Never invent an address, ABI, endpoint or parameter. Read the deployed contract or the published docs, then record it in `docs/spikes.md`.
+- Never say something works without running it and showing the output.
+- Contracts are test-first: Foundry unit tests per function, invariant tests for PRD 7.8. `cd contracts && forge test` must be green.
+- Secrets live in `.env` (gitignored). Check `git log -p --all | grep -cE "nsn_|sk-ant-"` is `0` before pushing.
+- Be honest in the product: sample data is labelled, the demo script is disclosed, and local-fork shims refuse to run on real networks.
+
+## Monad rules
+
+- Count **blocks**, never timestamps (consecutive blocks can share a timestamp).
+- Gas is charged on the **limit**, so every transaction sets a tight explicit `gas` (simulate, estimate, +15%).
+- Full nodes serve no historical state; history comes from the Envio indexer (M2).
+- Block time is measured at runtime (~0.30 s), never hardcoded.
+
+## Architecture
+
+- `contracts/src/MandateAccount.sol` — snapshots venue state, runs the calls, updates rule monitors, then reverts with `MandateViolation` on the first broken action rule. `preflight` records a blocked attempt on-chain without executing.
+- `contracts/src/rules/` — one library per rule plus `RuleEngine` dispatch. Adding a rule must not change the account's control flow.
+- `contracts/src/venues/PerplAdapter.sol` — the only place that knows Perpl. Values accounts and vets every call by selector and order type.
+- `services/common` — generated ABIs, per-network market maps, Perpl encoding, plain-language rule copy.
+- `services/underwriter` — Nansen evidence → regime → proposed limits → canonical report whose keccak256 goes on-chain.
+- `services/agent` — one structured decision per loop (Claude `claude-opus-5`, or Kimi), submitted through `execute`.
+- `app/` — Next.js PWA, Mera passkey accounts, Create mandate and the agent split screen.
+
+## Traps that already cost time
+
+- Perpl keys accounts by `msg.sender`; `allowOrderForwarding` must never be reachable by a session key or orders bypass every rule.
+- Perpl uses isolated margin: leverage per order, deposit per position. Equity = idle AUSD + venue balance + position deposits + unrealized PnL.
+- Market ids and decimals differ per network (BTC = 1 mainnet, 16 testnet). Always use `services/common/src/networks.ts`.
+- Nansen matches EVM addresses in lowercase only; the free plan exhausts quickly, so the agent reads the stored report.
+- An anvil fork freezes Perpl's oracle; run `pnpm --filter agent fork:sync` or orders stop filling after 60 s.
+- Action rules only block trades that **increase** the limited exposure, so a price move can never trap the account (`docs/decisions.md` D3).
