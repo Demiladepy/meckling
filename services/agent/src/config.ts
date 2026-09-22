@@ -5,7 +5,8 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Address, Hex } from "viem";
 import { loadNetwork } from "@mandate/common/node";
 import type { MarketSymbol, NetworkKey } from "@mandate/common";
-import { NansenClient, assessMarket, fixtureClient } from "underwriter";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { makeSignalSource } from "./signals.ts";
 import type { DecisionProvider } from "./decision.ts";
 import { ClaudeProvider } from "./providers/claude.ts";
 import { KimiProvider } from "./providers/kimi.ts";
@@ -48,31 +49,6 @@ export function llmProvider(env: NodeJS.ProcessEnv): DecisionProvider | undefine
   }
 }
 
-/** Nansen evidence as short sentences per market, cached so a fast loop doesn't burn credits. */
-export function nansenSignals(env: NodeJS.ProcessEnv, net: ReturnType<typeof loadNetwork>, ttlMs = 10 * 60_000) {
-  const live = Boolean(env.NANSEN_API_KEY);
-  const client = live ? new NansenClient(env.NANSEN_API_KEY!) : fixtureClient();
-  const cache = new Map<string, { at: number; lines: string[] }>();
-  return async (markets: MarketSymbol[]) => {
-    const out: Record<string, string[]> = {};
-    await Promise.all(
-      markets.map(async (s) => {
-        const hit = cache.get(s);
-        if (hit && Date.now() - hit.at < ttlMs) {
-          out[s] = hit.lines;
-          return;
-        }
-        const m = net.markets.find((x) => x.symbol === s)!;
-        const a = await assessMarket(client, s, m.perpId, { total: 0 });
-        const lines = [...a.reasons, `Nansen regime for ${s}: ${a.regime}.`].map((l) => (live ? l : `${l} (sample data)`));
-        cache.set(s, { at: Date.now(), lines });
-        out[s] = lines;
-      }),
-    );
-    return out;
-  };
-}
-
 export function loadAgentConfig(env: NodeJS.ProcessEnv = process.env): AgentConfig {
   const net = loadNetwork((env.NETWORK as NetworkKey) || "local", env);
   const mandateAccount = need(env, "MANDATE_ACCOUNT") as Address;
@@ -91,6 +67,11 @@ export function loadAgentConfig(env: NodeJS.ProcessEnv = process.env): AgentConf
     demo,
     venueLeverage: Number(env.AGENT_VENUE_LEVERAGE || 15),
     slippageBps: Number(env.AGENT_SLIPPAGE_BPS || 100),
-    signals: nansenSignals(env, net),
+    signals: makeSignalSource({
+      env,
+      net,
+      pub: createPublicClient({ chain: net.chain, transport: http(net.rpcUrl) }) as PublicClient,
+      account: mandateAccount,
+    }),
   };
 }
