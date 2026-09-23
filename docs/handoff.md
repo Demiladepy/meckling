@@ -2,7 +2,7 @@
 
 What exists right now, so a new session (or a different tool) can continue without rediscovering it. Pair with [plan.md](plan.md) for what is done and next.
 
-Last updated: Sep 23, 2026.
+Last updated: Sep 23, 2026 (after M2).
 
 ## Deployed contracts
 
@@ -10,13 +10,15 @@ Last updated: Sep 23, 2026.
 
 | Contract | Address |
 |---|---|
-| MandateRegistry | `0xf70F2Ab2F9bE211142d055648A71Ab0C248AB351` |
-| MandateAccountFactory | `0x47256E74B4e6A4aEe2836E4401DE3663CA83cB84` |
-| PerplAdapter | `0xaEd47C59ff95E261A0075618Df83cbEaAE5E8E82` |
+| MandateRegistry | `0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133` |
+| MandateAccountFactory | `0x8F721E6B1367d471cFbA5fBdBbD714f208eB4F34` |
+| PerplAdapter | `0xE8F999dECEB04FC84a9da540b577cB4C66ec69bE` |
+| OracleGuard | `0xC395AFc52F37133091ec70907d859Fb0aeeDfAA2` |
+| BondVault | `0xe6FB91056f899656d3700DbDb7BcE5680984686f` |
 | Perpl exchange (theirs) | `0x1964C32f0bE608E7D29302AFF5E61268E72080cc` |
 | Test AUSD (theirs) | `0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC` |
 
-Mainnet is **not** deployed yet. `contracts/deployments/local.json` is a local anvil fork and is gitignored.
+**Redeployed Sep 23 with the M2 contracts**, so these replace the Sep 22 addresses; the Sep 22 demo mandate still lives on the old registry. Mainnet is **not** deployed yet. `contracts/deployments/local.json` is a local anvil fork and is gitignored.
 
 ## Live demo mandate (testnet)
 
@@ -64,3 +66,6 @@ pnpm --filter agent fork:sync && pnpm --filter agent setup:local
 - **Testnet feeds:** Chainlink on Monad testnet has BTC and ETH only, updating once a day. M2's oracle guard needs mainnet.
 - **Session keys** can only trade. Withdrawals are owner-only, and `allowOrderForwarding` is refused by the adapter.
 - **PT-AUSD on Curvance matures Oct 8**, inside the build window. Use earnAUSD for the M3 demo.
+- **Envio ships no Windows binary.** Run codegen and dev from WSL or Docker; see indexer/README.md.
+- **OracleGuard caps tolerance at 20%.** A local fork freezes the Chainlink feed while marks move, so deploy locally with GUARD_TOL_BPS=2000 GUARD_MAX_AGE_SEC=315360000.
+- **Testnet has no MON or SOL feed**, so those markets can never be flagged there; BTC and ETH can.

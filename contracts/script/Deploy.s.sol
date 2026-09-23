@@ -65,12 +65,7 @@ contract Deploy is Script {
             }
         }
         BondVault vault = new BondVault(
-            IERC20(adapter.collateralToken()),
-            registry,
-            IVenue(address(adapter)),
-            guard,
-            c.arbiter,
-            c.unwindSlippageBps
+            IERC20(adapter.collateralToken()), registry, IVenue(address(adapter)), guard, c.arbiter, c.unwindSlippageBps
         );
         registry.setBondVault(address(vault));
         vm.stopBroadcast();
