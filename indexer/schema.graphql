@@ -1,0 +1,111 @@
+"A MandateAccount: one agent or self-trader."
+type Account {
+  id: ID! # account address
+  owner: String!
+  operator: String!
+  createdAtBlock: BigInt!
+  mandate: Mandate
+  sessionKey: String
+  sessionKeyExpiresAtBlock: BigInt
+  closeOnly: Boolean!
+  "Running totals for the track record."
+  executions: Int!
+  violationsAttempted: Int!
+  breaches: Int!
+  lastEquity: BigInt
+  lastNotional: BigInt
+  peakEquity: BigInt
+  withdrawnTotal: BigInt!
+}
+
+"The rules attached to an account, and the Nansen report that justified them."
+type Mandate {
+  id: ID! # mandateId
+  account: Account!
+  backer: String!
+  operator: String!
+  reportHash: String!
+  createdAtBlock: BigInt!
+  active: Boolean!
+  deactivatedAtBlock: BigInt
+  rules: [Rule!]! @derivedFrom(field: "mandate")
+}
+
+type Rule {
+  id: ID! # mandateId-ruleIndex
+  mandate: Mandate!
+  ruleIndex: Int!
+  kind: Int!
+  p1: BigInt!
+  p2: BigInt!
+  p3: BigInt!
+  tightenedCount: Int!
+  lastUpdatedBlock: BigInt!
+}
+
+"One successful execute: the trade the chain allowed."
+type Execution {
+  id: ID! # txHash-logIndex
+  account: Account!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: String!
+  equity: BigInt!
+  notional: BigInt!
+}
+
+"A trade the mandate refused, recorded on-chain by preflight (PRD 10.3)."
+type Violation {
+  id: ID! # txHash-logIndex
+  account: Account!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: String!
+  ruleIndex: Int!
+  observed: BigInt!
+  limit: BigInt!
+  callsHash: String!
+}
+
+"Equity over time, from executes, monitor updates and keeper pokes: the equity curve and its peak."
+type EquityPoint {
+  id: ID! # txHash-logIndex
+  account: Account!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  equity: BigInt
+  notional: BigInt
+  peakEquity: BigInt
+  source: String! # "execute" | "monitor" | "unwind"
+}
+
+"A market rule the market broke, flagged on-chain and verified by BondVault."
+type Breach {
+  id: ID! # breachId
+  account: Account!
+  ruleIndex: Int!
+  observed: BigInt!
+  limit: BigInt!
+  flaggedAtBlock: BigInt!
+  flaggedTxHash: String!
+  disputed: Boolean!
+  disputeReason: String
+  resolved: Boolean!
+  upheld: Boolean
+  slashed: Boolean!
+  slashAmount: BigInt
+  slashedAtBlock: BigInt
+  paidTo: String
+}
+
+"The operator's bond backing an account."
+type Bond {
+  id: ID! # account address
+  account: Account!
+  operator: String!
+  posted: BigInt!
+  withdrawn: BigInt!
+  slashed: BigInt!
+  balance: BigInt!
+  lastUpdatedBlock: BigInt!
+}

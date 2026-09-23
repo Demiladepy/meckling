@@ -1,0 +1,59 @@
+# Envio HyperIndex (PRD 10.3). Monad full nodes serve no historical state, so this is the only source for track
+# records, breach history and the Risk screen.
+#
+# MandateAccount has no address here: accounts are created per backer, and the indexer registers each one when the
+# factory emits AccountCreated.
+name: mandate
+
+# Transaction hashes are opt-in; the UI links executions, blocked attempts and breaches to their transactions.
+field_selection:
+  transaction_fields:
+    - hash
+
+contracts:
+  - name: MandateAccountFactory
+    handler: src/EventHandlers.ts
+    events:
+      - event: "AccountCreated(address indexed account, address indexed owner, address indexed operator, bytes32 salt)"
+
+  - name: MandateRegistry
+    handler: src/EventHandlers.ts
+    events:
+      - event: "MandateCreated(uint256 indexed mandateId, address indexed account, address indexed backer, bytes32 reportHash)"
+      - event: "RuleSet(uint256 indexed mandateId, uint256 indexed ruleIndex, (uint8,uint256,uint256,uint256) rule)"
+      - event: "RuleTightened(uint256 indexed mandateId, uint256 ruleIndex)"
+      - event: "MandateDeactivated(uint256 indexed mandateId, address indexed account)"
+
+  - name: MandateAccount
+    handler: src/EventHandlers.ts
+    events:
+      - event: "Executed(address indexed account, uint256 blockNumber, int256 equity, uint256 notional)"
+      - event: "ViolationAttempted(address indexed account, uint256 blockNumber, uint256 ruleIndex, int256 observed, int256 limit, bytes32 callsHash)"
+      - event: "MonitorUpdated(address indexed account, uint256 ruleIndex, bytes32 stateHash)"
+      - event: "Unwound(address indexed account, uint256 blockNumber, uint256 notionalLeft)"
+      - event: "SessionKeySet(address indexed key, uint64 expiresAtBlock)"
+      - event: "SessionKeyRevoked(address indexed key)"
+      - event: "Withdrawn(address indexed to, uint256 amount)"
+
+  - name: BondVault
+    handler: src/EventHandlers.ts
+    events:
+      - event: "BondPosted(address indexed account, address indexed operator, uint256 amount)"
+      - event: "BreachFlagged(uint256 indexed breachId, address indexed account, uint256 ruleIndex, int256 observed, int256 limit, uint256 blockNumber)"
+      - event: "Disputed(uint256 indexed breachId, bytes reason)"
+      - event: "DisputeResolved(uint256 indexed breachId, bool upheld)"
+      - event: "Slashed(uint256 indexed breachId, address indexed backer, uint256 amount)"
+      - event: "BondWithdrawn(address indexed account, address indexed operator, uint256 amount)"
+
+chains:
+  # Monad testnet. Addresses come from contracts/deployments/10143.json.
+  - id: 10143
+    start_block: 64968808
+    contracts:
+      - name: MandateAccountFactory
+        address: "0x8F721E6B1367d471cFbA5fBdBbD714f208eB4F34"
+      - name: MandateRegistry
+        address: "0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133"
+      - name: BondVault
+        address: "0xe6FB91056f899656d3700DbDb7BcE5680984686f"
+      - name: MandateAccount

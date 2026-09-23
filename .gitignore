@@ -32,3 +32,6 @@ Thumbs.db
 services/**/data/
 contracts/deployments/local.json
 /data/
+indexer/.envio/
+indexer/generated/
+indexer/envio-env.d.ts
