@@ -1,0 +1,214 @@
+/* Self-mandate mode is the phone surface: one column, thumb-reachable controls, nothing below the fold that matters. */
+
+.main {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px 16px max(96px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 16px;
+}
+
+.hero,
+.form,
+.balance,
+.ticket,
+.rules {
+  display: grid;
+  gap: 16px;
+}
+
+.hero h1,
+.form h1 {
+  margin: 0;
+}
+
+.hero p,
+.form p {
+  margin: 0;
+}
+
+.fine {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.error {
+  margin: 0;
+  color: var(--breach);
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------- fields */
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field > span {
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.field input {
+  font: inherit;
+  font-size: 28px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+}
+
+.field input:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 1px;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choices button {
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 16px;
+  min-height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+
+.choices button[data-on] {
+  background: var(--midnight);
+  border-color: var(--midnight);
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------- balance */
+
+.balanceLabel {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.balanceValue {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance p {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- ticket */
+
+.sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.long,
+.short,
+.secondary {
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  min-height: 52px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity var(--ease);
+}
+
+.long {
+  background: var(--held);
+}
+
+.short {
+  background: var(--breach);
+}
+
+.secondary {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.long:disabled,
+.short:disabled,
+.secondary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.ok {
+  margin: 0;
+  font-size: 15px;
+  color: var(--held);
+}
+
+.blocked {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--breach) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--breach) 30%, transparent);
+}
+
+.blockedHead {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--breach);
+}
+
+/* ---------------------------------------------------------------- rules */
+
+.h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.rules ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.rules li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.rules li span:last-child {
+  color: var(--graphite);
+}

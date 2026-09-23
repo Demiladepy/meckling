@@ -4,6 +4,9 @@ import { mandateAccountAbi } from "./abis.ts";
 import { cnsToUsd } from "./perpl.ts";
 import type { NetworkConfig } from "./networks.ts";
 
+/** Rule copy only needs the market list, so the browser can pass its own config without a full NetworkConfig. */
+export type MarketNames = Pick<NetworkConfig, "markets">;
+
 export const RuleKind = {
   MaxLeverage: 0,
   MaxNotionalPerMarket: 1,
@@ -53,13 +56,13 @@ export const maxDrawdown = (pct: number): Rule => ({ kind: RuleKind.MaxDrawdown,
 
 // ------------------------------------------------------------------ copy
 
-function marketsIn(net: NetworkConfig | undefined, bitmap: bigint): string {
+function marketsIn(net: MarketNames | undefined, bitmap: bigint): string {
   if (!net) return `bitmap ${bitmap.toString(2)}`;
   const names = net.markets.filter((m) => (bitmap >> BigInt(m.perpId)) & 1n).map((m) => m.symbol);
   return names.length ? names.join(", ") : "none";
 }
 
-function marketName(net: NetworkConfig | undefined, perpId: bigint): string {
+function marketName(net: MarketNames | undefined, perpId: bigint): string {
   return net?.markets.find((m) => BigInt(m.perpId) === perpId)?.symbol ?? `market ${perpId}`;
 }
 
@@ -67,7 +70,7 @@ const x = (bps: bigint) => `${(Number(bps) / 10_000).toFixed(1).replace(/\.0$/, 
 const usd = (cns: bigint) => `$${cnsToUsd(cns).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
 /** The limit in words, e.g. "3x", "$2,000 on BTC", "150 blocks after a $10 loss". */
-export function describeLimit(r: Rule, net?: NetworkConfig): string {
+export function describeLimit(r: Rule, net?: MarketNames): string {
   switch (r.kind) {
     case RuleKind.MaxLeverage:
       return x(r.p1);
@@ -104,7 +107,7 @@ export function decodeViolation(data: Hex | undefined): Violation | undefined {
 }
 
 /** PRD 11.2: say what happened and what the limit is. */
-export function violationMessage(v: Violation, rule: Rule, net?: NetworkConfig): string {
+export function violationMessage(v: Violation, rule: Rule, net?: MarketNames): string {
   switch (rule.kind) {
     case RuleKind.MaxLeverage:
       return `Blocked: this trade would put you at ${x(v.observed)} leverage. Your limit is ${x(v.limit)}.`;
