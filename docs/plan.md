@@ -43,11 +43,13 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 - [x] CRE workflow + `CreKeeperReceiver`; both keepers share the breach math from `@mandate/common`
 - [x] Envio indexer: codegen passes, handlers type-check
 - [x] Deployed to Monad testnet (registry, factory, adapter, guard, vault)
-- [ ] **Run the breach live on testnet.** It needs a real equity move past the limit, so either wait for one or create a demo mandate with a tight drawdown limit (`DRAWDOWN_PCT`).
+- [x] **Ran the breach live on Monad testnet** (Sep 23): flagged in 6 blocks, unwound, bond paid the backer $0.11 after the dispute window
 - [ ] Run the indexer live (needs Docker or Envio's hosted service) and point the app at its GraphQL endpoint
 - [ ] Simulate or deploy the CRE workflow (needs a Chainlink CRE account, then deploy the receiver with that org's forwarder)
 
-**Exit criterion met on a fork** of real Perpl at mainnet state: a 3.56% drawdown against a 2% limit was flagged in **7 blocks**, the account unwound into close-only mode, and after the 20-block dispute window the bond paid the backer **$3.57**, the exact loss from the equity peak. 63 keeper rounds, 0 false flags.
+**Exit criterion met live on Monad testnet** (Sep 23): account `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0`, breach flagged in **6 blocks** (~2 s) at block 64,986,214, position unwound into close-only, and after a 200-block dispute window the bond paid the backer **$0.109218**, the exact loss from peak. Flag tx `0x76f0f447…`, slash tx `0xacfd9371…`. 397 keeper rounds, 0 false flags. The split screen shows the whole story.
+
+The same loop also ran earlier **on a fork** of real Perpl at mainnet state: a 3.56% drawdown against a 2% limit was flagged in **7 blocks**, the account unwound into close-only mode, and after the 20-block dispute window the bond paid the backer **$3.57**, the exact loss from the equity peak. 63 keeper rounds, 0 false flags.
 
 ## M3 — Capital, mobile and risk surfaces (Oct 4–8)
 
@@ -70,8 +72,8 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 | Gas, enforced trade (4 rules) | ~313k | mainnet fork, `test_gasPerEnforcedTrade` |
 | Gas, raw Perpl IOC fill | ~153k | spike S1 trace |
 | Monad block time | ~0.30 s mainnet, ~0.31 s testnet | measured over 2,000 blocks |
-| Blocks from breach to flag | 7 (local fork, 1 s blocks) | keeper log, data/keeper-logs/local.jsonl |
-| False flags | 0 of 63 keeper rounds | same log |
+| Blocks from breach to flag | **6 on testnet** (~2 s), 7 on a 1 s-block fork | keeper logs in data/keeper-logs/ |
+| False flags | 0 of 397 testnet rounds, 0 of 63 fork rounds | same logs |
 | Tests | 90 Foundry, 13 TypeScript | `forge test`, `pnpm test` |
 
 ## Owner setup
