@@ -141,3 +141,26 @@ export function headroom(a: AccountView, marketName: (id: number) => string): He
   });
   return out;
 }
+
+/**
+ * History from the Envio indexer (PRD 10.3). `indexer: false` means none is configured or it is unreachable, and
+ * the screens fall back to live chain state.
+ */
+export type HistoryView =
+  | { indexer: false; reason: string }
+  | {
+      indexer: true;
+      account: string;
+      trackRecord: {
+        executions: number;
+        violationsAttempted: number;
+        breaches: number;
+        peakEquity: string | null;
+        equity: string | null;
+        maxDrawdownBps: number;
+        returnBps: number | null;
+      };
+      curve: { block: string; equity: string; peakEquity: string | null; source: string }[];
+      violations: { blockNumber: string; ruleIndex: number; observed: string; limit: string; txHash: string }[];
+      breaches: Record<string, unknown>[];
+    };

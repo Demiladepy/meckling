@@ -3,7 +3,7 @@
 import { use, useMemo } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { formatBlock, shortAddr, useConfig, usePoll, usd } from "@/lib/client";
-import { headroom, observedVsLimit, type AccountView, type BreachView, type LogRecordView, type RuleView } from "@/lib/view";
+import { headroom, observedVsLimit, type AccountView, type BreachView, type HistoryView, type LogRecordView, type RuleView } from "@/lib/view";
 import s from "./page.module.css";
 
 const SIDE: Record<string, string> = { long: "long", short: "short", close: "close" };
@@ -14,6 +14,9 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
   // 2 s keeps the demo feeling live while staying inside public-RPC limits (the API caches on top of this).
   const view = usePoll<AccountView>(`/api/accounts/${account}`, 2000);
   const log = usePoll<{ records: LogRecordView[] }>(`/api/accounts/${account}/log`, 2000);
+  // Track record comes from the Envio indexer: Monad full nodes serve no history. Absent one, the strip hides itself.
+  const history = usePoll<HistoryView>(`/api/accounts/${account}/history`, 10000);
+  const track = history?.indexer ? history.trackRecord : undefined;
   const records = log?.records ?? [];
 
   const marketName = useMemo(
@@ -53,6 +56,18 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
                 <dt>Mandate</dt>
                 <dd>{view?.closeOnly ? "Close-only" : view?.mandate ? "Active" : "None"}</dd>
               </div>
+              {track && (
+                <>
+                  <div>
+                    <dt>Max drawdown</dt>
+                    <dd>{(track.maxDrawdownBps / 100).toFixed(2)}%</dd>
+                  </div>
+                  <div>
+                    <dt>Trades blocked</dt>
+                    <dd>{track.violationsAttempted}</dd>
+                  </div>
+                </>
+              )}
             </dl>
           )}
         </header>
