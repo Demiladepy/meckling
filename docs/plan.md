@@ -44,8 +44,9 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 - [x] Envio indexer: codegen passes, handlers type-check
 - [x] Deployed to Monad testnet (registry, factory, adapter, guard, vault)
 - [x] **Ran the breach live on Monad testnet** (Sep 23): flagged in 6 blocks, unwound, bond paid the backer $0.11 after the dispute window
-- [ ] Run the indexer live (needs Docker or Envio's hosted service) and point the app at its GraphQL endpoint
-- [ ] Simulate or deploy the CRE workflow (needs a Chainlink CRE account, then deploy the receiver with that org's forwarder)
+- [x] App reads track records, equity curves and blocked attempts from the indexer (`/api/accounts/[account]/history`); it degrades to live chain state when `ENVIO_GRAPHQL_URL` is unset
+- [ ] Run the indexer live: repo connected to Envio hosted, deploy branch `envio` pushed — waiting on the build result and its GraphQL URL
+- [ ] Simulate or deploy the CRE workflow: CLI v1.35.0 installed and checksum-verified, but every command needs auth — waiting on `cre login` or a `CRE_API_KEY`
 
 **Exit criterion met live on Monad testnet** (Sep 23): account `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0`, breach flagged in **6 blocks** (~2 s) at block 64,986,214, position unwound into close-only, and after a 200-block dispute window the bond paid the backer **$0.109218**, the exact loss from peak. Flag tx `0x76f0f447…`, slash tx `0xacfd9371…`. 397 keeper rounds, 0 false flags. The split screen shows the whole story.
 
