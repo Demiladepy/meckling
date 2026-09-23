@@ -36,7 +36,7 @@ export function chainOf(cfg: AppConfig) {
 
 export function clients(cfg: AppConfig, account: LocalAccount) {
   const chain = chainOf(cfg);
-  const transport = http(cfg.rpcUrl);
+  const transport = http(cfg.rpcUrl, { batch: { wait: 20 }, retryCount: 3, retryDelay: 250 });
   return {
     pub: createPublicClient({ chain, transport }) as PublicClient,
     wallet: createWalletClient({ chain, transport, account }),

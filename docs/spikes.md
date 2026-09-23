@@ -191,6 +191,15 @@ Source: `docs.nansen.ai`. Base `https://api.nansen.ai/api/v1`, header `apikey: <
 
 ---
 
+## Public RPC limits (measured Sep 23, testnet)
+
+The public Monad RPCs are strict, and this shapes the architecture more than anything else in S7:
+
+- **`eth_getLogs` is capped at a 100-block range** (`error -32614: eth_getLogs is limited to a 100 range`). Scanning from a deployment block is impossible in one call, so anything historical must come from the Envio indexer (PRD 10.3) or from contract state.
+- **15 requests per second.** A polling UI blows through that: one account view costs about a dozen reads. The app batches JSON-RPC calls, caches the view for 2 s and polls every 2 s.
+- Consequences already applied: the app reads breaches from `BondVault` state rather than logs; the keeper's account discovery chunks logs at 100 blocks and is skipped entirely when `KEEPER_ACCOUNTS` is set.
+- A private RPC (the QuickNode perk) removes both limits; set `MONAD_RPC_URL` / `MONAD_TESTNET_RPC_URL`.
+
 ## Monad measurements
 
 - **Block time**, measured over 2,000 blocks: mainnet 302 ms/block, testnet 312 ms/block. Services measure this at startup (PRD rule 6); 150 blocks is about 45 s.

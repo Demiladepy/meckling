@@ -30,6 +30,23 @@ export interface AccountView {
   mandate: { id: string; reportHash: string; backer: string; operator: string } | null;
   state: { equity: string; totalNotional: string; marginUsed: string; markets: MarketView[] };
   rules: RuleView[];
+  bond: { amount: string; operator: string } | null;
+  breaches: BreachView[];
+}
+
+export interface BreachView {
+  id: string;
+  ruleIndex: number;
+  observed: string;
+  limit: string;
+  flaggedAtBlock: string;
+  peakEquity: string;
+  equityAtFlag: string;
+  disputed: boolean;
+  resolved: boolean;
+  upheld: boolean;
+  slashed: boolean;
+  loss: string;
 }
 
 export interface LogRecordView {

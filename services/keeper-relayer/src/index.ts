@@ -97,7 +97,8 @@ process.on("SIGINT", () => {
 
 const maxRounds = process.env.KEEPER_MAX_ROUNDS ? Number(process.env.KEEPER_MAX_ROUNDS) : Infinity;
 for (let i = 0; i < maxRounds && !stop; i++) {
-  if (!fixed.length && i > 0 && i % 30 === 0) accounts = await discoverAccounts(pub, dep); // pick up new mandates
+  // Rediscovery is expensive on Monad (100-block log range), so it is rare and skipped when KEEPER_ACCOUNTS is set.
+  if (!fixed.length && i > 0 && i % 200 === 0) accounts = await discoverAccounts(pub, dep);
   await round(accounts);
   if (!stop) await new Promise((r) => setTimeout(r, intervalMs));
 }

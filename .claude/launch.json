@@ -4,8 +4,15 @@
     {
       "name": "app",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "app", "dev"],
-      "port": 3000
+      "runtimeArgs": [
+        "--filter",
+        "app",
+        "dev"
+      ],
+      "port": 3000,
+      "env": {
+        "NETWORK": "testnet"
+      }
     }
   ]
 }

@@ -49,8 +49,13 @@ export type KeeperAction =
   | { kind: "slashed"; breachId: number; txHash: Hex }
   | { kind: "error"; reason: string };
 
-/** Finds every account the registry has ever issued a mandate for. */
-export async function discoverAccounts(pub: PublicClient, dep: Deployment, chunk = 50_000n): Promise<Address[]> {
+/**
+ * Finds every account the registry has ever issued a mandate for.
+ *
+ * Monad public RPCs cap eth_getLogs at a 100-block range, so a full scan from the deployment costs one request per
+ * 100 blocks. Pass KEEPER_ACCOUNTS to skip it, or point the keeper at the Envio indexer once it is running.
+ */
+export async function discoverAccounts(pub: PublicClient, dep: Deployment, chunk = 100n): Promise<Address[]> {
   const latest = await pub.getBlockNumber();
   const accounts: Address[] = [];
   for (let from = BigInt(dep.startBlock); from <= latest; from += chunk) {

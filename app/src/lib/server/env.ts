@@ -10,7 +10,12 @@ export const net = loadNetwork(NETWORK);
 /** Repo-level data/ shared with the agent: agent-logs/ and reports/. */
 export const DATA_DIR = process.env.DATA_DIR || join(process.cwd(), "..", "data");
 
-export const pub = createPublicClient({ chain: net.chain, transport: http(net.rpcUrl) }) as PublicClient;
+// Public Monad RPCs rate-limit a polling UI, so batch the reads into one HTTP request and retry transient failures.
+// A private RPC (the QuickNode perk) removes the need for this; set MONAD_RPC_URL / MONAD_TESTNET_RPC_URL.
+export const pub = createPublicClient({
+  chain: net.chain,
+  transport: http(net.rpcUrl, { batch: { wait: 20 }, retryCount: 3, retryDelay: 250, timeout: 20_000 }),
+}) as PublicClient;
 
 /** The agent this deployment offers to backers: its operator and session key addresses. */
 export const AGENT = {

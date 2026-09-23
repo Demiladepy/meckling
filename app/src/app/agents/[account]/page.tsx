@@ -3,7 +3,7 @@
 import { use, useMemo } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { formatBlock, shortAddr, useConfig, usePoll, usd } from "@/lib/client";
-import { headroom, observedVsLimit, type AccountView, type LogRecordView } from "@/lib/view";
+import { headroom, observedVsLimit, type AccountView, type BreachView, type LogRecordView, type RuleView } from "@/lib/view";
 import s from "./page.module.css";
 
 const SIDE: Record<string, string> = { long: "long", short: "short", close: "close" };
@@ -11,8 +11,9 @@ const SIDE: Record<string, string> = { long: "long", short: "short", close: "clo
 export default function AgentSplitScreen({ params }: { params: Promise<{ account: string }> }) {
   const { account } = use(params);
   const cfg = useConfig();
-  const view = usePoll<AccountView>(`/api/accounts/${account}`, 1500);
-  const log = usePoll<{ records: LogRecordView[] }>(`/api/accounts/${account}/log`, 1500);
+  // 2 s keeps the demo feeling live while staying inside public-RPC limits (the API caches on top of this).
+  const view = usePoll<AccountView>(`/api/accounts/${account}`, 2000);
+  const log = usePoll<{ records: LogRecordView[] }>(`/api/accounts/${account}/log`, 2000);
   const records = log?.records ?? [];
 
   const marketName = useMemo(
@@ -72,7 +73,10 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
             </div>
           )}
           {records.map((r, i) => (
-            <Row key={`${r.ts}-${i}`} r={r} view={view} marketName={marketName} first={i === 0} last={i === records.length - 1} />
+            <Row key={`${r.ts}-${i}`} r={r} view={view} marketName={marketName} first={i === 0} last={i === records.length - 1 && !view?.breaches.length} />
+          ))}
+          {view?.breaches.map((b, i) => (
+            <BreachRow key={b.id} b={b} rule={view.rules[b.ruleIndex]} last={i === view.breaches.length - 1} />
           ))}
         </section>
 
@@ -105,6 +109,46 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
         )}
       </main>
     </>
+  );
+}
+
+/**
+ * A market rule the market broke, not the agent: the keeper flagged it, BondVault verified it, and the account
+ * unwound. Nothing the agent did appears on the left, which is the point.
+ */
+function BreachRow({ b, rule, last }: { b: BreachView; rule?: RuleView; last: boolean }) {
+  const loss = Number(b.loss) / 1e6;
+  return (
+    <div className={s.row} data-last={last || undefined}>
+      <div className={s.agent}>
+        <p className={s.block}>
+          Block <span className="onchain">{formatBlock(b.flaggedAtBlock)}</span>
+        </p>
+        <p className="body-secondary">The market moved. The agent did nothing.</p>
+      </div>
+      <div className={s.chain}>
+        <div className={s.verdict} data-result="breach">
+          <p className={s.blockDark}>
+            Block <span className="onchain">{formatBlock(b.flaggedAtBlock)}</span>
+          </p>
+          <p className={s.headline} data-tone="breach">
+            Breach flagged on-chain
+          </p>
+          <p>
+            Rule {b.ruleIndex + 1} · {rule?.name ?? "Max drawdown"}
+          </p>
+          <p>{observedVsLimit(rule?.kind, b.observed, b.limit)}</p>
+          <p className={s.quiet}>Position unwound. The account is close-only.</p>
+          {b.slashed ? (
+            <p className={s.headline} data-tone="held">
+              Bond paid the backer {usd(loss)}
+            </p>
+          ) : (
+            <p className={s.pending}>{b.disputed ? "Disputed, waiting on the arbiter." : "Dispute window open."}</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
