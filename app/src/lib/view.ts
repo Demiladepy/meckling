@@ -39,7 +39,7 @@ export interface LogRecordView {
   intent: { action: "open_long" | "open_short" | "close" | "hold"; market: string; size_usd: number };
   reasoning: string;
   proposedOrder?: { market: string; side: "long" | "short" | "close"; lots: string; limitPrice: number; notionalUsd: number; leverageAfter: number };
-  result: "filled" | "blocked" | "held" | "error";
+  result: "filled" | "no-fill" | "blocked" | "held" | "error";
   resultBlock?: string;
   txHash?: string;
   preflightTxHash?: string;

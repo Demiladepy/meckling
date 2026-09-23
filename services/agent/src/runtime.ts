@@ -58,7 +58,8 @@ export interface LogRecord {
   intent: Pick<Decision, "action" | "market" | "size_usd">;
   reasoning: string;
   proposedOrder?: { market: MarketSymbol; side: "long" | "short" | "close"; lots: string; limitPrice: number; notionalUsd: number; leverageAfter: number };
-  result: "filled" | "blocked" | "held" | "error";
+  /** "no-fill": the transaction succeeded but the venue matched nothing (an IOC order that crossed no resting order). */
+  result: "filled" | "no-fill" | "blocked" | "held" | "error";
   resultBlock?: string;
   txHash?: Hex;
   preflightTxHash?: Hex;
@@ -265,7 +266,16 @@ export class AgentRuntime {
       }
       const res = await executeTight(this.pub, this.wallet, this.cfg.sessionKey, this.cfg.mandateAccount, calls);
       if (res.status === "filled") {
-        return { ...rec, result: "filled", txHash: res.txHash, resultBlock: res.blockNumber.toString(), gasUsed: res.gasUsed.toString() };
+        // A successful execute is not a fill: an IOC order that crosses nothing leaves the position untouched.
+        const after = await readAccountState(this.pub, this.dep.perplAdapter, this.cfg.mandateAccount);
+        const moved = after.totalNotional !== state.totalNotional;
+        return {
+          ...rec,
+          result: moved ? "filled" : "no-fill",
+          txHash: res.txHash,
+          resultBlock: res.blockNumber.toString(),
+          gasUsed: res.gasUsed.toString(),
+        };
       }
       const violation = withViolation(res.revertData);
       if (violation && this.cfg.demo) {
@@ -297,7 +307,7 @@ export class AgentRuntime {
   private log(rec: LogRecord) {
     mkdirSync(dirname(this.cfg.logPath), { recursive: true });
     appendFileSync(this.cfg.logPath, `${JSON.stringify(rec)}\n`);
-    const tag = rec.result === "blocked" ? "BLOCKED" : rec.result.toUpperCase();
+    const tag = rec.result === "blocked" ? "BLOCKED" : rec.result === "no-fill" ? "NO FILL" : rec.result.toUpperCase();
     console.log(`[block ${rec.block}] ${tag} ${rec.intent.action} ${rec.intent.market} $${rec.intent.size_usd} — ${rec.reasoning}`);
     if (rec.violation) console.log(`  ${rec.violation.message}`);
     if (rec.error) console.log(`  error: ${rec.error}`);

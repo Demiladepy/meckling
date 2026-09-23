@@ -3,10 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "node --env-file-if-exists=../../.env --experimental-strip-types src/index.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "@mandate/common": "workspace:*",
+    "viem": "^2.56.8"
   }
 }

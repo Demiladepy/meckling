@@ -163,6 +163,12 @@ function Row({
               {r.txHash && <p className={`onchain ${s.quiet}`}>{shortAddr(r.txHash)}</p>}
             </>
           )}
+          {r.result === "no-fill" && (
+            <>
+              <p className={s.headline}>No fill</p>
+              <p className={s.quiet}>The order crossed nothing on Perpl. Position unchanged.</p>
+            </>
+          )}
           {r.result === "held" && <p className={s.quiet}>No trade submitted.</p>}
           {r.result === "error" && (
             <>

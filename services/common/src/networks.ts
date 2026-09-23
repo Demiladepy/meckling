@@ -23,6 +23,8 @@ export interface Deployment {
   perplAdapter: Address;
   mandateRegistry: Address;
   mandateAccountFactory: Address;
+  oracleGuard: Address;
+  bondVault: Address;
 }
 
 export interface NetworkConfig {

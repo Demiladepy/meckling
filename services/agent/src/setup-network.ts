@@ -23,6 +23,8 @@ import {
   mandateAccountFactoryAbi,
   mandateRegistryAbi,
   measureBlockTimeMs,
+  RuleKind,
+  bondVaultAbi,
   toAbiRule,
   usdToCns,
   type MarketSymbol,
@@ -48,6 +50,9 @@ const operator = (process.env.AGENT_OPERATOR_ADDRESS ?? backer.address) as Addre
 const fundUsd = Number(process.env.FUND_USD || 200);
 const baseNotionalUsd = Number(process.env.BASE_NOTIONAL_USD || fundUsd * 2);
 const symbols = (process.env.MARKETS || "BTC,ETH").split(",") as MarketSymbol[];
+const disputeWindowBlocks = BigInt(process.env.DISPUTE_WINDOW_BLOCKS || 600);
+const drawdownPct = process.env.DRAWDOWN_PCT ? Number(process.env.DRAWDOWN_PCT) : undefined;
+const bondUsd = Number(process.env.BOND_USD || 0);
 
 const transport = http(net.rpcUrl);
 const pub = createPublicClient({ chain: net.chain, transport }) as PublicClient;
@@ -88,6 +93,12 @@ console.log(`\nUnderwriting (${report.source}): ${report.mandateRegime}, report 
 for (const m of report.markets) for (const r of m.reasons) console.log(`  ${m.symbol}: ${r}`);
 for (const p of report.proposal) console.log(`  ${p.label}: ${p.limit}`);
 
+
+// Optional demo overrides: a tighter drawdown limit and a shorter dispute window make a breach reachable quickly.
+const demoRules = rules.map((r) =>
+  drawdownPct !== undefined && r.kind === RuleKind.MaxDrawdown ? { ...r, p1: BigInt(Math.round(drawdownPct * 100)) } : r,
+);
+
 // 2. MandateAccount.
 console.log("\nTransactions:");
 const salt = keccak256(toBytes(`${reportHash}:${Date.now()}`));
@@ -104,7 +115,7 @@ await send({
   address: dep.mandateRegistry,
   abi: mandateRegistryAbi,
   functionName: "createMandate",
-  args: [account, rules.map(toAbiRule), reportHash, 600n],
+  args: [account, demoRules.map(toAbiRule), reportHash, disputeWindowBlocks],
 });
 const head = await pub.getBlockNumber();
 await send({ address: account, abi: mandateAccountAbi, functionName: "setSessionKey", args: [agentSessionKey, head + 8_640_000n] });
@@ -118,6 +129,14 @@ await send({
   functionName: "execute",
   args: [[approveCall(dep.collateralToken, dep.perplExchange, 2n ** 255n), createAccountCall(dep.perplExchange, amount)]],
 });
+
+// 5. Optional operator bond, so a breach can actually pay the backer.
+if (bondUsd > 0) {
+  const bond = usdToCns(bondUsd);
+  await send({ address: dep.collateralToken, abi: parseAbi(["function approve(address,uint256) returns (bool)"]), functionName: "approve", args: [dep.bondVault, bond] });
+  await send({ address: dep.bondVault, abi: bondVaultAbi, functionName: "postBond", args: [account, bond] });
+  console.log(`Bond posted: ${bondUsd} AUSD`);
+}
 
 writeFileSync(join(DATA_DIR, `${netKey}-demo.json`), JSON.stringify({ network: netKey, account, backer: backer.address, operator, sessionKey: agentSessionKey, reportHash, fundUsd }, null, 2));
 console.log(`\nMandateAccount ${account} funded with ${fundUsd} AUSD.`);
