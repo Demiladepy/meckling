@@ -57,7 +57,7 @@ The same loop also ran earlier **on a fork** of real Perpl at mainnet state: a 3
 - [ ] Mera passkey accounts across the app (sign-in exists; **test on a real phone, including installed-PWA mode**)
 - [x] Self-mandate mode (the Agora surface): `/trade`, mobile-first. **Proven live on Monad testnet** (Sep 23), account `0xB81b1d54a76170dD0c5c4306f5f0437329afA53F` — created from a fixed salt, 4 rules written on-chain, funded with 100 AUSD into a fresh Perpl account, a $50 long filled (`0x11e41a8e…`), and a $220 long was blocked with "Blocked: this trade would make your BTC position $268.92. Your limit is $250."
 - [ ] Self-mandate mode on a real phone: passkey sign-in and installed-PWA mode still to test on a device
-- [ ] Risk screen (the Perpl analytics surface)
+- [x] Risk screen (the Perpl analytics surface): `/risk/[account]` — leverage, equity vs peak, headroom per rule, breach list and a drawdown alert. Live numbers from chain state, history from the indexer. Renders 200 against the live testnet account.
 - [ ] `CurvanceCollateralAdapter` (earnAUSD; PT-AUSD matures Oct 8, so it is config-only)
 
 ## M4 — Hardening and story (Oct 9–11)
