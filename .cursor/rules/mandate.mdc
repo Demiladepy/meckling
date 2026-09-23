@@ -15,7 +15,7 @@ A risk-enforcement and capital layer for AI trading agents on Monad. An agent tr
 - Never invent an address, ABI, endpoint or parameter. Read the deployed contract or the published docs, then record it in `docs/spikes.md`.
 - Never say something works without running it and showing the output.
 - Contracts are test-first: Foundry unit tests per function, invariant tests for PRD 7.8. `cd contracts && forge test` must be green.
-- Secrets live in `.env` (gitignored). Check `git log -p --all | grep -cE "nsn_|sk-ant-"` is `0` before pushing.
+- Secrets live in `.env` (gitignored). Check `git log -p --all | grep -cE '(nsn_|zk_|QN_)[0-9a-f]{20,}|sk-ant-api[0-9]{2}-'` is `0` before pushing.
 - Be honest in the product: sample data is labelled, the demo script is disclosed, and local-fork shims refuse to run on real networks.
 
 ## Monad rules
