@@ -40,6 +40,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The indexer types come from envio codegen; without it every handler is untyped.
+      - run: pnpm --filter indexer codegen
       - run: pnpm typecheck
       - run: pnpm --filter @mandate/common test
       - run: pnpm --filter underwriter test
