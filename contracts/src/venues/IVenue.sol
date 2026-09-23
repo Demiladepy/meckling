@@ -41,4 +41,13 @@ interface IVenue {
     function inspectCall(address target, bytes calldata data, bool closeOnly) external view returns (CallCheck memory);
 
     function encodeWithdraw(uint256 amount) external view returns (address target, bytes memory data);
+
+    /// @notice 10 ** priceDecimals for this market, so callers can compare a venue mark with an oracle price.
+    function priceScale(uint256 marketId) external view returns (uint256);
+
+    /// @notice Reduce-only orders that close every open position of `account`, at up to `slippageBps` from the mark.
+    function encodeCloseAll(address account, uint256 slippageBps)
+        external
+        view
+        returns (address[] memory targets, bytes[] memory datas);
 }

@@ -10,6 +10,9 @@ import {MandateRegistry} from "../../src/MandateRegistry.sol";
 import {MandateAccount, IMandateRules} from "../../src/MandateAccount.sol";
 import {MandateAccountFactory} from "../../src/MandateAccountFactory.sol";
 import {Rule, RuleKind} from "../../src/rules/RuleTypes.sol";
+import {OracleGuard, IAggregatorV3} from "../../src/OracleGuard.sol";
+import {BondVault} from "../../src/BondVault.sol";
+import {MockAggregator} from "../mocks/MockAggregator.sol";
 
 abstract contract MandateTestBase is Test {
     // Market ids and decimals mirror Perpl mainnet (docs/spikes.md S1).
@@ -31,7 +34,14 @@ abstract contract MandateTestBase is Test {
     MandateRegistry registry;
     MandateAccountFactory factory;
     MandateAccount account;
+    OracleGuard guard;
+    BondVault vault;
+    MockAggregator btcFeed;
+    MockAggregator ethFeed;
     uint256 mandateId;
+
+    address arbiter = makeAddr("arbiter");
+    address keeper = makeAddr("keeper");
 
     function setUp() public virtual {
         vm.roll(1_000);
@@ -45,6 +55,18 @@ abstract contract MandateTestBase is Test {
         factory = new MandateAccountFactory(IMandateRules(address(registry)), IVenue(address(adapter)));
         vm.prank(admin);
         registry.setFactory(address(factory));
+
+        // Market rules (M2): the oracle guard compares Perpl marks with Chainlink feeds, and BondVault holds bonds.
+        guard = new OracleGuard(IVenue(address(adapter)), admin);
+        btcFeed = new MockAggregator(8, "BTC / USD", int256(BTC_MARK * 1e8 / 10)); // price decimals 1 -> USD
+        ethFeed = new MockAggregator(8, "ETH / USD", int256(ETH_MARK * 1e8 / 100));
+        vm.startPrank(admin);
+        guard.setFeed(BTC, IAggregatorV3(address(btcFeed)), 60, 50);
+        guard.setFeed(ETH, IAggregatorV3(address(ethFeed)), 60, 50);
+        vm.stopPrank();
+        vault = new BondVault(ausd, registry, IVenue(address(adapter)), guard, arbiter, 300);
+        vm.prank(admin);
+        registry.setBondVault(address(vault));
 
         vm.prank(backer);
         account = factory.createAccount(operatorAddr, bytes32("demo"));
@@ -124,6 +146,22 @@ abstract contract MandateTestBase is Test {
     /// ETH lots (1e-3 ETH) worth `usd` dollars at the default mark ($2,730).
     function ethLots(uint256 usd) internal pure returns (uint256) {
         return usd * 1e5 / ETH_MARK;
+    }
+
+    /// Moves a market mark and its feed together, so the oracle guard still trusts the mark.
+    function setMarkAndFeed(uint256 perpId, uint256 mark) internal {
+        perpl.setMark(perpId, mark);
+        MockAggregator feed = perpId == BTC ? btcFeed : ethFeed;
+        uint256 scale = perpId == BTC ? 10 : 100; // 10 ** priceDecimals
+        feed.set(int256(mark * 1e8 / scale), block.timestamp);
+    }
+
+    function postBond(uint256 amountUsd) internal {
+        ausd.mint(operatorAddr, amountUsd * 1e6);
+        vm.startPrank(operatorAddr);
+        ausd.approve(address(vault), type(uint256).max);
+        vault.postBond(address(account), amountUsd * 1e6);
+        vm.stopPrank();
     }
 
     function exec(MandateAccount.Call[] memory calls) internal {

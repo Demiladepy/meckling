@@ -219,4 +219,60 @@ contract PerplAdapter is IVenue {
     function encodeWithdraw(uint256 amount) external view override returns (address target, bytes memory data) {
         return (address(perpl), abi.encodeCall(IPerplExchange.withdrawCollateral, (amount)));
     }
+
+    /// @inheritdoc IVenue
+    function priceScale(uint256 marketId) external view override returns (uint256) {
+        (uint256 pd,) = _decimals(marketId);
+        return 10 ** pd;
+    }
+
+    /// @inheritdoc IVenue
+    /// @dev One IOC reduce-only order per open position, priced `slippageBps` through the mark so it crosses the book.
+    ///      Longs close with CloseLong (a sell, priced below mark); shorts with CloseShort (a buy, priced above).
+    function encodeCloseAll(address account, uint256 slippageBps)
+        external
+        view
+        override
+        returns (address[] memory targets, bytes[] memory datas)
+    {
+        (bool exists, IPerplExchange.AccountInfo memory info) = _account(account);
+        if (!exists) return (targets, datas);
+        uint256[] memory ids = _openPerps(info.positions);
+
+        IPerplExchange.OrderDesc[] memory descs = new IPerplExchange.OrderDesc[](ids.length);
+        uint256 n;
+        for (uint256 i; i < ids.length; ++i) {
+            (IPerplExchange.PositionInfo memory p, uint256 mark,) = perpl.getPosition(ids[i], info.accountId);
+            if (p.lotLNS == 0) continue;
+            bool isLong = p.positionType == 0;
+            descs[n++] = IPerplExchange.OrderDesc({
+                orderDescId: block.number,
+                perpId: ids[i],
+                orderType: isLong ? CLOSE_LONG : CLOSE_SHORT,
+                orderId: 0,
+                pricePNS: isLong ? mark * (10_000 - slippageBps) / 10_000 : mark * (10_000 + slippageBps) / 10_000,
+                lotLNS: p.lotLNS,
+                expiryBlock: 0,
+                postOnly: false,
+                fillOrKill: false,
+                immediateOrCancel: true,
+                maxMatches: 0,
+                leverageHdths: 0,
+                lastExecutionBlock: 0,
+                amountCNS: 0,
+                maxNegPnlCollatBPS: 10_000
+            });
+        }
+        if (n == 0) return (targets, datas);
+
+        IPerplExchange.OrderDesc[] memory batch = new IPerplExchange.OrderDesc[](n);
+        for (uint256 i; i < n; ++i) {
+            batch[i] = descs[i];
+        }
+        targets = new address[](1);
+        datas = new bytes[](1);
+        targets[0] = address(perpl);
+        // revertOnFail = false: one market that cannot be closed must not block the rest of the unwind.
+        datas[0] = abi.encodeCall(IPerplExchange.execOrders, (batch, false));
+    }
 }

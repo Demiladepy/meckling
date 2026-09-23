@@ -53,6 +53,7 @@ contract MandateAccount is ReentrancyGuard {
     );
     event SessionKeySet(address indexed key, uint64 expiresAtBlock);
     event SessionKeyRevoked(address indexed key);
+    event Unwound(address indexed account, uint256 blockNumber, uint256 notionalLeft);
     event Withdrawn(address indexed to, uint256 amount);
     event WithdrawnFromVenue(uint256 amount);
 
@@ -172,6 +173,24 @@ contract MandateAccount is ReentrancyGuard {
             }
         }
         emit Executed(address(this), block.number, ctx.post.equity, ctx.post.totalNotional);
+    }
+
+    /// @notice Closes every open position and puts the account in close-only mode permanently. Only the BondVault the
+    ///         registry names can call this, and only after it has verified a market-rule breach on-chain (PRD 7.6).
+    /// @param slippageBps how far through the mark the closing orders may reach.
+    function unwind(uint256 slippageBps) external nonReentrant {
+        if (msg.sender != registry.bondVault() || msg.sender == address(0)) revert Unauthorized();
+        breached = true;
+        (address[] memory targets, bytes[] memory datas) = venue.encodeCloseAll(address(this), slippageBps);
+        for (uint256 i; i < targets.length; ++i) {
+            (bool ok, bytes memory ret) = targets[i].call(datas[i]);
+            if (!ok) {
+                assembly ("memory-safe") {
+                    revert(add(ret, 32), mload(ret))
+                }
+            }
+        }
+        emit Unwound(address(this), block.number, venue.accountState(address(this)).totalNotional);
     }
 
     /// @notice Updates market-rule monitors (the equity peak) from live state. Anyone can call; keepers do.

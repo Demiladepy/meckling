@@ -11,6 +11,9 @@ import {MandateRegistry} from "../../src/MandateRegistry.sol";
 import {MandateAccount} from "../../src/MandateAccount.sol";
 import {Rule, RuleKind} from "../../src/rules/RuleTypes.sol";
 import {RuleEngine} from "../../src/rules/RuleEngine.sol";
+import {BondVault} from "../../src/BondVault.sol";
+import {OracleGuard} from "../../src/OracleGuard.sol";
+import {MockAggregator} from "../mocks/MockAggregator.sol";
 import {StateLib} from "../../src/rules/StateLib.sol";
 
 /// Drives a MandateAccount with random agent trades, price moves, block advances, rule tightening, deactivation,
@@ -22,6 +25,11 @@ contract MandateHandler is Test {
     PerplAdapter immutable adapter;
     MockPerplExchange immutable perpl;
     MockAUSD immutable ausd;
+    BondVault immutable vault;
+    OracleGuard immutable guard;
+    MockAggregator immutable btcFeed;
+    MockAggregator immutable ethFeed;
+    address immutable arbiter;
     address immutable backer;
     address immutable agent;
     address immutable stranger;
@@ -34,33 +42,56 @@ contract MandateHandler is Test {
     bool public inv1Broken; // an execute succeeded that grew exposure past an action rule
     bool public inv3Broken; // a session-key action moved funds somewhere other than the venue
     bool public inv7Broken; // exposure grew after deactivation
+    bool public inv5Broken; // a flag succeeded without a real, trustworthy breach
+    bool public inv6Broken; // a breach paid twice, or more than the bond
     bool public inv8Broken; // the drawdown peak fell without a withdrawal
     uint256 public ghostBackerBalance;
     uint256 public executes;
     uint256 public violations;
     uint256 public lastPeak;
+    uint256 public ghostPosted;
+    uint256 public ghostSlashed;
+    uint256 public flags;
+    address immutable keeper;
+    address immutable operator;
 
-    constructor(
-        MandateAccount account_,
-        MandateRegistry registry_,
-        PerplAdapter adapter_,
-        MockPerplExchange perpl_,
-        MockAUSD ausd_,
-        address backer_,
-        address agent_,
-        address stranger_,
-        uint256 mandateId_
-    ) {
-        account = account_;
-        registry = registry_;
-        adapter = adapter_;
-        perpl = perpl_;
-        ausd = ausd_;
-        backer = backer_;
-        agent = agent_;
-        stranger = stranger_;
-        mandateId = mandateId_;
-        lastPeak = account_.monitor(5).w0;
+    struct Deps {
+        MandateAccount account;
+        MandateRegistry registry;
+        PerplAdapter adapter;
+        MockPerplExchange perpl;
+        MockAUSD ausd;
+        BondVault vault;
+        OracleGuard guard;
+        MockAggregator btcFeed;
+        MockAggregator ethFeed;
+        address arbiter;
+        address backer;
+        address agent;
+        address stranger;
+        address keeper;
+        address operator;
+        uint256 mandateId;
+    }
+
+    constructor(Deps memory d) {
+        account = d.account;
+        registry = d.registry;
+        adapter = d.adapter;
+        perpl = d.perpl;
+        ausd = d.ausd;
+        vault = d.vault;
+        guard = d.guard;
+        btcFeed = d.btcFeed;
+        ethFeed = d.ethFeed;
+        arbiter = d.arbiter;
+        backer = d.backer;
+        agent = d.agent;
+        stranger = d.stranger;
+        keeper = d.keeper;
+        operator = d.operator;
+        mandateId = d.mandateId;
+        lastPeak = d.account.monitor(5).w0;
     }
 
     modifier checkPeak(bool isWithdrawal) {
@@ -177,10 +208,75 @@ contract MandateHandler is Test {
 
     // ------------------------------------------------------------ market and time
 
-    function moveMark(uint256 marketSeed, uint256 bpsSeed) external checkPeak(false) {
+    /// Moves a mark. Most of the time the Chainlink feed follows (a real move); sometimes it does not, which is what
+    /// a manipulated mark looks like to the oracle guard.
+    function moveMark(uint256 marketSeed, uint256 bpsSeed, bool feedFollows) external checkPeak(false) {
         uint256 i = marketSeed % 3;
         uint256 bps = bound(bpsSeed, 7_000, 13_000); // within +-30% of the base mark
-        perpl.setMark(perps[i], baseMarks[i] * bps / 10_000);
+        uint256 mark = baseMarks[i] * bps / 10_000;
+        perpl.setMark(perps[i], mark);
+        if (!feedFollows) return;
+        if (perps[i] == 1) btcFeed.set(int256(mark * 1e8 / 10), block.timestamp);
+        if (perps[i] == 20) ethFeed.set(int256(mark * 1e8 / 100), block.timestamp);
+    }
+
+    // ------------------------------------------------------------ bonds and breaches (M2)
+
+    function postBond(uint256 amountSeed) external checkPeak(false) {
+        uint256 amount = bound(amountSeed, 1e6, 100e6);
+        ausd.mint(operator, amount);
+        ghostPosted += amount;
+        vm.startPrank(operator);
+        ausd.approve(address(vault), type(uint256).max);
+        try vault.postBond(address(account), amount) {} catch {}
+        vm.stopPrank();
+    }
+
+    /// Invariant 5: a flag may only succeed when the rule really is broken and the marks are trustworthy.
+    function flagBreach(uint256 ruleSeed) external checkPeak(false) {
+        uint256 i = ruleSeed % 6;
+        (, Rule[] memory rules) = registry.getMandate(mandateId);
+        bool marketRule = i < rules.length && rules[i].kind == RuleKind.MaxDrawdown;
+        bool trusted = guard.accountMarksTrusted(address(account));
+        uint256 peak = account.monitor(i).w0;
+        int256 equity = adapter.accountState(address(account)).equity;
+        uint256 eq = equity > 0 ? uint256(equity) : 0;
+        bool broken = marketRule && peak > 0 && eq * 10_000 < peak * (10_000 - rules[i].p1);
+
+        vm.prank(keeper);
+        try vault.flagBreach(address(account), i) returns (uint256 id) {
+            ++flags;
+            if (!broken || !trusted) inv5Broken = true;
+            if (vault.getBreach(id).account != address(account)) inv5Broken = true;
+        } catch {}
+    }
+
+    function disputeOrResolve(uint256 seed) external checkPeak(false) {
+        uint256 id = vault.breachCount() == 0 ? 0 : seed % vault.breachCount();
+        if (vault.breachCount() == 0) return;
+        if (seed % 2 == 0) {
+            vm.prank(operator);
+            try vault.dispute(id, "disputed") {} catch {}
+        } else {
+            vm.prank(arbiter);
+            try vault.resolveDispute(id, seed % 4 == 1) {} catch {}
+        }
+    }
+
+    /// Invariant 6: a breach never pays more than the bond, and never pays twice.
+    function slash(uint256 seed) external checkPeak(false) {
+        if (vault.breachCount() == 0) return;
+        uint256 id = seed % vault.breachCount();
+        bool alreadySlashed = vault.getBreach(id).slashed;
+        uint256 bondBefore = vault.bondOf(address(account));
+        uint256 backerBefore = ausd.balanceOf(backer);
+        try vault.slash(id) {
+            if (alreadySlashed) inv6Broken = true; // paid twice
+            uint256 paid = ausd.balanceOf(backer) - backerBefore;
+            if (paid > bondBefore) inv6Broken = true; // paid more than the bond
+            ghostSlashed += paid;
+            ghostBackerBalance += paid;
+        } catch {}
     }
 
     function advance(uint256 blocks) external checkPeak(false) {
@@ -238,7 +334,26 @@ contract MandateInvariantTest is MandateTestBase {
         for (uint256 i; i < r.length; ++i) {
             initialRules.push(r[i]);
         }
-        handler = new MandateHandler(account, registry, adapter, perpl, ausd, backer, agent, stranger, mandateId);
+        handler = new MandateHandler(
+            MandateHandler.Deps({
+                account: account,
+                registry: registry,
+                adapter: adapter,
+                perpl: perpl,
+                ausd: ausd,
+                vault: vault,
+                guard: guard,
+                btcFeed: btcFeed,
+                ethFeed: ethFeed,
+                arbiter: arbiter,
+                backer: backer,
+                agent: agent,
+                stranger: stranger,
+                keeper: keeper,
+                operator: operatorAddr,
+                mandateId: mandateId
+            })
+        );
         targetContract(address(handler));
     }
 
@@ -250,7 +365,6 @@ contract MandateInvariantTest is MandateTestBase {
     /// 2. Tokens only ever sit with the account, the venue, or the owner/backer. Nobody else receives any.
     function invariant_2_tokensOnlyToAllowedAddresses() public view {
         assertEq(ausd.balanceOf(agent), 0);
-        assertEq(ausd.balanceOf(operatorAddr), 0);
         assertEq(ausd.balanceOf(stranger), 0);
         assertEq(ausd.balanceOf(address(handler)), 0);
         assertEq(
@@ -276,6 +390,18 @@ contract MandateInvariantTest is MandateTestBase {
         }
     }
 
+    /// 5. flagBreach only succeeds when the recomputed rule is violated and the oracle guard passes.
+    function invariant_5_flagsOnlyOnRealBreaches() public view {
+        assertFalse(handler.inv5Broken());
+    }
+
+    /// 6. A breach never pays out more than the posted bond, and never pays twice.
+    function invariant_6_slashingIsBoundedAndSingle() public view {
+        assertFalse(handler.inv6Broken());
+        assertLe(handler.ghostSlashed(), handler.ghostPosted());
+        assertLe(ausd.balanceOf(address(vault)), handler.ghostPosted());
+    }
+
     /// 7. After deactivation (M1's close-only trigger; BondVault breaches add another in M2) exposure never grows.
     function invariant_7_closeOnlyNeverGrowsExposure() public view {
         assertFalse(handler.inv7Broken());
@@ -293,5 +419,12 @@ contract MandateInvariantTest is MandateTestBase {
         handler.agentTrade(1, 0, 1_000); // MON is not an allowed market
         assertEq(handler.executes(), 1);
         assertEq(handler.violations(), 2);
+
+        // ...and that a real breach can be flagged, so invariant 5 is not vacuous.
+        handler.postBond(50e6);
+        handler.moveMark(0, 7_000, true); // BTC -30%, feed follows
+        handler.flagBreach(5);
+        assertGt(handler.flags(), 0, "the fuzzer can reach a real breach");
+        assertTrue(account.breached());
     }
 }

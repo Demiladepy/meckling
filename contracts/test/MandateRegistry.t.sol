@@ -90,13 +90,15 @@ contract MandateRegistryTest is MandateTestBase {
         registry.setPaused(false);
     }
 
+    /// The base already set both (factory in setUp, bond vault with the M2 contracts), so both must now refuse.
     function test_factoryAndVaultSetOnce() public {
+        assertEq(address(registry.factory()), address(factory));
+        assertEq(registry.bondVault(), address(vault));
         vm.startPrank(admin);
         vm.expectRevert(MandateRegistry.AlreadySet.selector);
         registry.setFactory(stranger);
-        registry.setBondVault(stranger);
         vm.expectRevert(MandateRegistry.AlreadySet.selector);
-        registry.setBondVault(admin);
+        registry.setBondVault(stranger);
         vm.stopPrank();
     }
 
