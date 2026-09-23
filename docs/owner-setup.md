@@ -49,7 +49,7 @@ Envio ships no Windows binary, which is why this runs through WSL.
 
 The workflow is written and type-checks against the real SDK. Running it needs a CRE account.
 
-1. ~~Install the CLI~~ **Done.** `cre.exe` v1.35.0 is at `C:UsersUserincre.exe` (already on your PATH), downloaded from the official `smartcontractkit/cre-cli` release and verified against Chainlink's published SHA-256.
+1. ~~Install the CLI~~ **Done.** `cre.exe` v1.35.0 is at `C:\Users\User\bin\cre.exe` (already on your PATH), downloaded from the official `smartcontractkit/cre-cli` release and verified against Chainlink's published SHA-256.
 2. **You need to authenticate**, because every CRE command except `cre templates list` requires it (`init`, `simulate`, `supported-chains`). Either:
    - run `cre login` in a terminal and finish the browser flow — credentials are then stored on this machine and I can run the rest; or
    - paste a `CRE_API_KEY` from the CRE dashboard into `.env` for non-interactive use, which I prefer since it survives session restarts.
@@ -73,5 +73,5 @@ If CRE access doesn't come through, nothing breaks: the bounty accepts "build, s
 
 ## What I'm handling, so don't worry about these
 
-- **The live testnet breach.** Running now: a mandate with a 0.5% drawdown limit and a $50 bond, a live BTC short on Perpl testnet, and the keeper watching. When BTC moves enough, the breach flags on-chain, the position unwinds, and the bond pays you after a 60-second dispute window.
+- **The live testnet breach.** Done on Sep 23. Account `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0`: the keeper flagged the breach in 6 blocks, the position unwound into close-only mode, and after the dispute window the bond paid the backer $0.109218 — the exact loss from the equity peak. Flag `0x76f0f447…`, slash `0xacfd9371…`, and the split screen shows all of it.
 - **CI.** Green again. It now runs `envio codegen` before typechecking, which also validates the indexer config and schema on every push.
