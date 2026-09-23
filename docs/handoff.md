@@ -69,6 +69,6 @@ pnpm --filter agent fork:sync && pnpm --filter agent setup:local
 - **Envio ships no Windows binary.** Run codegen and dev from WSL or Docker; see indexer/README.md.
 - **OracleGuard caps tolerance at 20%.** A local fork freezes the Chainlink feed while marks move, so deploy locally with GUARD_TOL_BPS=2000 GUARD_MAX_AGE_SEC=315360000.
 - **Testnet has no MON or SOL feed**, so those markets can never be flagged there; BTC and ETH can.
-- **Public Monad RPC limits:** `eth_getLogs` is capped at a 100-block range and requests at 15/sec. History belongs in the indexer; the app reads breaches from contract state and caches its view. Use the QuickNode perk to lift both.
+- **RPC log limits:** `eth_getLogs` is capped at 100 blocks on the public RPC (and 15 req/sec) and at 1,000 blocks on the QuickNode endpoint now wired into `MONAD_TESTNET_RPC_URL`. Either way that is minutes of history at 0.31 s blocks, so track records come from the indexer and the app reads breaches from contract state. `LOG_RANGE_BLOCKS` sets the keeper chunk.
 - **`.env` does not source cleanly in bash** (CRLF). Read keys with node or `--env-file`, not `. .env`.
 - **Next dev can panic on a stale Turbopack cache** (`Every task must have a task type`). Fix: `rm -rf app/.next`.

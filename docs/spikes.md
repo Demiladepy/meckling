@@ -198,7 +198,9 @@ The public Monad RPCs are strict, and this shapes the architecture more than any
 - **`eth_getLogs` is capped at a 100-block range** (`error -32614: eth_getLogs is limited to a 100 range`). Scanning from a deployment block is impossible in one call, so anything historical must come from the Envio indexer (PRD 10.3) or from contract state.
 - **15 requests per second.** A polling UI blows through that: one account view costs about a dozen reads. The app batches JSON-RPC calls, caches the view for 2 s and polls every 2 s.
 - Consequences already applied: the app reads breaches from `BondVault` state rather than logs; the keeper's account discovery chunks logs at 100 blocks and is skipped entirely when `KEEPER_ACCOUNTS` is set.
-- A private RPC (the QuickNode perk) removes both limits; set `MONAD_RPC_URL` / `MONAD_TESTNET_RPC_URL`.
+- A private RPC raises the limits but does not remove them. **QuickNode, measured Sep 23** on `skilled-dimensional-snowflake.monad-testnet.quiknode.pro`: `eth_chainId` returns `0x279f` (10143); `eth_getLogs` accepts **1,000 blocks** inclusive and rejects 1,001 (`eth_getLogs is limited to a 1,000 range`); 40 parallel `eth_blockNumber` calls returned in **406 ms with 0 errors**, so the 15/sec throttle is gone.
+- **The architecture does not change.** At ~0.31 s per block, 1,000 blocks is five minutes of history, so track records and breach timelines still have to come from the Envio indexer. Discovering accounts from the deployment block (148k blocks) took **35.9 s and 148 requests** at range 1,000, which is fine for a keeper restart and useless for a page load.
+- `LOG_RANGE_BLOCKS` sets the keeper's chunk (1000 here); the default stays 100 so the code runs against any endpoint.
 
 ## Monad measurements
 

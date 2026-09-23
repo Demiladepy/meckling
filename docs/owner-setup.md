@@ -64,7 +64,7 @@ If CRE access doesn't come through, nothing breaks: the bounty accepts "build, s
 
 ## 3. The Metropolis perks
 
-- **QuickNode** — **key received** (`QUICKNODE_KEY` in `.env`). That value is the account/promo key, not an endpoint. I still need the **RPC URL itself** from your QuickNode dashboard — it looks like `https://<subdomain>.monad-testnet.quiknode.pro/<token>/`. Paste it into `.env` as `MONAD_TESTNET_RPC_URL` (and the mainnet one as `MONAD_RPC_URL`) and everything picks it up. This is the perk that actually changes behaviour: the public RPC caps `eth_getLogs` at a **100-block range** and throttles at **15 requests/sec**, which broke the app account view until I added batching, caching and contract-state reads.
+- **QuickNode** — **done.** The Monad testnet endpoint is in `.env` as `MONAD_TESTNET_RPC_URL` and verified: chain 10143, `eth_getLogs` up to 1,000 blocks (10x the public cap) and no rate throttle. Account discovery from the deployment block now takes 36 s. Mainnet still uses the public RPC; add a mainnet endpoint as `MONAD_RPC_URL` if you want the same there.
 - **Tenderly** — requested through the Metropolis form. No confirmation email is sent; log in after a couple of days and the org will be there, named after the part of your email before the @. If you had no Tenderly account, one was created — set a password via "Forgot password". Access runs to **Nov 3**, past both deadlines. Used for tracing failed transactions in the M4 write-up (PRD 12); nothing is blocked on it.
 - **Zerion** — builder key stored in `.env`. Not a targeted bounty and nothing in the product needs it, so it is logged in [ideas.md](ideas.md) rather than wired in.
 - **Nansen** — working with your key. Each underwriting costs about 30 credits.
