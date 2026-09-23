@@ -60,7 +60,7 @@ importers:
   indexer:
     dependencies:
       envio:
-        specifier: ^3.0.0
+        specifier: 3.12.1
         version: 3.12.1(@types/react@19.3.0)(react-dom@19.3.0(react@19.2.5))(typescript@5.9.3)(zod@4.6.5)
     devDependencies:
       '@types/node':

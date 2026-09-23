@@ -74,6 +74,10 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 | False flags | 0 of 63 keeper rounds | same log |
 | Tests | 90 Foundry, 13 TypeScript | `forge test`, `pnpm test` |
 
+## Owner setup
+
+Three things need your accounts: Envio hosted (or Docker) to run the indexer, a Chainlink CRE account for the keeper workflow, and the QuickNode RPC perk. Steps: [owner-setup.md](owner-setup.md).
+
 ## Open questions for the owner (PRD 17)
 
 1. ~~Spike S1 result~~ — passed, no fallback needed.

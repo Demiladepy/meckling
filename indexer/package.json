@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "envio": "^3.0.0"
+    "envio": "3.12.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
