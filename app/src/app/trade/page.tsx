@@ -30,6 +30,7 @@ import {
   revertData,
   usdToCns,
   usdToLots,
+  venueErrorMessage,
   violationMessage,
   OrderType,
   type MarketInfo,
@@ -257,12 +258,14 @@ export default function SelfMandatePage() {
       setPhase(after.totalNotional === before ? { kind: "no-fill" } : { kind: "filled", hash });
       await refresh();
     } catch (e) {
-      const v = decodeViolation(revertData(e));
+      const data = revertData(e);
+      const v = decodeViolation(data);
       const rule = v && view ? view.rules[v.ruleIndex] : undefined;
       if (v && rule && cfg) {
         setPhase({ kind: "blocked", message: violationMessage(v, rule, netOf(cfg)), rule: RULE_NAMES[rule.kind] });
       } else {
-        setError(errorText(e));
+        // A rule is not the only thing that can stop a trade: Perpl rejects orders its own balance cannot settle.
+        setError(venueErrorMessage(data) ?? errorText(e));
         setPhase({ kind: "idle" });
       }
     }

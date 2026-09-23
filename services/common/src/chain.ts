@@ -182,6 +182,26 @@ export function describeRevert(data: Hex | undefined): string | undefined {
   return `unknown error ${data.slice(0, 10)}`;
 }
 
+/**
+ * A venue revert in plain words, for the screens a human uses (PRD 11.2). Developer text stays in describeRevert.
+ * Only errors we have actually seen on Perpl are translated; anything else returns undefined so the caller can fall
+ * back rather than invent a reason.
+ */
+export function venueErrorMessage(data: Hex | undefined): string | undefined {
+  if (!data || data === "0x") return undefined;
+  try {
+    const e = decodeErrorResult({ abi: perplErrorsAbi, data });
+    switch (e.errorName) {
+      case "TakerOrderSettlementFailed":
+        return "Perpl couldn't settle that order. It is usually too big for your balance, or nothing crossed at that price.";
+      default:
+        return undefined;
+    }
+  } catch {
+    return undefined;
+  }
+}
+
 export function shortError(err: unknown): string {
   const named = describeRevert(revertData(err));
   if (named) return `reverted: ${named}`;

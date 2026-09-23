@@ -35,6 +35,21 @@ Proven live on testnet: a 12x trade reverted with `MandateViolation` (observed 1
 
 The backer address also holds ~9,600 test AUSD and ~4 MON, and has its own Perpl account (#680, 200 AUSD) created through Perpl's UI. That account is not used by Mandate.
 
+## Live self-mandate account (testnet)
+
+| Thing | Value |
+|---|---|
+| MandateAccount | `0xB81b1d54a76170dD0c5c4306f5f0437329afA53F` |
+| Owner = operator (deployer key) | `0xd55D2fAF138a0f5cDD77D973FE5e11E8e6d0faFA` |
+| Salt | `keccak256("mandate.self.v1")`, so the address follows from the passkey alone |
+| Rules | BTC only · 3x · $250 per market · 10 orders/600 blocks |
+| Funded | 100 AUSD, deposited into a fresh Perpl account |
+
+Run on Sep 23 with the same contract calls `/trade` makes: a $50 long filled (`0x11e41a8e…`), a $220 long was blocked
+("Blocked: this trade would make your BTC position $268.92. Your limit is $250."), and a $4,000 long never reached the
+rules — Perpl rejected it first with `TakerOrderSettlementFailed`, which is why the screen now translates venue
+errors too.
+
 ## Keys and environment
 
 `.env` (gitignored, never commit) holds: `NANSEN_API_KEY`, `ANTHROPIC_API_KEY`, `DEPLOYER_PRIVATE_KEY`, `AGENT_SESSION_PRIVATE_KEY`, `AGENT_SESSION_ADDRESS`, `AGENT_OPERATOR_ADDRESS`. `.env.example` lists every variable. The deployer key was generated locally with `cast wallet new`; back it up in a password manager.
