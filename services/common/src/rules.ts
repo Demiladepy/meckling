@@ -123,3 +123,22 @@ export function violationMessage(v: Violation, rule: Rule, net?: NetworkConfig):
 
 /** Shape viem expects for the Solidity Rule tuple. */
 export const toAbiRule = (r: Rule) => ({ kind: r.kind, p1: r.p1, p2: r.p2, p3: r.p3 });
+
+// ------------------------------------------------------------------ market-rule math
+//
+// Shared by both keepers (relayer and CRE workflow) and by the app, so every surface computes a drawdown the same
+// way the contracts do (MaxDrawdownRule.sol: observed = (peak - equity) / peak, breached when equity * 10000 <
+// peak * (10000 - limit)).
+
+/** Drawdown from the equity peak, in bps. 0 when at or above the peak. */
+export function drawdownBps(peak: bigint, equity: bigint): number {
+  const eq = equity > 0n ? equity : 0n;
+  if (peak === 0n || eq >= peak) return 0;
+  return Number(((peak - eq) * 10_000n) / peak);
+}
+
+/** True when the drawdown rule is broken, using the contract's exact comparison. */
+export function isDrawdownBreached(peak: bigint, equity: bigint, limitBps: bigint): boolean {
+  const eq = equity > 0n ? equity : 0n;
+  return peak > 0n && eq * 10_000n < peak * (10_000n - limitBps);
+}

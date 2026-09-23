@@ -12,6 +12,8 @@ import {
   lossCooldown,
   describeLimit,
   maxNotional,
+  drawdownBps,
+  isDrawdownBreached,
 } from "./rules.ts";
 
 const net = getNetwork("mainnet");
@@ -62,4 +64,20 @@ test("rule descriptions", () => {
   assert.equal(describeLimit(maxNotional(1, usdToCns(2000)), net), "$2,000 on BTC");
   const v = { ruleIndex: 4, observed: 10n, limit: 150n };
   assert.equal(violationMessage(v, lossCooldown(usdToCns(10), 150), net), "Blocked: you're in a loss cooldown. 140 blocks left of 150.");
+});
+
+test("drawdown math matches MaxDrawdownRule.sol", () => {
+  // Peak $100.09, equity $96.53 (the local-fork breach): 3.56% drawdown, breached against a 2% limit, not a 5% one.
+  const peak = 100_092_622n;
+  const equity = 96_526_776n;
+  assert.equal(drawdownBps(peak, equity), 356);
+  assert.equal(isDrawdownBreached(peak, equity, 200n), true);
+  assert.equal(isDrawdownBreached(peak, equity, 500n), false);
+  // At or above the peak there is no drawdown, and a zero peak (never poked) can never breach.
+  assert.equal(drawdownBps(peak, peak), 0);
+  assert.equal(drawdownBps(0n, 0n), 0);
+  assert.equal(isDrawdownBreached(0n, 0n, 200n), false);
+  // Equity wiped out is a 100% drawdown.
+  assert.equal(drawdownBps(peak, -5n), 10_000);
+  assert.equal(isDrawdownBreached(peak, -5n, 9_999n), true);
 });

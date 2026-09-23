@@ -7,6 +7,8 @@
 import {
   RuleKind,
   bondVaultAbi,
+  drawdownBps,
+  isDrawdownBreached,
   mandateAccountAbi,
   mandateRegistryAbi,
   oracleGuardAbi,
@@ -88,8 +90,14 @@ export async function checkAccount(pub: PublicClient, dep: Deployment, account: 
     const equity = state.equity;
     const eq = equity > 0n ? equity : 0n;
     if (eq > peak) peakStale = true;
-    const drawdownBps = peak > 0n && eq < peak ? Number(((peak - eq) * 10_000n) / peak) : 0;
-    statuses.push({ ruleIndex: i, peak, equity, drawdownBps, limitBps: Number(r.p1), breached: peak > 0n && eq * 10_000n < peak * (10_000n - r.p1) });
+    statuses.push({
+      ruleIndex: i,
+      peak,
+      equity,
+      drawdownBps: drawdownBps(peak, equity),
+      limitBps: Number(r.p1),
+      breached: isDrawdownBreached(peak, equity, r.p1),
+    });
   });
   return { account, block, active, closeOnly, marksTrusted, statuses, peakStale };
 }

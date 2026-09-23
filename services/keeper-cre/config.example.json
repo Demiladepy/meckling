@@ -1,0 +1,11 @@
+{
+  "chainSelectorName": "monad-testnet",
+  "schedule": "*/30 * * * * *",
+  "mandateRegistry": "0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133",
+  "perplAdapter": "0xE8F999dECEB04FC84a9da540b577cB4C66ec69bE",
+  "oracleGuard": "0xC395AFc52F37133091ec70907d859Fb0aeeDfAA2",
+  "bondVault": "0xe6FB91056f899656d3700DbDb7BcE5680984686f",
+  "receiver": "0x0000000000000000000000000000000000000000",
+  "accounts": ["0x3d0ec7098437A9755F2C0Bc6C43D250464225F3A"],
+  "gasLimit": "1500000"
+}
