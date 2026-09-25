@@ -106,12 +106,12 @@ export default function CreateMandate() {
         ).hash,
       );
       const mandateId = (await pub.readContract({ address: dep.mandateRegistry, abi: mandateRegistryAbi, functionName: "mandateIdOf", args: [predicted] })) as bigint;
-      const [mandate] = (await pub.readContract({
+      const [mandate] = await pub.readContract({
         address: dep.mandateRegistry,
         abi: mandateRegistryAbi,
         functionName: "getMandate",
         args: [mandateId],
-      })) as [{ reportHash: Hex }];
+      });
 
       setPhase({ kind: "working", step: "Giving the agent its trading key" });
       const head = await pub.getBlockNumber();
