@@ -68,12 +68,14 @@ function isLooser(r: Rule, proposed: Rule): boolean {
 export function LimitsTable(props: {
   proposal: Rule[];
   labels: string[];
+  /** One Nansen signal line per row — evidence → limit for judges. */
+  because?: string[];
   markets: MarketInfo[];
   draft?: Draft;
   onChange: (d: Draft) => void;
   disabled: boolean;
 }) {
-  const { proposal, labels, onChange, disabled } = props;
+  const { proposal, labels, because, onChange, disabled } = props;
   const [values, setValues] = useState(() => proposal.map(toValue));
   const [accepted, setAccepted] = useState(false);
   useEffect(() => setValues(proposal.map(toValue)), [proposal]);
@@ -106,9 +108,15 @@ export function LimitsTable(props: {
         <tbody>
           {proposal.map((r, i) => {
             const unit = UNIT[r.kind];
+            const why = because?.[i];
             return (
               <tr key={i}>
-                <th scope="row">{labels[i]}</th>
+                <th scope="row">
+                  <div className={s.limitLabel}>
+                    <span>{labels[i]}</span>
+                    {why && <span className={s.because}>{why}</span>}
+                  </div>
+                </th>
                 <td className="body-secondary">{describeLimit(r, net)}</td>
                 <td>
                   {unit ? (

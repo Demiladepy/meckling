@@ -58,7 +58,6 @@ element gap 16px. Mobile: 16px side gutters, 44px minimum tap target, `env(safe-
 
 ## What still needs doing
 
-- Landing page: one scroll that explains Mandate, with the live split screen embedded (PRD 11.1).
 - Agents list with track record from the indexer.
 - Breach detail screen.
 - A pass over `mandates/new` and the split screen to move any leftover hardcoded colours onto tokens.

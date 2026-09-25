@@ -2,8 +2,10 @@
 
 import { use, useMemo } from "react";
 import { AppHeader } from "@/components/AppHeader";
+import { ReportHashVerify } from "@/components/ReportHashVerify";
 import { formatBlock, shortAddr, useConfig, usePoll, usd } from "@/lib/client";
 import { headroom, observedVsLimit, type AccountView, type BreachView, type HistoryView, type LogRecordView, type RuleView } from "@/lib/view";
+import type { Hex } from "viem";
 import s from "./page.module.css";
 
 const SIDE: Record<string, string> = { long: "long", short: "short", close: "close" };
@@ -71,6 +73,14 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
             </dl>
           )}
         </header>
+
+        {view?.mandate?.reportHash && view.mandate.reportHash !== `0x${"0".repeat(64)}` && (
+          <ReportHashVerify
+            compact
+            expectedHash={view.mandate.reportHash as Hex}
+            onChainHash={view.mandate.reportHash as Hex}
+          />
+        )}
 
         <section className={s.split} aria-label="Agent reasoning and chain verdicts">
           <div className={s.labels} aria-hidden>

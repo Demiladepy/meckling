@@ -1,6 +1,6 @@
 # Nansen Meridian Buildathon — what has to be true by Sep 27
 
-Today is **Sep 24**. Three days. This file is the whole checklist; work top to bottom and stop at "nice to have"
+Today is **Sep 25**. Two days. This file is the whole checklist; work top to bottom and stop at "nice to have"
 if time runs out.
 
 ## What the judges are actually rewarding
@@ -33,26 +33,27 @@ Everything below exists to make that sentence undeniable in 3 minutes.
       4. The agent tries a trade that breaks a limit; the chain reverts it (40s)
       5. The market breaks a rule; the keeper flags it, the position unwinds, the bond pays the backer (50s)
       6. One closing line: *rules a human wrote from Nansen evidence, enforced by the chain, paid out in AUSD* (10s)
-- [ ] **README rewritten for a judge**, not a developer: the one-sentence argument, the live URL, the video, the
+- [x] **README rewritten for a judge**, not a developer: the one-sentence argument, the live URL, the video, the
       addresses, then how it works. Disclose honestly what is scripted, what is sample data and which keeper ran.
+      _(Paste live URL + video link into README before submit.)_
 
 ## Strong — this is what separates first from third
 
-- [ ] **Show the evidence, not the conclusion.** On the underwriting screen, every proposed limit must name the
+- [x] **Show the evidence, not the conclusion.** On the underwriting screen, every proposed limit must name the
       Nansen signal that produced it: *"$160 on BTC — smart-money netflow turned negative over 7 days."* A judge
       who sees the chain of evidence → limit → on-chain enforcement cannot mistake this for a dashboard.
-- [ ] **Make the hash checkable.** A "verify" affordance that shows the stored report, recomputes its hash in the
+- [x] **Make the hash checkable.** A "verify" affordance that shows the stored report, recomputes its hash in the
       browser and compares it to the on-chain value. Trust nothing, check everything.
-- [ ] **Name the numbers.** Blocked in N blocks, flagged in 6 blocks, bond paid $0.109218 — the exact loss from
-      peak. Specific numbers read as real work; round numbers read as marketing.
+- [x] **Name the numbers.** Blocked in N blocks, flagged in 6 blocks, bond paid $0.109218 — the exact loss from
+      peak. Specific numbers read as real work; round numbers read as marketing. _(In README + landing caption.)_
 - [ ] **One screenshot in the README that tells the whole story** — the split screen with a revert on the right.
-- [ ] **Say what Nansen is not doing.** Admitting the agent's reasoning model is Claude and Nansen sets the limits
+- [x] **Say what Nansen is not doing.** Admitting the agent's reasoning model is Claude and Nansen sets the limits
       is more convincing than implying Nansen does everything.
 
 ## Nice to have
 
 - [ ] Agents list with track records from the indexer (also serves the Envio bounty).
-- [ ] The landing page in one scroll with the live split screen embedded.
+- [x] The landing page in one scroll with the live split screen embedded.
 - [ ] Breach detail screen with the dispute countdown.
 
 ## Already done — say these plainly, they are the credibility

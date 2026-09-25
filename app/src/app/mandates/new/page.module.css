@@ -228,6 +228,20 @@
   font-weight: 500;
 }
 
+.limitLabel {
+  display: grid;
+  gap: 4px;
+}
+
+.because {
+  display: block;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--graphite);
+  max-width: 36ch;
+}
+
 .table tr:last-child th,
 .table tr:last-child td {
   border-bottom: 0;

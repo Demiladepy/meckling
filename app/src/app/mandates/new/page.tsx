@@ -19,7 +19,9 @@ import { useMera } from "@/lib/mera";
 import { errorText, sendTight } from "@/lib/tx";
 import { parseUnderwrite, type UnderwriteResponse } from "@/lib/types";
 import { AppHeader } from "@/components/AppHeader";
+import { ReportHashVerify } from "@/components/ReportHashVerify";
 import { EvidenceCard } from "./EvidenceCard";
+import { reasonsForLimits } from "./limitReasons";
 import { LimitsTable, type Draft } from "./LimitsTable";
 import s from "./page.module.css";
 
@@ -30,8 +32,8 @@ const SESSION_KEY_BLOCKS = 8_640_000n;
 type Phase =
   | { kind: "idle" }
   | { kind: "working"; step: string }
-  | { kind: "approved"; account: Address; mandateId: bigint; txs: Hex[] }
-  | { kind: "funded"; account: Address };
+  | { kind: "approved"; account: Address; mandateId: bigint; txs: Hex[]; onChainReportHash: Hex }
+  | { kind: "funded"; account: Address; onChainReportHash: Hex };
 
 export default function CreateMandate() {
   const cfg = useConfig();
@@ -104,19 +106,25 @@ export default function CreateMandate() {
         ).hash,
       );
       const mandateId = (await pub.readContract({ address: dep.mandateRegistry, abi: mandateRegistryAbi, functionName: "mandateIdOf", args: [predicted] })) as bigint;
+      const [mandate] = (await pub.readContract({
+        address: dep.mandateRegistry,
+        abi: mandateRegistryAbi,
+        functionName: "getMandate",
+        args: [mandateId],
+      })) as [{ reportHash: Hex }];
 
       setPhase({ kind: "working", step: "Giving the agent its trading key" });
       const head = await pub.getBlockNumber();
       txs.push((await sendTight(pub, wallet, { address: predicted, abi: mandateAccountAbi, functionName: "setSessionKey", args: [cfg.agent.sessionKey, head + SESSION_KEY_BLOCKS] })).hash);
 
-      setPhase({ kind: "approved", account: predicted, mandateId, txs });
+      setPhase({ kind: "approved", account: predicted, mandateId, txs, onChainReportHash: mandate.reportHash });
     } catch (e) {
       setError(errorText(e));
       setPhase({ kind: "idle" });
     }
   }
 
-  async function fundAccount(accountAddr: Address) {
+  async function fundAccount(accountAddr: Address, onChainReportHash: Hex) {
     if (!cfg?.deployment) return;
     setError(undefined);
     const dep = cfg.deployment;
@@ -138,10 +146,10 @@ export default function CreateMandate() {
         functionName: "execute",
         args: [[approveCall(dep.collateralToken, dep.perplExchange, 2n ** 255n), createAccountCall(dep.perplExchange, amount)]],
       });
-      setPhase({ kind: "funded", account: accountAddr });
+      setPhase({ kind: "funded", account: accountAddr, onChainReportHash });
     } catch (e) {
       setError(errorText(e));
-      setPhase({ kind: "approved", account: accountAddr, mandateId: 0n, txs: [] });
+      setPhase({ kind: "approved", account: accountAddr, mandateId: 0n, txs: [], onChainReportHash });
     }
   }
 
@@ -224,18 +232,18 @@ export default function CreateMandate() {
               <LimitsTable
                 proposal={uw.rules}
                 labels={uw.report.proposal.map((p) => p.label)}
+                because={reasonsForLimits(uw.report, uw.rules)}
                 markets={cfg?.markets ?? []}
                 draft={draft}
                 onChange={setDraft}
                 disabled={phase.kind !== "idle"}
               />
-              <p className={s.hash}>
-                Report hash <span className="onchain">{uw.reportHash}</span>
-                {" · "}
-                <a href={`/api/reports/${uw.reportHash}`} target="_blank" rel="noreferrer">
-                  View report
-                </a>
-              </p>
+              <ReportHashVerify
+                expectedHash={uw.reportHash}
+                onChainHash={
+                  phase.kind === "approved" || phase.kind === "funded" ? phase.onChainReportHash : null
+                }
+              />
             </section>
 
             <section className={s.actions} aria-live="polite">
@@ -264,7 +272,7 @@ export default function CreateMandate() {
                       <input inputMode="decimal" value={fund} onChange={(e) => setFund(e.target.value.replace(/[^\d.]/g, ""))} />
                     </span>
                   </label>
-                  <button type="button" className="button-primary" onClick={() => fundAccount(phase.account)} disabled={!Number(fund)}>
+                  <button type="button" className="button-primary" onClick={() => fundAccount(phase.account, phase.onChainReportHash)} disabled={!Number(fund)}>
                     Fund account
                   </button>
                 </div>
