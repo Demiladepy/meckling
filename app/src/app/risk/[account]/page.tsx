@@ -133,7 +133,9 @@ export default function RiskScreen({ params }: { params: Promise<{ account: stri
               return (
                 <li key={b.id}>
                   <p className={s.breachHead}>
-                    {rule?.name ?? "Market rule"} · block <span className="onchain">{formatBlock(b.flaggedAtBlock)}</span>
+                    <a href={`/breaches/${account}/${b.id}`}>
+                      {rule?.name ?? "Market rule"} · block <span className="onchain">{formatBlock(b.flaggedAtBlock)}</span>
+                    </a>
                   </p>
                   <p className={s.fine}>{observedVsLimit(rule?.kind, b.observed, b.limit)}</p>
                   <p className={s.fine}>

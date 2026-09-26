@@ -12,6 +12,7 @@ export interface AppConfig {
   deployment: Deployment | null;
   agent: { operator: Address; sessionKey: Address };
   devFaucet: boolean;
+  nansenLive: boolean;
 }
 
 export function useConfig(): AppConfig | undefined {

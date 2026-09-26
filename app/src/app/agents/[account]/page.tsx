@@ -101,7 +101,7 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
             <Row key={`${r.ts}-${i}`} r={r} view={view} marketName={marketName} first={i === 0} last={i === records.length - 1 && !view?.breaches.length} />
           ))}
           {view?.breaches.map((b, i) => (
-            <BreachRow key={b.id} b={b} rule={view.rules[b.ruleIndex]} last={i === view.breaches.length - 1} />
+            <BreachRow key={b.id} account={account} b={b} rule={view.rules[b.ruleIndex]} last={i === view.breaches.length - 1} />
           ))}
         </section>
 
@@ -141,7 +141,7 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
  * A market rule the market broke, not the agent: the keeper flagged it, BondVault verified it, and the account
  * unwound. Nothing the agent did appears on the left, which is the point.
  */
-function BreachRow({ b, rule, last }: { b: BreachView; rule?: RuleView; last: boolean }) {
+function BreachRow({ account, b, rule, last }: { account: string; b: BreachView; rule?: RuleView; last: boolean }) {
   const loss = Number(b.loss) / 1e6;
   return (
     <div className={s.row} data-last={last || undefined}>
@@ -171,6 +171,9 @@ function BreachRow({ b, rule, last }: { b: BreachView; rule?: RuleView; last: bo
           ) : (
             <p className={s.pending}>{b.disputed ? "Disputed, waiting on the arbiter." : "Dispute window open."}</p>
           )}
+          <p className={s.quiet}>
+            <a href={`/breaches/${account}/${b.id}`}>Open breach detail</a>
+          </p>
         </div>
       </div>
     </div>

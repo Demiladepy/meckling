@@ -156,6 +156,10 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
+.quiet a {
+  color: var(--action);
+}
+
 .pending {
   color: var(--pending);
 }

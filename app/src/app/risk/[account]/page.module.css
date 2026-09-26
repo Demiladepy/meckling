@@ -159,6 +159,15 @@
   font-weight: 600;
 }
 
+.breachHead a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.breachHead a:hover {
+  color: var(--action);
+}
+
 @media (max-width: 560px) {
   .bar {
     grid-template-columns: 90px 1fr;

@@ -29,5 +29,7 @@ export function GET(req: Request) {
     deployment: net.deployment ?? null,
     agent: AGENT,
     devFaucet: NETWORK === "local",
+    /** True when underwriting hits live Nansen (not a local fixture). */
+    nansenLive: Boolean(process.env.NANSEN_API_KEY),
   });
 }

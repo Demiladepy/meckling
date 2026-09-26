@@ -58,6 +58,5 @@ element gap 16px. Mobile: 16px side gutters, 44px minimum tap target, `env(safe-
 
 ## What still needs doing
 
-- Agents list with track record from the indexer.
-- Breach detail screen.
-- A pass over `mandates/new` and the split screen to move any leftover hardcoded colours onto tokens.
+- A pass over leftover hardcoded colours onto tokens (a few midnight contrast lifts remain intentional).
+- Paste live URL + video into the README before Nansen submit.

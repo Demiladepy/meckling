@@ -27,7 +27,15 @@ export interface AccountView {
   owner: string;
   sessionKey: string;
   closeOnly: boolean;
-  mandate: { id: string; reportHash: string; backer: string; operator: string } | null;
+  mandate: {
+    id: string;
+    reportHash: string;
+    backer: string;
+    operator: string;
+    disputeWindowBlocks?: string;
+    createdAtBlock?: string;
+    active?: boolean;
+  } | null;
   state: { equity: string; totalNotional: string; marginUsed: string; markets: MarketView[] };
   rules: RuleView[];
   bond: { amount: string; operator: string } | null;

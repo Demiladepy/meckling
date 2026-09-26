@@ -5,6 +5,14 @@
   max-width: 1120px;
   margin: 0 auto;
   padding: max(16px, env(safe-area-inset-top)) 20px 16px;
+  gap: 16px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
 }
 
 .brand {
@@ -12,6 +20,21 @@
   font-weight: 600;
   font-size: 17px;
   text-decoration: none;
+}
+
+.link {
+  color: var(--graphite);
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--ink);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
 }
 
 .signin,
@@ -26,6 +49,7 @@
   font-size: 15px;
   cursor: pointer;
   transition: border-color var(--ease);
+  flex-shrink: 0;
 }
 
 .signin:hover,
@@ -37,4 +61,14 @@
 .account:focus-visible {
   outline: 2px solid var(--action);
   outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .nav {
+    gap: 12px;
+  }
+
+  .link {
+    font-size: 14px;
+  }
 }

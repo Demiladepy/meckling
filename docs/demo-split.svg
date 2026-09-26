@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="420" viewBox="0 0 1120 420" role="img" aria-labelledby="title desc">
+  <title id="title">Mandate split screen  agent proposes, chain blocks</title>
+  <desc id="desc">Left parchment panel with an agent proposing 12x BTC. Right ink panel with execute() reverted against a 1.5x Nansen limit.</desc>
+  <rect width="1120" height="420" fill="#f3f3f1"/>
+  <rect x="0" y="0" width="560" height="420" fill="#f3f3f1"/>
+  <rect x="560" y="0" width="560" height="420" fill="#181818"/>
+  <text x="40" y="48" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#6b6a66">Agent</text>
+  <text x="600" y="48" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#a4a19b">Chain</text>
+  <text x="40" y="88" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#6b6a66">Block 64,981,102</text>
+  <text x="600" y="88" font-family="ui-monospace, monospace" font-size="14" fill="#a4a19b">Block 64,981,102</text>
+  <text x="40" y="150" font-family="Georgia, 'Libre Baskerville', serif" font-size="26" fill="#191a17">
+    <tspan x="40" dy="0">Open a 12× long on BTC </tspan>
+    <tspan x="40" dy="34">momentum looks strong.</tspan>
+  </text>
+  <text x="40" y="250" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#6b6a66">Proposed: BTC long, 12.0×</text>
+  <text x="600" y="150" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="500" fill="#c8452f">execute() reverted</text>
+  <text x="600" y="190" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#eeeeee">Rule 1 · Max leverage</text>
+  <text x="600" y="222" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#eeeeee">Observed 11.3× · Limit 1.5×</text>
+  <text x="600" y="268" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#a4a19b">Nothing changed on-chain.</text>
+  <text x="600" y="320" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#a4a19b">Limit from live Nansen underwriting · reportHash on MandateRegistry</text>
+  <line x1="560" y1="0" x2="560" y2="420" stroke="#e6e6e4" stroke-width="1"/>
+</svg>

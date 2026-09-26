@@ -34,8 +34,8 @@ Everything below exists to make that sentence undeniable in 3 minutes.
       5. The market breaks a rule; the keeper flags it, the position unwinds, the bond pays the backer (50s)
       6. One closing line: *rules a human wrote from Nansen evidence, enforced by the chain, paid out in AUSD* (10s)
 - [x] **README rewritten for a judge**, not a developer: the one-sentence argument, the live URL, the video, the
-      addresses, then how it works. Disclose honestly what is scripted, what is sample data and which keeper ran.
-      _(Paste live URL + video link into README before submit.)_
+      addresses, then how it works. _(Paste live URL + video link into README before submit.)_
+      Live underwriting requires `NANSEN_API_KEY` — fixtures are not a silent fallback on the public deploy.
 
 ## Strong — this is what separates first from third
 
@@ -46,15 +46,18 @@ Everything below exists to make that sentence undeniable in 3 minutes.
       browser and compares it to the on-chain value. Trust nothing, check everything.
 - [x] **Name the numbers.** Blocked in N blocks, flagged in 6 blocks, bond paid $0.109218 — the exact loss from
       peak. Specific numbers read as real work; round numbers read as marketing. _(In README + landing caption.)_
-- [ ] **One screenshot in the README that tells the whole story** — the split screen with a revert on the right.
+- [x] **One screenshot in the README that tells the whole story** — the split screen with a revert on the right.
+      _(docs/demo-split.svg — paper propose / ink revert.)_
 - [x] **Say what Nansen is not doing.** Admitting the agent's reasoning model is Claude and Nansen sets the limits
       is more convincing than implying Nansen does everything.
 
 ## Nice to have
 
-- [ ] Agents list with track records from the indexer (also serves the Envio bounty).
+- [x] Agents list with track records from the indexer (also serves the Envio bounty).
+      _(`/agents` — live equity/bond; indexer strip when configured.)_
 - [x] The landing page in one scroll with the live split screen embedded.
-- [ ] Breach detail screen with the dispute countdown.
+- [x] Breach detail screen with the dispute countdown.
+      _(`/breaches/[account]/[id]` — peak, loss, window countdown, slash amount.)_
 
 ## Already done — say these plainly, they are the credibility
 

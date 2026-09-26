@@ -154,23 +154,43 @@ export default function CreateMandate() {
   }
 
   const working = phase.kind === "working";
+  const liveReport = uw?.report.source === "nansen";
 
   return (
     <>
       <AppHeader />
       <main className={s.main}>
         <header className={s.intro}>
+          <div className={s.introTop}>
+            <p className={s.kicker}>Nansen Meridian · live underwriting</p>
+            {cfg && (
+              <span className={s.liveBadge} data-live={cfg.nansenLive || undefined}>
+                {cfg.nansenLive ? "Nansen connected" : "Nansen key missing"}
+              </span>
+            )}
+          </div>
           <h1 className="section-heading">Create mandate</h1>
           <p className="body-secondary">
-            Pick the markets this agent may trade. Nansen evidence sets the limits, and the chain enforces them on every
-            trade.
+            Live Nansen smart-money evidence sets the risk regime. Each proposed limit names the signal that produced
+            it. Approving writes the report&rsquo;s keccak256 into MandateRegistry — anyone can recompute and verify.
           </p>
         </header>
+
+        {cfg && !cfg.nansenLive && (
+          <p className={s.blocked} role="alert">
+            This deploy has no Nansen API key. Live underwriting is required for the buildathon demo — set{" "}
+            <span className="onchain">NANSEN_API_KEY</span> on the server and reload.
+          </p>
+        )}
 
         <section className={`card ${s.setup}`} aria-labelledby="setup-h">
           <h2 id="setup-h" className={s.h2}>
             Markets and size
           </h2>
+          <p className={s.setupHint}>
+            Choose the markets this agent may trade. Base size is the reference notional Nansen scales by regime
+            (risk-off tightens; risk-on loosens).
+          </p>
           <div className={s.chips} role="group" aria-label="Markets">
             {available.map((m) => {
               const on = markets.includes(m);
@@ -194,26 +214,56 @@ export default function CreateMandate() {
               <input inputMode="decimal" value={base} onChange={(e) => setBase(e.target.value.replace(/[^\d.]/g, ""))} />
             </span>
           </label>
-          <button type="button" className={s.secondary} onClick={runUnderwriting} disabled={loading || markets.length === 0 || !Number(base)}>
-            {loading ? "Reading Nansen…" : uw ? "Run underwriting again" : "Run underwriting"}
+          <button
+            type="button"
+            className="button-primary"
+            onClick={runUnderwriting}
+            disabled={loading || markets.length === 0 || !Number(base) || cfg?.nansenLive === false}
+          >
+            {loading ? "Reading Nansen…" : uw ? "Re-run live underwriting" : "Run live underwriting"}
           </button>
         </section>
 
+        {error && !uw && (
+          <p className={s.error} role="alert">
+            {error}
+          </p>
+        )}
+
         {uw && (
           <>
-            {uw.report.source === "fixture" && (
-              <p className={s.sample} role="note">
-                Sample data. Set a Nansen API key on the server for live evidence. Sample reports are for local testing
-                only.
-              </p>
-            )}
+            <section className={`card ${s.metaCard}`} aria-label="Underwriting report summary">
+              <dl className={s.metaGrid}>
+                <div>
+                  <dt>Source</dt>
+                  <dd data-ok={liveReport || undefined}>{liveReport ? "Live Nansen" : "Local fixture"}</dd>
+                </div>
+                <div>
+                  <dt>Account regime</dt>
+                  <dd>{uw.report.mandateRegime}</dd>
+                </div>
+                <div>
+                  <dt>Credits used</dt>
+                  <dd>{uw.report.creditsUsed}</dd>
+                </div>
+                <div>
+                  <dt>Created</dt>
+                  <dd>{new Date(uw.report.createdAt).toLocaleString()}</dd>
+                </div>
+              </dl>
+              <p className={s.attribution}>{uw.report.attribution}</p>
+            </section>
 
             <section aria-labelledby="evidence-h" className={s.block}>
               <div className={s.blockHead}>
-                <h2 id="evidence-h" className={s.h2}>
-                  Evidence
-                </h2>
-                <span className="body-secondary">Data: Nansen</span>
+                <div>
+                  <h2 id="evidence-h" className={s.h2}>
+                    Nansen evidence
+                  </h2>
+                  <p className={s.blockSub}>
+                    Positioning, flows and concentration per market — the inputs behind every limit below.
+                  </p>
+                </div>
               </div>
               <div className={s.evidence}>
                 {uw.report.markets.map((m) => (
@@ -224,10 +274,16 @@ export default function CreateMandate() {
 
             <section aria-labelledby="limits-h" className={s.block}>
               <div className={s.blockHead}>
-                <h2 id="limits-h" className={s.h2}>
-                  Proposed limits
-                </h2>
-                <span className="body-secondary">Regime: {uw.report.mandateRegime}</span>
+                <div>
+                  <h2 id="limits-h" className={s.h2}>
+                    Proposed limits
+                  </h2>
+                  <p className={s.blockSub}>
+                    Each row shows the Nansen signal that produced the number. Loosening requires an explicit override —
+                    the on-chain report hash still records the original proposal.
+                  </p>
+                </div>
+                <span className={s.regimePill}>Regime · {uw.report.mandateRegime}</span>
               </div>
               <LimitsTable
                 proposal={uw.rules}
@@ -254,7 +310,7 @@ export default function CreateMandate() {
                   disabled={!cfg?.deployment || (draft?.needsOverride && !draft.overrideAccepted) || mera.busy}
                   onClick={() => approve(draft?.rules ?? uw.rules)}
                 >
-                  Approve mandate
+                  Approve mandate on-chain
                 </button>
               )}
               {working && <p className={s.progress}>{phase.step}…</p>}
@@ -262,8 +318,12 @@ export default function CreateMandate() {
                 <div className={`card ${s.done}`}>
                   <h2 className={s.h2}>Mandate approved</h2>
                   <p className="body-secondary">
-                    Account <span className="onchain">{phase.account}</span>. The agent can trade it only within these
-                    limits, and only you can withdraw.
+                    Account <span className="onchain">{phase.account}</span>. Mandate id{" "}
+                    <span className="onchain">{phase.mandateId.toString()}</span>. The agent can trade only within
+                    these limits; only you can withdraw.
+                  </p>
+                  <p className={s.hashLine}>
+                    On-chain reportHash <span className="onchain">{phase.onChainReportHash}</span>
                   </p>
                   <label className={s.field}>
                     <span>Fund with AUSD</span>
@@ -282,9 +342,10 @@ export default function CreateMandate() {
                   <h2 className={s.h2}>Account funded</h2>
                   <p className="body-secondary">
                     {usd(Number(fund))} is on Perpl in <span className="onchain">{shortAddr(phase.account)}</span>.
+                    Limits from this Nansen report are now live on every trade.
                   </p>
                   <Link className="button-primary" href={`/agents/${phase.account}`}>
-                    Watch the agent
+                    Watch enforcement
                   </Link>
                 </div>
               )}

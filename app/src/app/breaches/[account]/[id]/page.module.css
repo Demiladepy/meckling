@@ -1,0 +1,157 @@
+.main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 20px max(80px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 24px;
+}
+
+.head {
+  display: grid;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+.head p {
+  margin: 0;
+}
+
+.crumb {
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.crumb a {
+  color: var(--action);
+}
+
+.h2 {
+  font-size: 22px;
+  letter-spacing: -0.3px;
+  margin: 0 0 12px;
+}
+
+.h2Ink {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.025em;
+  color: var(--bone);
+  margin: 0 0 12px;
+}
+
+.verdict {
+  display: grid;
+  gap: 8px;
+}
+
+.status {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.status[data-tone="breach"] {
+  color: var(--breach);
+}
+
+.status[data-tone="pending"] {
+  color: var(--pending);
+}
+
+.status[data-tone="held"] {
+  color: var(--held);
+}
+
+.metaInk {
+  margin: 0;
+  font-size: 14px;
+  color: var(--fog);
+}
+
+.block {
+  display: grid;
+  gap: 8px;
+}
+
+.ruleName {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.fine {
+  margin: 0;
+  font-size: 14px;
+  color: var(--graphite);
+}
+
+.nums {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.nums dt {
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.nums dd {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nums dd[data-tone="breach"] {
+  color: var(--breach);
+}
+
+.track {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--hairline);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--pending);
+  border-radius: var(--radius-pill);
+  transition: width var(--ease);
+}
+
+.countdown {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.paid {
+  margin: 0;
+  font-size: 18px;
+}
+
+.paid strong {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.missing {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  font-size: 15px;
+  color: var(--graphite);
+}
+
+@media (max-width: 480px) {
+  .nums {
+    grid-template-columns: 1fr;
+  }
+}

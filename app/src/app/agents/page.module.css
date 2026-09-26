@@ -1,0 +1,168 @@
+.main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 20px max(80px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 32px;
+}
+
+.intro {
+  display: grid;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.intro p {
+  margin: 0;
+  max-width: 42em;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  display: grid;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--ease);
+}
+
+.card:hover {
+  border-color: var(--hairline-strong);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: var(--radius-badge);
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--graphite);
+}
+
+.title {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.addr {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--graphite);
+  overflow-wrap: anywhere;
+}
+
+.self {
+  background: var(--paper);
+  color: var(--graphite);
+}
+
+.blurb {
+  margin: 0;
+  font-size: 15px;
+  color: var(--graphite);
+  line-height: 1.45;
+}
+
+.stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--hairline);
+}
+
+.stats dt {
+  font-size: 12px;
+  color: var(--graphite);
+}
+
+.stats dd {
+  margin: 2px 0 0;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.limits {
+  margin: 0;
+  font-size: 13px;
+  color: var(--graphite);
+}
+
+.hash {
+  margin: 0;
+  font-size: 12px;
+  color: var(--graphite);
+}
+
+.aside {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.asideTitle {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.aside p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--graphite);
+  max-width: 44ch;
+}
+
+@media (max-width: 560px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cardTop {
+    flex-direction: column;
+  }
+
+  .badges {
+    justify-content: flex-start;
+  }
+}
