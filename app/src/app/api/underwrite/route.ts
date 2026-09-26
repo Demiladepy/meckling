@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import { NansenClient, canonicalJson, fixtureClient, underwrite } from "underwriter";
 import { DATA_DIR, net } from "@/lib/server/env";
+import { storeReport } from "@/lib/server/reportsStore";
 import { jsonResponse } from "@/lib/json";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +43,13 @@ export async function POST(req: Request) {
     baseNotionalUsd: parsed.data.baseNotionalUsd,
     source: live ? "nansen" : "fixture",
   });
-  await mkdir(join(DATA_DIR, "reports"), { recursive: true });
-  await writeFile(join(DATA_DIR, "reports", `${result.reportHash}.json`), canonicalJson(result.report));
+  const body = canonicalJson(result.report);
+  storeReport(result.reportHash, body);
+  try {
+    await mkdir(join(DATA_DIR, "reports"), { recursive: true });
+    await writeFile(join(DATA_DIR, "reports", `${result.reportHash}.json`), body);
+  } catch {
+    // Vercel /tmp can fail under rare conditions; memory store still serves verify.
+  }
   return jsonResponse(result);
 }

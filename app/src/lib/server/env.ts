@@ -7,8 +7,13 @@ import type { NetworkKey } from "@mandate/common";
 export const NETWORK = (process.env.NETWORK as NetworkKey) || "local";
 export const net = loadNetwork(NETWORK);
 
-/** Repo-level data/ shared with the agent: agent-logs/ and reports/. */
-export const DATA_DIR = process.env.DATA_DIR || join(process.cwd(), "..", "data");
+/**
+ * Repo-level data/ shared with the agent locally. On Vercel the filesystem is read-only except /tmp,
+ * so reports land there (plus an in-memory cache — see reportsStore).
+ */
+export const DATA_DIR =
+  process.env.DATA_DIR ||
+  (process.env.VERCEL ? join("/tmp", "mandate-data") : join(process.cwd(), "..", "data"));
 
 // Public Monad RPCs rate-limit a polling UI, so batch the reads into one HTTP request and retry transient failures.
 // A private RPC (the QuickNode perk) removes the need for this; set MONAD_RPC_URL / MONAD_TESTNET_RPC_URL.
