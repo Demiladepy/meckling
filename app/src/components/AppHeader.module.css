@@ -103,6 +103,28 @@
   cursor: default;
 }
 
+.accountGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.signout {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--graphite);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.signout:hover {
+  color: var(--ink);
+}
+
 .dot {
   width: 6px;
   height: 6px;
