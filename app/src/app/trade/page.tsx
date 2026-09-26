@@ -299,7 +299,7 @@ function SignIn({ mera }: { mera: ReturnType<typeof useMera> }) {
     <section className={`card ${s.hero}`}>
       <h1 className="section-heading">Trade under your own rules.</h1>
       <p className="body-secondary">
-        Set your limits once. Any trade that would break them is reverted on-chain, before it reaches the venue.
+        Set your limits once. Any trade that would break them is stopped on-chain, before it reaches the exchange.
       </p>
       <button className="button-primary" onClick={() => void mera.signIn()} disabled={mera.busy}>
         {mera.busy ? "Waiting for your passkey" : mera.hasPasskey ? "Sign in" : "Create your account"}

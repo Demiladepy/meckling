@@ -217,7 +217,7 @@ function Row({
           {r.result === "blocked" && r.violation && (
             <>
               <p className={s.headline} data-tone="breach">
-                <span className="onchain">execute()</span> reverted
+                Blocked on-chain
               </p>
               <p>
                 Rule {r.violation.ruleIndex + 1} · {r.violation.rule}

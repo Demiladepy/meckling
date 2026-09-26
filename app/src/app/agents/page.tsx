@@ -13,11 +13,10 @@ export default function AgentsList() {
       <AppHeader />
       <main className={s.main}>
         <header className={s.intro}>
-          <p className={s.kicker}>Monad testnet · live accounts</p>
           <h1 className="section-heading">Agents</h1>
           <p className="body-secondary">
-            MandateAccounts enforcing limits from live Nansen underwriting — and the breach path that paid a backer
-            the exact loss from peak. Open one to watch paper proposals meet ink verdicts.
+            Live accounts on Monad testnet, each trading under limits set from Nansen data. Open one to watch the
+            agent propose and the chain decide.
           </p>
         </header>
 
@@ -28,10 +27,10 @@ export default function AgentsList() {
         </ul>
 
         <aside className={`card ${s.aside}`}>
-          <h2 className={s.asideTitle}>Underwrite a new account</h2>
+          <h2 className={s.asideTitle}>Back a new agent</h2>
           <p>
-            Pull live Nansen evidence, approve limits with a passkey, and fund on Perpl. The report hash is verifiable
-            against MandateRegistry.
+            Get limits from Nansen, approve them with your passkey, and fund the account. Anyone can check the limits
+            came from that report.
           </p>
           <Link className="button-primary" href="/mandates/new">
             Create mandate

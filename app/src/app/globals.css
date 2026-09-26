@@ -68,6 +68,13 @@ html {
   background: var(--paper);
 }
 
+/* Glows behind product imagery reach past the edges on purpose; they must never cause sideways scrolling.
+   clip (not hidden) keeps the sticky header working. */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background: var(--paper);

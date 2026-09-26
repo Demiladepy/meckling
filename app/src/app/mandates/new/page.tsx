@@ -162,24 +162,23 @@ export default function CreateMandate() {
       <main className={s.main}>
         <header className={s.intro}>
           <div className={s.introTop}>
-            <p className={s.kicker}>Nansen Meridian · live underwriting</p>
             {cfg && (
               <span className={s.liveBadge} data-live={cfg.nansenLive || undefined}>
                 {cfg.nansenLive ? "Nansen connected" : "Nansen key missing"}
               </span>
             )}
           </div>
-          <h1 className="section-heading">Create mandate</h1>
+          <h1 className="section-heading">Back an agent</h1>
           <p className="body-secondary">
-            Live Nansen smart-money evidence sets the risk regime. Each proposed limit names the signal that produced
-            it. Approving writes the report&rsquo;s keccak256 into MandateRegistry — anyone can recompute and verify.
+            Nansen&rsquo;s smart-money data sets the limits, and every limit names the signal behind it. When you
+            approve, the report&rsquo;s fingerprint is stored on Monad so anyone can check it later.
           </p>
         </header>
 
         {cfg && !cfg.nansenLive && (
           <p className={s.blocked} role="alert">
-            This deploy has no Nansen API key. Live underwriting is required for the buildathon demo — set{" "}
-            <span className="onchain">NANSEN_API_KEY</span> on the server and reload.
+            Nansen isn&rsquo;t connected on this server, so limits can&rsquo;t be set from live data. Add{" "}
+            <span className="onchain">NANSEN_API_KEY</span> to the server environment and reload.
           </p>
         )}
 
@@ -188,8 +187,8 @@ export default function CreateMandate() {
             Markets and size
           </h2>
           <p className={s.setupHint}>
-            Choose the markets this agent may trade. Base size is the reference notional Nansen scales by regime
-            (risk-off tightens; risk-on loosens).
+            Choose the markets this agent may trade and a starting position size. Nansen shrinks it when smart money
+            is leaving a market and allows more when it is arriving.
           </p>
           <div className={s.chips} role="group" aria-label="Markets">
             {available.map((m) => {
@@ -220,7 +219,7 @@ export default function CreateMandate() {
             onClick={runUnderwriting}
             disabled={loading || markets.length === 0 || !Number(base) || cfg?.nansenLive === false}
           >
-            {loading ? "Reading Nansen…" : uw ? "Re-run live underwriting" : "Run live underwriting"}
+            {loading ? "Reading Nansen…" : uw ? "Check again with Nansen" : "Get limits from Nansen"}
           </button>
         </section>
 
@@ -236,10 +235,10 @@ export default function CreateMandate() {
               <dl className={s.metaGrid}>
                 <div>
                   <dt>Source</dt>
-                  <dd data-ok={liveReport || undefined}>{liveReport ? "Live Nansen" : "Local fixture"}</dd>
+                  <dd data-ok={liveReport || undefined}>{liveReport ? "Live Nansen data" : "Sample data"}</dd>
                 </div>
                 <div>
-                  <dt>Account regime</dt>
+                  <dt>Nansen&rsquo;s read</dt>
                   <dd>{uw.report.mandateRegime}</dd>
                 </div>
                 <div>
@@ -279,11 +278,11 @@ export default function CreateMandate() {
                     Proposed limits
                   </h2>
                   <p className={s.blockSub}>
-                    Each row shows the Nansen signal that produced the number. Loosening requires an explicit override —
-                    the on-chain report hash still records the original proposal.
+                    Each row shows the Nansen signal behind the number. You can loosen a limit, but the stored
+                    fingerprint still records what Nansen proposed.
                   </p>
                 </div>
-                <span className={s.regimePill}>Regime · {uw.report.mandateRegime}</span>
+                <span className={s.regimePill}>Nansen read: {uw.report.mandateRegime}</span>
               </div>
               <LimitsTable
                 proposal={uw.rules}
@@ -323,7 +322,7 @@ export default function CreateMandate() {
                     these limits; only you can withdraw.
                   </p>
                   <p className={s.hashLine}>
-                    On-chain reportHash <span className="onchain">{phase.onChainReportHash}</span>
+                    Report fingerprint on Monad <span className="onchain">{phase.onChainReportHash}</span>
                   </p>
                   <label className={s.field}>
                     <span>Fund with AUSD</span>

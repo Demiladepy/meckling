@@ -49,21 +49,21 @@ export function ReportHashVerify(props: {
     <div className={compact ? `${s.verify} ${s.compact}` : s.verify} data-verdict={verdict ?? undefined}>
       <div className={s.head}>
         <p className={s.hash}>
-          Report hash <span className="onchain">{expectedHash}</span>
+          Report fingerprint <span className="onchain">{expectedHash}</span>
           {" · "}
           <a href={`/api/reports/${expectedHash}`} target="_blank" rel="noreferrer">
             View report
           </a>
         </p>
         <button type="button" className={s.button} onClick={verify} disabled={state.kind === "working"}>
-          {state.kind === "working" ? "Verifying…" : "Verify hash"}
+          {state.kind === "working" ? "Checking…" : "Check the fingerprint"}
         </button>
       </div>
 
       {state.kind === "ok" && (
         <dl className={s.result}>
           <div>
-            <dt>Recomputed in browser</dt>
+            <dt>Worked out in your browser</dt>
             <dd className="onchain">{state.recomputed}</dd>
           </div>
           <div>
@@ -72,7 +72,7 @@ export function ReportHashVerify(props: {
           </div>
           {onChainHash != null && (
             <div>
-              <dt>On-chain mandate</dt>
+              <dt>Stored on Monad</dt>
               <dd data-ok={state.chainMatch || undefined}>
                 {state.chainMatch ? "Matches" : "Mismatch"}
                 <span className="onchain"> {onChainHash}</span>
@@ -81,7 +81,7 @@ export function ReportHashVerify(props: {
           )}
           {onChainHash == null && (
             <div>
-              <dt>On-chain mandate</dt>
+              <dt>Stored on Monad</dt>
               <dd className="body-secondary">Approve the mandate to compare against the registry.</dd>
             </div>
           )}

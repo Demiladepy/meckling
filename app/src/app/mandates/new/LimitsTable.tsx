@@ -143,7 +143,7 @@ export function LimitsTable(props: {
       {needsOverride && (
         <div className={s.override} role="alert">
           <p>
-            This loosens the Nansen proposal. The on-chain report hash still records the proposal, so anyone can see what
+            This loosens what Nansen proposed. The stored fingerprint still records the original, so anyone can see what
             you changed.
           </p>
           <label>
