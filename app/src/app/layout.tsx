@@ -1,18 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Fira_Code, Inter, Libre_Baskerville } from "next/font/google";
+import { Fira_Code, Instrument_Sans } from "next/font/google";
 import { ServiceWorker } from "./service-worker";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const serif = Libre_Baskerville({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-serif", display: "swap" });
+// One family for every role (Fey): Instrument Sans, narrowed on display sizes through its width axis.
+const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-sans", axes: ["wdth"], display: "swap" });
 const mono = Fira_Code({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Mandate",
   description: "Fund an AI trading agent on Monad. The chain enforces the risk rules you set.",
   applicationName: "Mandate",
-  appleWebApp: { capable: true, title: "Mandate", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Mandate", statusBarStyle: "black-translucent" },
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f3f3f1",
+  themeColor: "#0b0b0b",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${serif.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
         <Providers>{children}</Providers>
         <ServiceWorker />

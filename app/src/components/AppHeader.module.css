@@ -1,74 +1,140 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(11, 11, 11, 0.72);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding-top: env(safe-area-inset-top);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 64px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: max(16px, env(safe-area-inset-top)) 20px 16px;
-  gap: 16px;
+  gap: 28px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+/* The mark: two halves of one square — the agent's side and the chain's side. */
+.mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--graphite) 0 50%, var(--ink) 50% 100%);
 }
 
 .nav {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  min-width: 0;
-}
-
-.brand {
-  color: var(--ink);
-  font-weight: 600;
-  font-size: 17px;
-  text-decoration: none;
+  gap: 4px;
+  margin-right: auto;
 }
 
 .link {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
   color: var(--graphite);
-  font-size: 15px;
   text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color var(--ease), background var(--ease);
 }
 
 .link:hover {
   color: var(--ink);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.link:focus-visible {
-  outline: 2px solid var(--action);
-  outline-offset: 2px;
+.link[aria-current="page"] {
+  color: var(--ink);
+}
+
+.link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 1px;
+  background: var(--action);
 }
 
 .signin,
 .account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   min-height: 36px;
-  padding: 0 14px;
+  padding: 0 16px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--hairline);
-  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: border-color var(--ease);
-  flex-shrink: 0;
+  transition: border-color var(--ease), background var(--ease);
 }
 
 .signin:hover,
 .account:hover {
-  border-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.signin:focus-visible,
-.account:focus-visible {
-  outline: 2px solid var(--action);
-  outline-offset: 2px;
+.signin:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
-@media (max-width: 480px) {
-  .nav {
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--held);
+}
+
+@media (max-width: 640px) {
+  .inner {
     gap: 12px;
+    padding: 0 16px;
+  }
+
+  /* The links stay reachable on a phone: the row scrolls instead of disappearing. */
+  .nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-right: 0;
+    flex: 1;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
   }
 
   .link {
-    font-size: 14px;
+    white-space: nowrap;
+    padding: 8px 10px;
+  }
+
+  .brand {
+    font-size: 0;
+    gap: 0;
   }
 }

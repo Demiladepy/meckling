@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import s from "./page.module.css";
 
-/** Live Nansen-backed MandateAccount on Monad testnet — docs/handoff.md */
+/** Live accounts on Monad testnet (docs/handoff.md). */
 const LIVE_AGENT = "0x3d0ec7098437A9755F2C0Bc6C43D250464225F3A";
 const BREACH_AGENT = "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0";
 
@@ -11,171 +11,311 @@ export default function Home() {
     <>
       <AppHeader />
       <main className={s.main}>
-        <section className={s.hero} aria-labelledby="brand">
-          <p className={s.kicker}>Powered by Nansen · Enforced on Monad</p>
-          <h1 id="brand" className={`display ${s.brand}`}>
-            Mandate
-          </h1>
-          <p className={s.thesis}>
-            Nansen evidence doesn&rsquo;t inform a human dashboard here — it is compiled into limits a smart
-            contract enforces, and the report that justified them is hashed on-chain with the mandate.
-          </p>
-          <div className={s.ctas}>
-            <Link className="button-primary" href="/mandates/new">
-              Underwrite with Nansen
-            </Link>
-            <Link className="button-ghost" href={`/agents/${LIVE_AGENT}`}>
-              See enforcement live
-            </Link>
-          </div>
-        </section>
-
-        <section className={s.proof} aria-label="Proven on Monad testnet">
-          <div className={s.proofItem}>
-            <p className={s.proofValue}>11.3×</p>
-            <p className={s.proofLabel}>Observed leverage blocked against a 1.5× Nansen limit</p>
-          </div>
-          <div className={s.proofItem}>
-            <p className={s.proofValue}>6 blocks</p>
-            <p className={s.proofLabel}>Market breach to on-chain flag (~2 s on Monad)</p>
-          </div>
-          <div className={s.proofItem}>
-            <p className={s.proofValue}>$0.109218</p>
-            <p className={s.proofLabel}>Bond paid the backer — exact loss from peak</p>
-          </div>
-          <div className={s.proofItem}>
-            <p className={s.proofValue}>16k</p>
-            <p className={s.proofLabel}>Fuzzed calls · eight PRD invariants held</p>
-          </div>
-        </section>
-
-        <section className={s.chain} aria-labelledby="chain-h">
-          <div className={s.chainCopy}>
-            <h2 id="chain-h" className="section-heading">
-              Evidence → limit → hash → enforcement
-            </h2>
-            <p className="body-secondary">
-              Smart-money flows and perp positioning set a regime per market. A published table maps that regime to
-              leverage, notional, cooldown and drawdown. The full report is stored; its keccak256 is written into
-              MandateRegistry. Every trade runs through MandateAccount.execute — a broken action rule reverts in the
-              same transaction.
-            </p>
-          </div>
-          <ol className={s.pipeline}>
-            <li>
-              <span className={s.pipeNum}>01</span>
-              <div>
-                <h3>Nansen signals</h3>
-                <p>Perp skew, 7-day smart-money netflow, holder concentration</p>
-              </div>
-            </li>
-            <li>
-              <span className={s.pipeNum}>02</span>
-              <div>
-                <h3>Proposed limits</h3>
-                <p>Each row names the signal that produced the dollar or leverage cap</p>
-              </div>
-            </li>
-            <li>
-              <span className={s.pipeNum}>03</span>
-              <div>
-                <h3>reportHash on-chain</h3>
-                <p>Recompute keccak256 in the browser and match MandateRegistry</p>
-              </div>
-            </li>
-            <li>
-              <span className={s.pipeNum}>04</span>
-              <div>
-                <h3>Chain verdict</h3>
-                <p>Fill, revert, or market breach paid from the operator bond</p>
-              </div>
-            </li>
-          </ol>
-        </section>
-
-        <section className={s.splitPreview} aria-labelledby="split-h">
-          <div className={s.splitHead}>
-            <h2 id="split-h" className="section-heading">
-              Agent proposes. Chain decides.
-            </h2>
-            <p className="body-secondary">
-              Paper is the human side. Ink is whatever the chain already decided — including a live MandateViolation
-              against limits sized from Nansen.
-            </p>
-          </div>
-
-          <Link href={`/agents/${LIVE_AGENT}`} className={s.split} aria-label="Open live agent split screen">
-            <div className={s.paper}>
-              <span className={s.sideLabel}>Agent</span>
-              <p className={s.quote}>
-                Open a 12× long on BTC — momentum looks strong and funding is flat.
+        <section className={s.hero} aria-labelledby="hero-h">
+          <div className={s.heroCopy}>
+            <h1 id="hero-h" className="display">
+              AI traders that can&rsquo;t break your rules.
+            </h1>
+            <div className={s.heroSide}>
+              <p className={s.lede}>
+                Nansen&rsquo;s smart-money data sets the limits. Monad checks them inside every trade. If the market breaks
+                one anyway, the operator&rsquo;s bond pays you back.
               </p>
-              <span className={s.meta}>Proposed · BTC · high leverage</span>
+              <div className={s.ctas}>
+                <Link className="button-primary" href="/mandates/new">
+                  Back an agent
+                </Link>
+                <Link className="button-ghost" href={`/agents/${LIVE_AGENT}`}>
+                  Watch one live
+                </Link>
+              </div>
             </div>
-            <div className={s.ink}>
-              <span className={s.sideLabelInk}>Chain</span>
-              <p className={s.verdict}>
-                Blocked: this trade would put you at 11.3× leverage. Your limit is 1.5×.
-              </p>
-              <span className={s.metaInk}>MandateViolation · nothing changed on-chain</span>
-            </div>
-          </Link>
+          </div>
 
-          <p className={s.caption}>
-            Live on Monad testnet against a mandate underwritten from Nansen.{" "}
-            <Link href={`/agents/${LIVE_AGENT}`}>Open the account</Link>
-            {" · "}
-            <Link href={`/agents/${BREACH_AGENT}`}>Breach + bond payout</Link>
-          </p>
+          <figure className={s.showcase}>
+            <div className={s.glow} aria-hidden />
+            <AgentWindow />
+            <figcaption className={s.caption}>
+              The agent screen, replayed from a live mandate on Monad testnet. The 12× attempt was a deliberate test of the
+              limits.
+            </figcaption>
+          </figure>
         </section>
 
-        <section className={s.roles} aria-labelledby="roles-h">
-          <h2 id="roles-h" className="section-heading">
-            What Nansen does — and does not
+        <section className={s.ledger} aria-label="Measured on Monad testnet">
+          <Stat value="11.3×" label="A 12× trade stopped cold against a 1.5× limit" />
+          <Stat value="6 blocks" label="From a market breach to an on-chain flag, about two seconds" />
+          <Stat value="$0.109218" label="Paid to the backer from the operator’s bond, the exact loss" />
+          <Stat value="16,000" label="Randomised attacks on the contracts, and every safety rule held" />
+        </section>
+
+        <section className={s.steps} aria-labelledby="how-h">
+          <h2 id="how-h" className="section-heading">
+            From evidence to enforcement.
           </h2>
-          <div className={s.roleGrid}>
-            <article className={`card ${s.role}`}>
+
+          <article className={s.step}>
+            <div className={s.stepCopy}>
+              <p className={s.stepIndex}>Step 1</p>
+              <h3 className={s.stepTitle}>Nansen sets the limits.</h3>
+              <p className={s.stepBody}>
+                Pick the markets. Mandate reads smart-money flows and positioning from Nansen and turns them into hard
+                numbers: leverage, position size, a cooldown after losses, a drawdown floor. Every limit shows the signal
+                behind it.
+              </p>
+            </div>
+            <UnderwritingFragment />
+          </article>
+
+          <article className={s.step}>
+            <div className={s.stepCopy}>
+              <p className={s.stepIndex}>Step 2</p>
+              <h3 className={s.stepTitle}>Every trade is checked before it lands.</h3>
+              <p className={s.stepBody}>
+                The agent trades through an account that tests each order against your limits in the same transaction. A
+                trade that breaks one never happens. There is no alert to miss and no one to trust.
+              </p>
+            </div>
+            <VerdictFragment />
+          </article>
+
+          <article className={s.step}>
+            <div className={s.stepCopy}>
+              <p className={s.stepIndex}>Step 3</p>
+              <h3 className={s.stepTitle}>When the market breaks a rule, the bond pays.</h3>
+              <p className={s.stepBody}>
+                Some limits can be broken by price alone. A keeper watches every account; when one slips past its
+                drawdown floor, the position is closed and the operator&rsquo;s bond covers the loss.
+              </p>
+              <Link className={s.inline} href={`/agents/${BREACH_AGENT}`}>
+                See the breach that paid out
+              </Link>
+            </div>
+            <BreachFragment />
+          </article>
+        </section>
+
+        <section className={s.parts} aria-labelledby="parts-h">
+          <h2 id="parts-h" className="section-heading">
+            Who does what.
+          </h2>
+          <div className={s.partGrid}>
+            <div className={s.part}>
               <h3>Nansen</h3>
               <p>
-                Supplies smart-money evidence. Mandate turns that evidence into concrete risk limits and hashes the
-                justifying report on-chain.
+                Supplies the evidence. Its report is fingerprinted and stored with the mandate, so anyone can check the
+                limits came from it.
               </p>
-            </article>
-            <article className={`card ${s.role}`}>
-              <h3>The agent model</h3>
+            </div>
+            <div className={s.part}>
+              <h3>The agent</h3>
               <p>
-                Reasons about the market and proposes trades. It never sets its own limits — those come from the
-                mandate, not from the model.
+                Reads the market and proposes trades. It never sets its own limits and can never withdraw your money.
               </p>
-            </article>
-            <article className={`card-ink ${s.role}`}>
-              <h3>The chain</h3>
+            </div>
+            <div className={s.part}>
+              <h3>Monad</h3>
               <p>
-                Enforces every action rule inside execute(). Market breaches are flagged by the keeper; the bond pays
-                the backer the exact loss from peak.
+                Decides. Every trade is checked on-chain, and every breach is settled from the bond in AUSD.
               </p>
-            </article>
+            </div>
           </div>
         </section>
 
-        <section className={s.ctaBand} aria-labelledby="cta-h">
-          <h2 id="cta-h" className="section-heading">
-            Run live underwriting
+        <section className={s.close} aria-labelledby="close-h">
+          <div className={s.closeGlow} aria-hidden />
+          <h2 id="close-h" className="section-heading">
+            Limits you can check. Losses that get paid.
           </h2>
-          <p className="body-secondary">
-            Pick markets, pull Nansen, approve limits with a passkey, and fund the MandateAccount. The report hash is
-            verifiable in-browser against the registry.
-          </p>
           <div className={s.ctas}>
             <Link className="button-primary" href="/mandates/new">
-              Create a mandate
+              Back an agent
             </Link>
-            <Link className="button-ghost" href="/agents">
-              Browse live agents
+            <Link className="button-ghost" href="/trade">
+              Trade under your own rules
             </Link>
           </div>
         </section>
       </main>
+
+      <footer className={s.footer}>
+        <div className={s.footerInner}>
+          <span className={s.footerBrand}>Mandate</span>
+          <nav className={s.footerNav} aria-label="Footer">
+            <Link href="/agents">Agents</Link>
+            <Link href="/mandates/new">Back an agent</Link>
+            <Link href="/trade">Trade</Link>
+          </nav>
+          <p className={s.footerNote}>Running on Monad testnet with test AUSD.</p>
+        </div>
+      </footer>
     </>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className={s.stat}>
+      <p className={s.statValue}>{value}</p>
+      <p className={s.statLabel}>{label}</p>
+    </div>
+  );
+}
+
+/**
+ * The hero image: the agent screen itself, drawn in the product's own components rather than a screenshot, so it is
+ * sharp at any size. Decorative for screen readers; the caption carries the meaning.
+ */
+function AgentWindow() {
+  return (
+    <div className={s.window} aria-hidden>
+      <div className={s.windowBar}>
+        <span className={s.windowTitle}>
+          Agent <span className="onchain">0x3d0e…5F3A</span>
+        </span>
+        <span className="badge" data-tone="held">
+          <span className={s.liveDot} /> Live on Monad
+        </span>
+        <span className={s.windowEquity}>
+          Equity <strong>$200.00</strong>
+        </span>
+      </div>
+
+      <div className={s.columns}>
+        <span className={s.colLabel}>Agent</span>
+        <span className={s.colLabel}>Chain</span>
+      </div>
+
+      <div className={s.row}>
+        <div className={s.agentCell}>
+          <p className={s.quote}>&ldquo;Conviction is high and funding is flat. Going 12× long on BTC.&rdquo;</p>
+          <p className={s.proposal}>Proposed: BTC long, 12×</p>
+        </div>
+        <div className={s.chainCell} data-tone="breach">
+          <span className="badge" data-tone="breach">
+            Blocked on-chain
+          </span>
+          <p className={s.verdict}>This trade would put you at 11.3× leverage. Your limit is 1.5×.</p>
+          <div className={s.meter}>
+            <span className={s.meterFill} style={{ width: "100%" }} data-tone="breach" />
+            <span className={s.meterMark} style={{ left: "13%" }} />
+          </div>
+          <p className={s.quiet}>Nothing changed. The order never reached the exchange.</p>
+        </div>
+      </div>
+
+      <div className={s.row}>
+        <div className={s.agentCell}>
+          <p className={s.quote}>&ldquo;Scaling down. A small long inside the limit keeps the thesis alive.&rdquo;</p>
+          <p className={s.proposal}>Proposed: BTC long, 0.7×</p>
+        </div>
+        <div className={s.chainCell} data-tone="held">
+          <span className="badge" data-tone="held">
+            Filled on Perpl
+          </span>
+          <p className={s.verdict}>0.7× leverage. Every rule held.</p>
+        </div>
+      </div>
+
+      <div className={s.headroom}>
+        <Headroom label="Leverage" used={0.47} text="0.7 of 1.5×" />
+        <Headroom label="BTC size" used={0.875} text="$140 of $160" />
+        <Headroom label="Drawdown" used={0} text="0 of 5%" />
+      </div>
+    </div>
+  );
+}
+
+function Headroom({ label, used, text }: { label: string; used: number; text: string }) {
+  return (
+    <div className={s.hr}>
+      <span className={s.hrLabel}>{label}</span>
+      <span className={s.hrTrack}>
+        <span className={s.hrFill} style={{ width: `${used * 100}%` }} />
+      </span>
+      <span className={s.hrText}>{text}</span>
+    </div>
+  );
+}
+
+/** Step 1 image: the underwriting result, with the limits the live mandate actually carries. */
+function UnderwritingFragment() {
+  const rows = [
+    ["Max leverage", "1.5×"],
+    ["BTC position", "$160"],
+    ["ETH position", "$280"],
+    ["Cooldown after an $8 loss", "600 blocks"],
+    ["Drawdown floor", "5% from peak"],
+  ];
+  return (
+    <div className={`${s.fragment} ${s.frost}`} aria-hidden>
+      <div className={s.fragHead}>
+        <span>Underwriting report</span>
+        <span className="badge" data-tone="pending">
+          Nansen regime: risk-off
+        </span>
+      </div>
+      <ul className={s.limits}>
+        {rows.map(([k, v]) => (
+          <li key={k}>
+            <span>{k}</span>
+            <strong>{v}</strong>
+          </li>
+        ))}
+      </ul>
+      <div className={s.fingerprint}>
+        <span>Report fingerprint</span>
+        <span className="onchain">0xa4b2c547…a873</span>
+        <span className="badge" data-tone="held">
+          Matches on-chain
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Step 2 image: the verdict, big. */
+function VerdictFragment() {
+  return (
+    <div className={`${s.fragment} ${s.ember}`} aria-hidden>
+      <span className="badge" data-tone="breach">
+        Blocked on-chain
+      </span>
+      <p className={s.bigVerdict}>11.3×</p>
+      <p className={s.verdictSub}>Attempted leverage. The limit is 1.5×.</p>
+      <div className={s.compare}>
+        <div>
+          <span className={s.compareLabel}>Limit</span>
+          <span className={s.compareBar} style={{ width: "13%" }} data-tone="held" />
+        </div>
+        <div>
+          <span className={s.compareLabel}>Attempted</span>
+          <span className={s.compareBar} style={{ width: "100%" }} data-tone="breach" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Step 3 image: the breach as it actually happened on testnet. */
+function BreachFragment() {
+  const events = [
+    { t: "Block 64,986,214", h: "Breach flagged", d: "Drawdown past the floor. Caught 6 blocks after it happened." },
+    { t: "Same transaction", h: "Position closed", d: "The account can only close trades from here on." },
+    { t: "200 blocks later", h: "Dispute window ends", d: "No one disputed the breach." },
+    { t: "Settled", h: "Bond paid $0.109218", d: "The exact loss from the equity peak, in AUSD." },
+  ];
+  return (
+    <div className={`${s.fragment} ${s.ember}`} aria-hidden>
+      <ol className={s.timeline}>
+        {events.map((e, i) => (
+          <li key={e.h} data-last={i === events.length - 1 || undefined}>
+            <span className={s.tTime}>{e.t}</span>
+            <span className={s.tHead}>{e.h}</span>
+            <span className={s.tBody}>{e.d}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }

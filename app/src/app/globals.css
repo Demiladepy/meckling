@@ -1,43 +1,60 @@
 /*
- * Design tokens — PRD 11.3, now resolved as one system: Era's warm editorial paper and pill actions, Altitude's
- * serif display and near-black data panels.
+ * Design tokens — Fey is the primary reference (docs/design.md).
  *
- * The split is the product, not decoration: the human side of every screen sits on parchment, and anything the
- * chain decided sits on ink. Zero shadows — elevation is surface colour and a hairline. All numbers are tabular.
+ * Matte near-black canvas, one narrowed sans doing every job, product UI as the imagery, pill controls, and colour
+ * only as signal: green means the chain allowed it, ember means the chain stopped it, blue is where you are.
+ *
+ * Token names are kept from the earlier light theme so every page re-skins from here. Their meaning is semantic,
+ * not literal: --paper is "the canvas", --ink is "primary text", whatever colour those happen to be.
  */
 :root {
-  /* Paper side (Era) */
-  --paper: #f3f3f1;
-  --surface: #ffffff;
-  --ink: #191a17;
-  --graphite: #6b6a66;
-  --hairline: #e6e6e4;
-  --hairline-strong: rgba(25, 26, 23, 0.16);
-
-  /* Ink side (Altitude): the chain's own surfaces, stacked by luminance, never by shadow */
-  --midnight: #181818;
-  --midnight-deep: #111111;
+  /* Surfaces, darkest to lightest. Depth comes from these steps, never from borders alone. */
+  --paper: #0b0b0b; /* canvas */
+  --surface: #131313; /* panel, input well */
+  --midnight: #1a1a1a; /* the chain's own surface: anything here is a verdict */
   --midnight-card: #1f1f1f;
   --midnight-raised: #262626;
-  --bone: #eeeeee;
-  --fog: #a4a19b;
+  --midnight-deep: #070707;
 
-  /* Action and state. One blue for actions and focus; three states because a risk product must name them. */
-  --action: #2b7fff;
-  --breach: #c8452f;
-  --pending: #b07d16;
-  --held: #2f7d52;
-  --sage: #add2d1;
+  /* Type */
+  --ink: #f4f4f2; /* primary text, luminous */
+  --bone: #f4f4f2;
+  --graphite: #868f97; /* secondary text */
+  --fog: #a9b0b6;
+  --smoke: #525252;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
 
-  --radius-card: 12px;
+  /* Signal. Never decoration. */
+  --action: #479ffa; /* navigation, links, focus */
+  --held: #4ebe96; /* allowed, filled, healthy */
+  --breach: #ff8f5e; /* blocked, broken, paid out */
+  --pending: #f2b84b; /* waiting on a window */
+
+  /* Atmosphere behind product imagery only (Fey's showcase gradients). */
+  --ember-glow: radial-gradient(60% 55% at 50% 40%, rgba(255, 143, 94, 0.22), rgba(85, 27, 16, 0.08) 45%, transparent 75%);
+  --frost-glow: radial-gradient(60% 55% at 50% 40%, rgba(182, 214, 255, 0.16), rgba(57, 63, 86, 0.06) 45%, transparent 75%);
+
+  /* Fonts: one family. Older modules still ask for --font-inter / --font-serif; both resolve to it. */
+  --font-inter: var(--font-sans);
+  --font-serif: var(--font-sans);
+
+  --radius-card: 16px;
+  --radius-small: 10px;
   --radius-badge: 6px;
-  --radius-input: 8px;
-  --radius-media: 16px;
-  --radius-pill: 9999px;
+  --radius-input: 10px;
+  --radius-media: 20px;
+  --radius-pill: 99px;
   --pad-card: 24px;
   --gap-related: 16px;
-  --gap-section: 80px;
-  --ease: 200ms ease;
+  --gap-section: 120px;
+  --ease: 180ms ease;
+
+  /* Fey's two elevations: a deep black halo for floating product, a soft white glow for the primary action. */
+  --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 44px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 1px 0 rgba(0, 0, 0, 0.85), 0 0 14px rgba(255, 255, 255, 0.22);
+
+  color-scheme: dark;
 }
 
 *,
@@ -48,19 +65,25 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  background: var(--paper);
 }
 
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   font-size: 16px;
   font-weight: 400;
-  letter-spacing: -0.16px;
-  line-height: 1.5;
+  letter-spacing: -0.01em;
+  line-height: 1.55;
   font-variant-numeric: lining-nums tabular-nums;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(71, 159, 250, 0.35);
 }
 
 h1,
@@ -68,43 +91,57 @@ h2,
 h3 {
   margin: 0;
   font-weight: 500;
+  text-wrap: balance;
 }
 
-/* Display and section headings are the serif. Light weight at large size is the whole voice: never bold. */
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+/*
+ * Display type is the signature: narrowed, tight, calm. Large and confident without going heavy.
+ */
 .display,
 .section-heading {
-  font-family: var(--font-serif), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.025em;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-stretch: 88%;
+  color: var(--ink);
 }
 
 .display {
-  font-size: clamp(38px, 7.5vw, 68px);
-  line-height: 1.1;
+  font-size: clamp(46px, 8vw, 96px);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
 }
 
 .section-heading {
-  font-size: clamp(28px, 4vw, 35px);
-  line-height: 1.2;
+  font-size: clamp(32px, 4.4vw, 52px);
+  font-weight: 560;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
 }
 
 .body-secondary {
   color: var(--graphite);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .editorial {
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: 18px;
-  line-height: 1.56;
-  letter-spacing: normal;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--fog);
 }
 
-/* Monospace only for literal on-chain identifiers: block numbers, hashes, addresses. */
+/* Monospace only for literal on-chain identifiers: addresses, fingerprints, block numbers. */
 .onchain {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 13px;
-  letter-spacing: 0.01em;
+  font-size: 0.86em;
+  letter-spacing: 0;
 }
 
 .card {
@@ -117,28 +154,38 @@ h3 {
 /* The chain's surface. Anything inside it is a verdict, not a proposal. */
 .card-ink {
   background: var(--midnight);
-  border: 1px solid var(--midnight-raised);
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-card);
   padding: var(--pad-card);
-  color: var(--bone);
+  color: var(--ink);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
-  border-radius: var(--radius-badge);
-  background: var(--hairline);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--midnight-raised);
   color: var(--ink);
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: -0.12px;
+  letter-spacing: 0;
 }
 
-.card-ink .badge {
-  background: var(--midnight-raised);
-  color: var(--bone);
+.badge[data-tone="held"] {
+  background: rgba(78, 190, 150, 0.14);
+  color: var(--held);
+}
+
+.badge[data-tone="breach"] {
+  background: rgba(255, 143, 94, 0.14);
+  color: var(--breach);
+}
+
+.badge[data-tone="pending"] {
+  background: rgba(242, 184, 75, 0.14);
+  color: var(--pending);
 }
 
 .button-primary,
@@ -147,56 +194,51 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 0 20px;
+  min-height: 46px;
+  padding: 0 22px;
   border-radius: var(--radius-pill);
   font: inherit;
   font-size: 15px;
   font-weight: 500;
-  letter-spacing: -0.15px;
+  letter-spacing: -0.01em;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background var(--ease), color var(--ease), opacity var(--ease);
+  transition: background var(--ease), color var(--ease), box-shadow var(--ease), border-color var(--ease);
 }
 
-/* Primary action is ink on paper, not a blue button: the palette stays near-monochrome. */
+/* The one luminous object on a screen. */
 .button-primary {
   border: 1px solid var(--ink);
   background: var(--ink);
-  color: var(--surface);
+  color: var(--paper);
+  box-shadow: var(--shadow-glow);
 }
 
 .button-primary:hover {
-  background: #2a2b27;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.85), 0 0 22px rgba(255, 255, 255, 0.32);
 }
 
 .button-ghost {
-  border: 1px solid var(--ink);
+  border: 1px solid var(--hairline-strong);
   background: transparent;
   color: var(--ink);
 }
 
 .button-ghost:hover {
-  background: var(--hairline);
-}
-
-.card-ink .button-ghost {
-  border-color: var(--bone);
-  color: var(--bone);
-}
-
-.card-ink .button-ghost:hover {
-  background: var(--midnight-raised);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .button-primary:disabled,
 .button-ghost:disabled {
   opacity: 0.35;
   cursor: default;
+  box-shadow: none;
 }
 
-.button-primary:focus-visible,
-.button-ghost:focus-visible {
+:focus-visible {
   outline: 2px solid var(--action);
   outline-offset: 3px;
 }

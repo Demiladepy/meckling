@@ -139,10 +139,11 @@
   cursor: pointer;
 }
 
+/* Selected option is the luminous one: white pill, black text. */
 .choices button[data-on] {
-  background: var(--midnight);
-  border-color: var(--midnight);
-  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
 
 .breaches {
