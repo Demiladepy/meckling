@@ -14,24 +14,17 @@ export interface DemoAgent {
 
 export const DEMO_AGENTS: DemoAgent[] = [
   {
-    address: "0x3d0ec7098437A9755F2C0Bc6C43D250464225F3A",
-    label: "Nansen-backed agent",
-    blurb: "Underwritten from live Nansen · 11.3× blocked at 1.5× · 0.7× filled on Perpl",
-    limits: "1.5× · $160 BTC · $280 ETH · 5% drawdown",
-    nansen: true,
-  },
-  {
     address: "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0",
-    label: "Breach + bond payout",
-    blurb: "Flagged in 6 blocks · bond paid the backer $0.109218 — exact loss from peak",
-    limits: "Max drawdown breached · close-only after flag",
+    label: "Nansen-backed agent",
+    blurb: "Limits set from live Nansen data. When the market broke its drawdown floor, the breach was flagged in 6 blocks and the bond paid the backer $0.109218.",
+    limits: "Drawdown floor breached, now close-only",
     nansen: true,
   },
   {
     address: "0xB81b1d54a76170dD0c5c4306f5f0437329afA53F",
     label: "Self-mandate trader",
-    blurb: "Trader-set rules · $50 filled · $220 blocked by their own notional limit",
-    limits: "BTC only · 3× · $250 per market",
+    blurb: "A trader holding themselves to their own rules. A $50 long filled; a $220 long was blocked by their own size limit.",
+    limits: "BTC only, 3× leverage, $250 per market",
     nansen: false,
   },
 ];

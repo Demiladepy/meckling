@@ -2,9 +2,12 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import s from "./page.module.css";
 
-/** Live accounts on Monad testnet (docs/handoff.md). */
-const LIVE_AGENT = "0x3d0ec7098437A9755F2C0Bc6C43D250464225F3A";
-const BREACH_AGENT = "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0";
+/**
+ * The live agent on the current testnet contracts: Nansen mandate #1. Everything the hero and the step images show
+ * is read from this account — its reasoning log, the 12x block, the fill and the breach the bond paid.
+ */
+const LIVE_AGENT = "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0";
+const BREACH_AGENT = LIVE_AGENT;
 
 export default function Home() {
   return (
@@ -36,14 +39,14 @@ export default function Home() {
             <div className={s.glow} aria-hidden />
             <AgentWindow />
             <figcaption className={s.caption}>
-              The agent screen, replayed from a live mandate on Monad testnet. The 12× attempt was a deliberate test of the
-              limits.
+              The live agent on Monad testnet, shown as it happened. The 12× attempt was a deliberate test of limits set
+              from Nansen data.
             </figcaption>
           </figure>
         </section>
 
         <section className={s.ledger} aria-label="Measured on Monad testnet">
-          <Stat value="11.3×" label="A 12× trade stopped cold against a 1.5× limit" />
+          <Stat value="12.0×" label="Attempted leverage, stopped against a 1.5× limit set from Nansen data" />
           <Stat value="6 blocks" label="From a market breach to an on-chain flag, about two seconds" />
           <Stat value="$0.109218" label="Paid to the backer from the operator’s bond, the exact loss" />
           <Stat value="16,000" label="Randomised attacks on the contracts, and every safety rule held" />
@@ -171,13 +174,13 @@ function AgentWindow() {
     <div className={s.window} aria-hidden>
       <div className={s.windowBar}>
         <span className={s.windowTitle}>
-          Agent <span className="onchain">0x3d0e…5F3A</span>
+          Agent <span className="onchain">0xAdb1…10e0</span>
         </span>
         <span className="badge" data-tone="held">
           <span className={s.liveDot} /> Live on Monad
         </span>
         <span className={s.windowEquity}>
-          Equity <strong>$200.00</strong>
+          Equity <strong>$200.01</strong>
         </span>
       </div>
 
@@ -188,17 +191,20 @@ function AgentWindow() {
 
       <div className={s.row}>
         <div className={s.agentCell}>
-          <p className={s.quote}>&ldquo;Conviction is high and funding is flat. Going 12× long on BTC.&rdquo;</p>
-          <p className={s.proposal}>Proposed: BTC long, 12×</p>
+          <p className={s.quote}>
+            &ldquo;Smart money on Hyperliquid is net short BTC: 66% skew across 100 traders at 14.2x average leverage.
+            (from the underwriting report of 2026-09-23) Going 12x short.&rdquo;
+          </p>
+          <p className={s.proposal}>Proposed: BTC short, 12.0×</p>
         </div>
         <div className={s.chainCell} data-tone="breach">
           <span className="badge" data-tone="breach">
             Blocked on-chain
           </span>
-          <p className={s.verdict}>This trade would put you at 11.3× leverage. Your limit is 1.5×.</p>
+          <p className={s.verdict}>This trade would put you at 12.0× leverage. Your limit is 1.5×.</p>
           <div className={s.meter}>
             <span className={s.meterFill} style={{ width: "100%" }} data-tone="breach" />
-            <span className={s.meterMark} style={{ left: "13%" }} />
+            <span className={s.meterMark} style={{ left: "12.5%" }} />
           </div>
           <p className={s.quiet}>Nothing changed. The order never reached the exchange.</p>
         </div>
@@ -206,21 +212,21 @@ function AgentWindow() {
 
       <div className={s.row}>
         <div className={s.agentCell}>
-          <p className={s.quote}>&ldquo;Scaling down. A small long inside the limit keeps the thesis alive.&rdquo;</p>
-          <p className={s.proposal}>Proposed: BTC long, 0.7×</p>
+          <p className={s.quote}>&ldquo;Limit is 1.5x and $160 on BTC. Going 0.7x short.&rdquo;</p>
+          <p className={s.proposal}>Proposed: BTC short, 0.7×</p>
         </div>
         <div className={s.chainCell} data-tone="held">
           <span className="badge" data-tone="held">
             Filled on Perpl
           </span>
-          <p className={s.verdict}>0.7× leverage. Every rule held.</p>
+          <p className={s.verdict}>$143.47 notional. Every rule held.</p>
         </div>
       </div>
 
       <div className={s.headroom}>
         <Headroom label="Leverage" used={0.47} text="0.7 of 1.5×" />
-        <Headroom label="BTC size" used={0.875} text="$140 of $160" />
-        <Headroom label="Drawdown" used={0} text="0 of 5%" />
+        <Headroom label="BTC size" used={0.897} text="$143 of $160" />
+        <Headroom label="Orders" used={0.1} text="1 of 10 in window" />
       </div>
     </div>
   );
@@ -238,21 +244,21 @@ function Headroom({ label, used, text }: { label: string; used: number; text: st
   );
 }
 
-/** Step 1 image: the underwriting result, with the limits the live mandate actually carries. */
+/** Step 1 image: the limits the live agent's mandate carries on-chain, and its real report fingerprint. */
 function UnderwritingFragment() {
   const rows = [
     ["Max leverage", "1.5×"],
     ["BTC position", "$160"],
-    ["ETH position", "$280"],
+    ["Markets", "BTC only"],
+    ["Order rate", "10 per 100 blocks"],
     ["Cooldown after an $8 loss", "600 blocks"],
-    ["Drawdown floor", "5% from peak"],
   ];
   return (
     <div className={`${s.fragment} ${s.frost}`} aria-hidden>
       <div className={s.fragHead}>
         <span>Underwriting report</span>
         <span className="badge" data-tone="pending">
-          Nansen regime: risk-off
+          Set from live Nansen data
         </span>
       </div>
       <ul className={s.limits}>
@@ -265,7 +271,7 @@ function UnderwritingFragment() {
       </ul>
       <div className={s.fingerprint}>
         <span>Report fingerprint</span>
-        <span className="onchain">0xa4b2c547…a873</span>
+        <span className="onchain">0x0882f77c…9a66</span>
         <span className="badge" data-tone="held">
           Matches on-chain
         </span>
@@ -281,12 +287,12 @@ function VerdictFragment() {
       <span className="badge" data-tone="breach">
         Blocked on-chain
       </span>
-      <p className={s.bigVerdict}>11.3×</p>
+      <p className={s.bigVerdict}>12.0×</p>
       <p className={s.verdictSub}>Attempted leverage. The limit is 1.5×.</p>
       <div className={s.compare}>
         <div>
           <span className={s.compareLabel}>Limit</span>
-          <span className={s.compareBar} style={{ width: "13%" }} data-tone="held" />
+          <span className={s.compareBar} style={{ width: "12.5%" }} data-tone="held" />
         </div>
         <div>
           <span className={s.compareLabel}>Attempted</span>
