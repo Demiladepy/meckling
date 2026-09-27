@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { isAddress } from "viem";
 import { DATA_DIR } from "@/lib/server/env";
 import { jsonResponse } from "@/lib/json";
+import { bundledLog } from "@/lib/server/bundledLogs";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ account
       .slice(-100);
     return jsonResponse({ records });
   } catch {
-    return jsonResponse({ records: [] });
+    // No local log (e.g. on Vercel): fall back to the copy shipped with the app, if this account has one.
+    return jsonResponse({ records: (bundledLog(account) ?? []).slice(-100) });
   }
 }

@@ -1,0 +1,58 @@
+[
+  {
+    "ts": "2026-09-23T09:30:38.498Z",
+    "block": "64979900",
+    "account": "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0",
+    "provider": "scripted-demo",
+    "intent": {
+      "action": "open_short",
+      "market": "BTC",
+      "size_usd": 2400
+    },
+    "reasoning": "Smart money on Hyperliquid is net short BTC: 66% skew across 100 traders at 14.2x average leverage. (from the underwriting report of 2026-09-23) Going 12x short.",
+    "result": "blocked",
+    "proposedOrder": {
+      "market": "BTC",
+      "side": "short",
+      "lots": "2793",
+      "limitPrice": 85048.7,
+      "notionalUsd": 2399.404854,
+      "leverageAfter": 11.997
+    },
+    "preflightTxHash": "0x54acc9c866007ec946a29dabbcd75504de8c90f53b322307e0cb7d8453eb3126",
+    "violation": {
+      "ruleIndex": 0,
+      "rule": "Max leverage",
+      "observed": "120068",
+      "limit": "15000",
+      "message": "Blocked: this trade would put you at 12x leverage. Your limit is 1.5x."
+    },
+    "txHash": "0xb30615446723ff4380e201c752dae75eae1400f42bb5f3077265173a48a58e72",
+    "resultBlock": "64979909"
+  },
+  {
+    "ts": "2026-09-23T09:30:47.653Z",
+    "block": "64979930",
+    "account": "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0",
+    "provider": "scripted-demo",
+    "intent": {
+      "action": "open_short",
+      "market": "BTC",
+      "size_usd": 144
+    },
+    "reasoning": "Limit is 1.5x and $160 on BTC. Going 0.7x short.",
+    "result": "filled",
+    "proposedOrder": {
+      "market": "BTC",
+      "side": "short",
+      "lots": "167",
+      "limitPrice": 85048.7,
+      "notionalUsd": 143.466026,
+      "leverageAfter": 0.7173
+    },
+    "preflightTxHash": "0x9f6d9212ff9666ecea0e5a57d04f0184e9e061a038cf1410749498522a387717",
+    "txHash": "0x04979b7fd11051538e7cfe67fda7e5abfd44b8e187d67709dc5b6cfed5ac041e",
+    "resultBlock": "64979940",
+    "gasUsed": "614018"
+  }
+]

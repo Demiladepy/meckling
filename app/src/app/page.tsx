@@ -39,8 +39,9 @@ export default function Home() {
             <div className={s.glow} aria-hidden />
             <AgentWindow />
             <figcaption className={s.caption}>
-              The live agent on Monad testnet, shown as it happened. The 12× attempt was a deliberate test of limits set
-              from Nansen data.
+              The live agent on Monad testnet, shown as it happened. This run used the scripted demo agent: it quotes
+              the real Nansen report and deliberately tries 12× to test the limits. The block and the fill are real
+              on-chain transactions.
             </figcaption>
           </figure>
         </section>

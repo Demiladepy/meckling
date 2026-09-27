@@ -35,3 +35,6 @@ contracts/deployments/local.json
 indexer/.envio/
 indexer/generated/
 indexer/envio-env.d.ts
+.vercel
+
+.vercel

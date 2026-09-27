@@ -200,6 +200,12 @@ function Row({
       <div className={s.agent}>
         <p className={s.block}>
           Block <span className="onchain">{formatBlock(r.block)}</span>
+          {/* Honesty rule: a scripted run says it is scripted, right where the reasoning appears. */}
+          {r.provider === "scripted-demo" && (
+            <span className="badge" data-tone="pending" style={{ marginLeft: 10 }}>
+              Scripted demo
+            </span>
+          )}
         </p>
         <p className={s.reasoning}>&ldquo;{r.reasoning}&rdquo;</p>
         {r.proposedOrder && (

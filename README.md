@@ -1,111 +1,158 @@
 # Mandate
 
-> Nansen evidence doesn't inform a human decision here — it is compiled into limits a smart contract enforces, and the report that justified them is hashed on-chain with the mandate.
+**AI traders that can't break your rules.**
 
-Fund an AI trading agent on Monad. Rules it could break are reverted inside its own trade. Rules the market breaks are caught on-chain and paid from the operator's bond.
+Mandate is a risk-enforcement layer for AI trading agents on Monad. Nansen's smart-money data sets an agent's limits.
+The chain checks those limits inside every trade the agent makes. And when the market breaks a limit on its own, the
+operator's bond pays the backer back.
 
-**Live app:** _[paste Vercel URL before submit]_  
-**Demo video (3 min):** _[paste link before submit]_  
-**Network:** Monad testnet · **Data:** [Nansen](https://www.nansen.ai) · **Checklist:** [docs/submission-nansen.md](docs/submission-nansen.md)
+[**Live app**](https://mandate-rose.vercel.app) &nbsp;·&nbsp; [**Demo video**](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp;
+[Design notes](docs/design.md) &nbsp;·&nbsp; [Specification](docs/PRD.md)
 
-> Contracts are unaudited. Use small funds only.
+[![Mandate — three-minute demo](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
 
-## The Nansen argument
+---
 
-Almost every entrant will print Nansen numbers on a dashboard. Mandate does something else:
+## The idea
 
-1. **Live underwriting** pulls smart-money perp positioning, net flows and holder concentration.
-2. A published regime table turns that evidence into **concrete limits** (leverage, notional, cooldown, drawdown).
-3. The full report is stored; its **keccak256** is written into `MandateRegistry` with the mandate.
-4. Every trade goes through `MandateAccount.execute` — a broken action rule **reverts in the same transaction**.
+Handing capital to an AI agent means trusting it to respect limits it could simply ignore. Dashboards and alerts only
+tell you after the damage is done.
 
-Judges can underwrite live at `/mandates/new`, verify the hash in-browser, then watch enforcement on a funded testnet account.
+Mandate moves the limits somewhere the agent cannot reach. The agent trades through an account that tests every order
+against its rules in the same transaction. A trade that breaks one never happens.
 
-![Agent proposes high leverage on parchment; chain reverts at the Nansen-sized limit on ink](docs/demo-split.svg)
+The limits themselves are not guesses. They are compiled from Nansen evidence, and the report behind them is
+fingerprinted and stored on-chain with the mandate, so anyone can check where every number came from.
 
-## Try it
+> Nansen's data doesn't inform a person here. It becomes limits a smart contract enforces.
 
-1. **Underwrite with Nansen** (`/mandates/new`) — live API only; each limit names the signal that produced it; verify `reportHash`.
-2. **Agents** (`/agents`) — live MandateAccounts with equity, bond and breach counts.
-3. **Enforcement** (`/agents/0x3d0ec7098437A9755F2C0Bc6C43D250464225F3A`) — paper / ink split; 11.3× blocked against 1.5×.
-4. **Breach + bond** (`/agents/0xAdb15A72D8e01FC641ad2E218E060e434f2610e0`) — flagged in 6 blocks; backer paid **$0.109218**.
+## How it works
+
+**1. Nansen sets the limits.** Choose the markets an agent may trade. Mandate reads smart-money flows and perp
+positioning from Nansen, settles a regime for each market, and turns it into hard numbers: leverage, position size,
+order rate, a cooldown after losses, a drawdown floor. Every limit names the signal that produced it.
+
+**2. The backer approves, and the fingerprint goes on-chain.** The backer signs in with a passkey — no seed phrase, no
+extension. A trading account is created, the rules are written to Monad, and the report's fingerprint is stored beside
+them. Anyone can recompute it in the browser and compare.
+
+**3. Every trade is checked before it lands.** The agent holds a key that can only trade, never withdraw. Each order it
+sends is checked against the rules inside the transaction; a violation reverts it before it reaches the exchange.
+
+**4. When the market breaks a rule, the bond pays.** Some limits can be broken by price alone. A keeper watches every
+account, verifies the breach against a Chainlink price feed, closes the position and, after a dispute window, pays the
+backer the exact loss from the operator's bond.
+
+```mermaid
+flowchart LR
+    N[Nansen evidence] --> U[Underwriting<br/>limits + fingerprint]
+    U --> R[Mandate on Monad]
+    A[AI agent] -->|proposes a trade| M[Trading account]
+    R --> M
+    M -->|every rule holds| P[Filled on Perpl]
+    M -->|a rule breaks| X[Reverted]
+    K[Keeper + Chainlink] -->|market breach| B[Bond pays the backer]
+```
 
 ## Proven on Monad testnet
 
-| Proof | Detail |
+Every figure below comes from a live account on the current contracts and can be checked on-chain.
+
+| | |
 |---|---|
-| Live underwriting | Nansen → regime → limits; report keccak256 verifiable in-browser |
-| On-chain hash | Same `reportHash` in `MandateRegistry` as in the UI |
-| Blocked trade | `MandateViolation` — observed **11.3×** vs **1.5×** limit; nothing changed on-chain |
-| Breach + bond | Flagged in **6 blocks**; bond paid **$0.109218** (exact loss from peak). Flag `0x76f0f447…`, slash `0xacfd9371…` |
-| Invariants | Eight PRD invariants over **16k** fuzzed calls |
+| **A trade blocked** | The agent tried 12.0× leverage against a 1.5× limit set from Nansen data. The transaction reverted; nothing reached the exchange. |
+| **A trade allowed** | It scaled to 0.7× and filled on Perpl for $143.47 notional, inside every rule. |
+| **A breach paid** | When the account slipped past its drawdown floor, the keeper flagged it within **6 blocks**, closed the position in the same transaction, and after the dispute window the bond paid the backer **$0.109218** — the exact loss from peak. |
+| **A trader's own rules** | A self-mandate account filled a $50 long and blocked a $220 long against its owner's $250 limit. |
+| **Safety properties** | Eight contract invariants held across **16,000** randomised calls, with fork tests against real Perpl at mainnet state. |
 
-## Testnet addresses
+The live agent is [`0xAdb1…10e0`](https://mandate-rose.vercel.app/agents/0xAdb15A72D8e01FC641ad2E218E060e434f2610e0).
 
-| Contract / account | Address |
+## Built with
+
+| | Role in Mandate | Status |
+|---|---|---|
+| [**Nansen**](https://www.nansen.ai) | Smart-money flows and perp positioning become the agent's limits; the report is fingerprinted on-chain | Live |
+| [**Monad**](https://www.monad.xyz) | Where every rule is enforced, measured at ~0.31 s per block | Live on testnet |
+| [**Perpl**](https://perpl.xyz) | The on-chain order book every trade goes to | Live |
+| **Mera** | Passkey accounts for every person; no seed phrases anywhere | Built |
+| **Agora AUSD** | The collateral every account holds and every bond pays out in | Live |
+| [**Chainlink**](https://chain.link) | Price feeds guard every breach; the keeper is written as a CRE workflow | Feeds live · CRE workflow built, simulation pending |
+| [**Envio**](https://envio.dev) | Indexes track records and breach history, which Monad nodes don't serve | Indexer built, hosting pending |
+| [**QuickNode**](https://www.quicknode.com) | Private RPC, kept server-side | Live |
+| **Claude** | The agent's reasoning model | Integrated |
+
+## Honest notes
+
+- **The demo agent run is scripted.** The agent records shown on the live site come from the scripted demo provider:
+  it quotes the real Nansen report and deliberately attempts 12× to test the limits. The blocked transaction, the fill
+  and the breach are real on-chain events. The runtime also runs Claude as its reasoning model.
+- **The breach was flagged by the fallback keeper**, which runs the same checks as the Chainlink CRE workflow. The CRE
+  workflow is written and type-checked but has not yet been simulated.
+- **Everything runs on Monad testnet** with test AUSD. The contracts are **unaudited**.
+
+## Contracts on Monad testnet
+
+| Contract | Address |
 |---|---|
 | MandateRegistry | `0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133` |
 | MandateAccountFactory | `0x8F721E6B1367d471cFbA5fBdBbD714f208eB4F34` |
 | PerplAdapter | `0xE8F999dECEB04FC84a9da540b577cB4C66ec69bE` |
-| Nansen-backed MandateAccount | `0x3d0ec7098437A9755F2C0Bc6C43D250464225F3A` |
-| Report hash | `0xa4b2c54774d859c37c6013743a3dff3c72af8bb949932c369e21ef0bc317a873` |
-| Breach account | `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0` |
-
-Full handoff: [docs/handoff.md](docs/handoff.md).
-
-## How it works
-
-1. **Underwrite.** Nansen smart-money evidence sets a risk regime per market. A published table maps regime → limits. The report is stored off-chain; its keccak256 is `reportHash` on the mandate.
-2. **Approve.** The backer signs in with a Mera passkey. A `MandateAccount` is created; the agent gets a session key that can only trade.
-3. **Enforce.** Every agent trade goes through `MandateAccount.execute`. Action-rule breaks revert. Market rules (e.g. max drawdown) are flagged by a keeper; after the dispute window the bond pays the backer.
-
-**What Nansen is not doing:** the agent model reasons and proposes trades. Nansen sets the limits. The chain enforces them.
-
-## Deploy for judges
-
-```bash
-# Vercel (or similar): NETWORK=testnet, MONAD_TESTNET_RPC_URL, NANSEN_API_KEY required
-# Do not set ALLOW_NANSEN_FIXTURE on the public deploy
-```
+| OracleGuard | `0xC395AFc52F37133091ec70907d859Fb0aeeDfAA2` |
+| BondVault | `0xe6FB91056f899656d3700DbDb7BcE5680984686f` |
+| Live agent account | `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0` |
+| Its report fingerprint | `0x0882f77cc1ac9fa615372254d3a4dd0bc2e29caa5a2af5128883237c112c9a66` |
 
 ## Repository
 
 ```
-contracts/        Foundry: MandateRegistry, MandateAccount(+Factory), rules, PerplAdapter
+contracts/          Solidity (Foundry): registry, trading account and factory, one library per rule,
+                    Perpl adapter, oracle guard, bond vault, CRE receiver
 services/
-  common/         ABIs, network config, Perpl encoding, rule copy
-  underwriter/    Nansen → regime → limits → report hash
-  agent/          runtime (Claude / Kimi)
-  keeper-cre/     Chainlink CRE keeper
-  keeper-relayer/ fallback relayer
-indexer/          Envio HyperIndex
-app/              Next.js PWA
-docs/             PRD, plan, design, decisions, handoff, Nansen checklist
+  common/           Shared ABIs, network config, Perpl encoding, rule logic and copy
+  underwriter/      Nansen evidence → regime → limits → report fingerprint
+  agent/            The agent runtime (Claude, Kimi, or the scripted demo)
+  keeper-cre/       The keeper as a Chainlink CRE workflow
+  keeper-relayer/   The same keeper as a plain process
+indexer/            Envio HyperIndex: track records, breaches, equity curves
+app/                Next.js PWA: landing, agents, underwriting, agent screen, risk, trade
+docs/               Specification, plan, decisions, spikes, design, integrations
 ```
 
-## Run locally
+## Running it
 
-Requirements: Foundry, Node 22+, pnpm 10, a Nansen API key.
+Requirements: Node 22+, pnpm 10, Foundry, and a Nansen API key.
 
 ```bash
-git clone --recurse-submodules <repo> && cd mandate
-cp .env.example .env   # set NANSEN_API_KEY, NETWORK=testnet, RPC, agent keys
+git clone --recurse-submodules https://github.com/Demiladepy/mandate.git
+cd mandate
+cp .env.example .env        # add NANSEN_API_KEY, and a Monad testnet RPC if you have one
 pnpm install
 NETWORK=testnet pnpm --filter app dev
 ```
 
-Open `http://localhost:3000`. Local engineering without a key can set `ALLOW_NANSEN_FIXTURE=1` — that path is disabled on the judge-facing deploy.
+Then open <http://localhost:3000>.
 
-## Tests
+### Tests
 
 ```bash
-cd contracts && forge test
-cd contracts && FOUNDRY_PROFILE=fork forge test -vv   # needs MONAD_RPC_URL
-pnpm --filter @mandate/common test && pnpm --filter underwriter test
+cd contracts && forge test                               # unit and invariant tests
+cd contracts && FOUNDRY_PROFILE=fork forge test -vv      # real Perpl on a mainnet fork
+pnpm -r typecheck && pnpm --filter @mandate/common test && pnpm --filter underwriter test
 ```
 
-## Notes
+## Documentation
 
-- **Unaudited.**
-- Track-record history needs the Envio indexer; without it those strips hide themselves.
-- Local fork shims (`fork:sync`, `/api/dev/fund`) refuse to run on a real network.
+| | |
+|---|---|
+| [Specification](docs/PRD.md) | What Mandate is, the rules it enforces, and the invariants it guarantees |
+| [Plan](docs/plan.md) | Milestones, what is done and what is next |
+| [Decisions](docs/decisions.md) | Rulings that refine the specification |
+| [Spikes](docs/spikes.md) | Measured facts about Monad, Perpl, Nansen and the rest |
+| [Integrations](docs/integrations.md) | Where every sponsor integration stands |
+| [Design](docs/design.md) | The visual system |
+| [Demo script](docs/demo-script.md) | The three-minute walkthrough |
+
+---
+
+Built for the Monad Metropolis hackathon and the Nansen Meridian Buildathon, 2026.
