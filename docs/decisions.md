@@ -49,3 +49,18 @@ Equity is idle AUSD in the account + Perpl `balanceCNS + lockedBalanceCNS` + Σ 
 
 **D10. Realized loss for `LossCooldown`.**
 Realized loss is the pre-trade unrealized PnL times the fraction of the position closed, summed over markets that shrank or flipped. Fees and slippage are excluded. This keeps the rule computable from two snapshots with no venue event parsing.
+
+**D11. Curvance collateral: one adapter per backer, capped with Curvance's own valuation.** (Sep 27)
+`CurvanceCollateralAdapter` holds one backer's Curvance position in its own name, so one backer's health never
+depends on another's. It never prices anything itself: after every borrow and collateral withdrawal it reads
+`MarketManager.statusOf` and reverts unless `debt ≤ maxDebt × maxUseBps / 10,000`, with `maxUseBps ≤ 5,000` (PRD 7.7's
+"at most 50% of Curvance's maximum"). Anyone may repay; only the backer may add, borrow or withdraw. The PRD's keeper
+rule `CollateralHealth` is **not built yet**: it needs a new market-rule kind plus a remedy for when health falls
+(unwind and repay), which crosses `BondVault` and the keeper. For earnAUSD against AUSD debt the price drift it would
+catch is small, and the adapter already enforces the cap at every action. Owner to decide whether it is worth the time.
+
+**D12. Loosening a limit (queued, not built).** (Sep 27, from the owner's research)
+Rules can only tighten today. Proposed: `proposeLoosen` in `MandateRegistry`, requiring both backer and operator, taking
+effect only after a timelock of N blocks; tightening stays instant and unilateral. New invariant: a loosening never
+takes effect before its timelock. Agents may emit `RequestLimitChange` with their reasoning for the backer's screen.
+Queued until the original plan is finished, per the owner.

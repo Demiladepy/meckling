@@ -99,6 +99,30 @@ Gas seen in the trace: IOC open fill about 153k, reduce-only close about 89k, ca
 - **Caveat:** PT-AUSD-8OCT2026 matures **Oct 8, 2026**, inside our M3/M4 window. Default the demo to **earnAUSD** and keep PT-AUSD as a config option.
 - Both are mainnet-only. The Curvance SDK has no Monad testnet deployment, so `CurvanceCollateralAdapter` is tested by mainnet fork.
 
+**Full addresses and interface, read Sep 27 from the SDK (`src/contracts/monad-mainnet.json`, `src/abis/`) and confirmed on-chain:**
+
+| Role | Address |
+|---|---|
+| earnAUSD market (MarketManager) | `0xd6365555f6a697C7C295bA741100AA644cE28545` |
+| earnAUSD collateral cToken | `0x852FF1EC21D63b405eC431e04AE3AC760e29263D` |
+| AUSD borrowable cToken | `0xAd4AA2a713fB86FBb6b60dE2aF9E32a11DB6Abf2` |
+| earnAUSD token (`asset()` of the collateral cToken) | `0x103222f020e98Bba0AD9809A011FDF8e6F067496` |
+| AUSD (`asset()` of the borrowable cToken) | `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a` |
+
+- Both cTokens report the same `marketManager()` and `isListed` is true for both. `collConfig` = 9200 / 10450 / 10400.
+- Calls: `depositAsCollateral(assets, receiver)`, `withdrawCollateral(assets, receiver, owner)` and `collateralPosted(account)` on the
+  collateral cToken; `borrow(assets, receiver)`, `repay(assets)` and `debtBalance(account)` on the borrowable cToken.
+- `MarketManager.statusOf(account)` returns `(collateral, maxDebt, debt)` (SDK `StatusOf`) and is **nonpayable** (it accrues),
+  so off-chain readers use `eth_call`. "At most 50% of Curvance's maximum" is exactly `debt * 2 <= maxDebt`.
+- `MIN_HOLD_PERIOD` = 1200: collateral cannot leave for 1,200 seconds after it is posted (Curvance's clock, not ours).
+- At the time of reading: ~1.42M earnAUSD posted, ~96,279 AUSD available to borrow.
+- **Found by the fork tests (Sep 27):** Curvance enforces a **minimum loan size** (`LiquidityManager__InsufficientLoanSize`: 1 AUSD
+  rejected, 100 AUSD accepted), and the 1,200-second hold also blocks **repaying** right after a borrow
+  (`MarketManager__MinimumHoldPeriod`), not only withdrawing. The Fund screen must respect both.
+- Curvance's oracle reads leaf feeds `0x253c9599…51Af` (AUSD, read by `0xEd21588e…Bf3`) and `0x433eBD10…25Ef`
+  (earnAUSD component, read by `0x66608681…85da`); both only answer their whitelisted readers. On a fork they go stale
+  after a clock jump, so the fork suite re-stamps them with unchanged answers (test-only shim).
+
 ---
 
 ## S3: Mera passkey accounts

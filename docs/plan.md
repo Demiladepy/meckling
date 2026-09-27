@@ -58,7 +58,9 @@ The same loop also ran earlier **on a fork** of real Perpl at mainnet state: a 3
 - [x] Self-mandate mode (the Agora surface): `/trade`, mobile-first. **Proven live on Monad testnet** (Sep 23), account `0xB81b1d54a76170dD0c5c4306f5f0437329afA53F` — created from a fixed salt, 4 rules written on-chain, funded with 100 AUSD into a fresh Perpl account, a $50 long filled (`0x11e41a8e…`), and a $220 long was blocked with "Blocked: this trade would make your BTC position $268.92. Your limit is $250."
 - [ ] Self-mandate mode on a real phone: passkey sign-in and installed-PWA mode still to test on a device
 - [x] Risk screen (the Perpl analytics surface): `/risk/[account]` — leverage, equity vs peak, headroom per rule, breach list and a drawdown alert. Live numbers from chain state, history from the indexer. Renders 200 against the live testnet account.
-- [ ] `CurvanceCollateralAdapter` (earnAUSD; PT-AUSD matures Oct 8, so it is config-only)
+- [x] `CurvanceCollateralAdapter` (Sep 27): one per backer; posts earnAUSD to Curvance, borrows AUSD straight to the MandateAccount, and reverts any borrow or withdrawal past half of Curvance's own maximum (D11). 7 unit tests + 7 fork tests against the **real Curvance earnAUSD market on mainnet**, all green; full suite 97/97, fork suite 10/10
+- [ ] Fund screen using the adapter (earnAUSD by default; PT-AUSD matures Oct 8, so config-only). Needs a mainnet deployment: Curvance has no testnet
+- [ ] `CollateralHealth` keeper rule (PRD 7.7) — deferred pending the owner's call (D11)
 
 ## M4 — Hardening and story (Oct 9–11)
 
@@ -76,7 +78,7 @@ The same loop also ran earlier **on a fork** of real Perpl at mainnet state: a 3
 | Monad block time | ~0.30 s mainnet, ~0.31 s testnet | measured over 2,000 blocks |
 | Blocks from breach to flag | **6 on testnet** (~2 s), 7 on a 1 s-block fork | keeper logs in data/keeper-logs/ |
 | False flags | 0 of 397 testnet rounds, 0 of 63 fork rounds | same logs |
-| Tests | 90 Foundry, 13 TypeScript | `forge test`, `pnpm test` |
+| Tests | 97 Foundry (+10 fork), 13 TypeScript | `forge test`, `FOUNDRY_PROFILE=fork forge test`, `pnpm test` |
 
 ## Owner setup
 
