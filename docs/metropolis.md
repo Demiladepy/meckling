@@ -91,3 +91,27 @@ on an x402 or payments feature unless it becomes load-bearing. Scope is the enem
   time. Technical reason to verify first: Mandate's guarantee is that a trade and its rule check happen in one
   transaction. On Hyperliquid, orders placed from HyperEVM reach HyperCore through a system contract and, as far as
   we know, execute after the EVM transaction rather than inside it — if that holds, the core guarantee does not port.
+
+## Track and bounties (decided Sep 28, from the live bounty pages)
+
+**Main track:** the markets and trading-infrastructure track. Weights: technical execution 20%, design and craft 20%,
+originality 15%, **founder and market readiness 25%**, **traction and path forward 20%**. The two heaviest-weighted
+areas that are still weak make up 45% of the score: a named first user, why this market doesn't exist yet, and
+evidence of real usage with a concrete next step. Positioning hook from the track's own list: *performance bonds with
+on-chain slashing and payouts* — that is what the operator bond is.
+
+| Bounty | Submit? | Why | What's missing |
+|---|---|---|---|
+| **Agora** — mobile app: Mera sign-in, AUSD balance, Perpl trades | **Yes** | `/trade` is exactly this | Phone demo; judged on using the three together creatively |
+| **Perpl** — trading bot | **Yes** | The agent is a bot whose risk management is the product | Live agent with real on-chain activity; evidence on profitability |
+| **Nansen** | **Yes** | Nansen data becomes enforced limits | Keep; already strong |
+| **Envio** | **Yes** | Indexer + app consuming it | Deploy the indexer; judged on schema depth and live data |
+| **Chainlink CRE** | **Yes, after a fix** | Keeper is a CRE workflow | **Must call an external API** (today it only reads Monad) and show a CLI simulation |
+| **Mera** — creative PRF use | **Only with a new feature** | The bounty is for PRF uses that are **not** a wallet; ours is the wallet | A non-wallet PRF namespace, e.g. agent memory or strategy notes encrypted to the backer's passkey, with the cross-device test |
+| **Community supporters** | **If eligible** | Best project from an onboarded community group | Owner: is your community on the onboarded list? |
+| **Perpl** — analytics dashboard | **No** | Requires a full Perpl analytics product: protocol volume/OI/TVL/fees, liquidations, funding, wallet search, trade history, performance analytics, compare wallets | Our Risk screen covers mandate accounts only and would not place |
+| **Kimi** | **No** | The agent runs on Claude | — |
+
+**New deliverables found on the pages:** a logo (≤3 MB), a **2-minute pitch video** (team, problem, why us) separate from
+the 3-minute demo, and a live link with **access instructions and test credentials for judges**. Judges will arrive with
+no testnet MON or AUSD, so they need a rate-limited testnet faucet inside the app to try it at all.
