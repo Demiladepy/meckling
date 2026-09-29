@@ -64,3 +64,24 @@ Rules can only tighten today. Proposed: `proposeLoosen` in `MandateRegistry`, re
 effect only after a timelock of N blocks; tightening stays instant and unilateral. New invariant: a loosening never
 takes effect before its timelock. Agents may emit `RequestLimitChange` with their reasoning for the backer's screen.
 Queued until the original plan is finished, per the owner.
+
+**D13. Agent memory encrypted to the backer's passkey (the Mera bounty feature).** (Sep 29, designed; to build)
+The Mera bounty rewards PRF uses that are *not* a wallet. The agent's reasoning reveals the operator's strategy and the
+backer's positions, yet today it is public. Design, from reading `@category-labs/mera` 0.2.0's own types:
+- **A second, isolated PRF namespace per agent.** `getPasskeyPrfOutput({ prfSalt })` with
+  `prfSalt = SHA-256("mandate/agent-memory/v1/" + mandateAccount)`. The wallet keeps Mera's default salt, so the memory
+  key is unlinkable to the account key, and each agent gets its own.
+- **Derivation, then encryption, kept separate.** HKDF-SHA-256 over that PRF output (info `mandate.memory.x25519.v1`)
+  gives an X25519 key pair, deterministically. Nothing is stored; the backer's browser publishes only the public key.
+- **Why not Mera's secret vault:** a vault encrypts with an AES key derived from the PRF output, so encrypting needs
+  the passkey present. The agent runs on a server without it. So the agent encrypts each record to the backer's public
+  key (ephemeral X25519 → HKDF → AES-256-GCM), and any host can store the ciphertext.
+- **Cross-device test:** the same passkey on a second device re-derives the same key pair and decrypts the same records.
+- Opt-in per mandate ("private reasoning"). The public screen keeps showing verdicts; reasoning shows as encrypted
+  until the backer unlocks it with the passkey.
+
+**D14. Price collar rule (candidate — needs the owner's yes).** (Sep 29)
+SEC Rule 15c3-5 rejects "erroneous orders" on price as well as size (`docs/research.md`). Mandate limits size and
+capital but not price. A `PriceCollar` action rule would revert any order whose limit price sits more than N bps from
+the OracleGuard-trusted mark — the Knight Capital failure mode. It is outside the PRD, so it is not built until the owner
+approves (CLAUDE.md rule 1).
