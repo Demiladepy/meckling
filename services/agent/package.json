@@ -8,7 +8,8 @@
     "setup:local": "node --env-file-if-exists=../../.env --experimental-strip-types src/setup-local.ts",
     "test": "node --test --experimental-strip-types src/*.test.ts",
     "fork:sync": "node --env-file-if-exists=../../.env --experimental-strip-types src/fork-sync.ts",
-    "setup:network": "node --env-file-if-exists=../../.env --experimental-strip-types src/setup-network.ts"
+    "setup:network": "node --env-file-if-exists=../../.env --experimental-strip-types src/setup-network.ts",
+    "stage:breach": "node --env-file-if-exists=../../.env --experimental-strip-types src/stage-breach.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

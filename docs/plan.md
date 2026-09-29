@@ -46,7 +46,7 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 - [x] **Ran the breach live on Monad testnet** (Sep 23): flagged in 6 blocks, unwound, bond paid the backer $0.11 after the dispute window
 - [x] App reads track records, equity curves and blocked attempts from the indexer (`/api/accounts/[account]/history`); it degrades to live chain state when `ENVIO_GRAPHQL_URL` is unset
 - [ ] Run the indexer live: repo connected to Envio hosted, deploy branch `envio` pushed — waiting on the build result and its GraphQL URL
-- [ ] Simulate or deploy the CRE workflow: CLI v1.35.0 installed and checksum-verified, but every command needs auth — waiting on `cre login` or a `CRE_API_KEY`
+- [x] CRE workflow simulated and **broadcast on Monad testnet** (Sep 29): the workflow confirms each breach against Perpl's public API (nodes agree by median) plus the Chainlink-backed oracle guard, then flags through the CRE forwarder. Breach #1 on `0xCF41…7fC8`, tx `0xa97b6ebd…795d`, reporter = CRE receiver `0x0ebE…beAc`. Evidence: `docs/cre-simulation.md`
 
 **Exit criterion met live on Monad testnet** (Sep 23): account `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0`, breach flagged in **6 blocks** (~2 s) at block 64,986,214, position unwound into close-only, and after a 200-block dispute window the bond paid the backer **$0.109218**, the exact loss from peak. Flag tx `0x76f0f447…`, slash tx `0xacfd9371…`. 397 keeper rounds, 0 false flags. The split screen shows the whole story.
 

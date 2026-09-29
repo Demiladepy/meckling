@@ -6,7 +6,11 @@
   "oracleGuard": "0xC395AFc52F37133091ec70907d859Fb0aeeDfAA2",
   "bondVault": "0xe6FB91056f899656d3700DbDb7BcE5680984686f",
   "receiver": "0x0ebECec6eA87650D9bBcc4F553d0f4713b09beAc",
-  "accounts": ["0xAdb15A72D8e01FC641ad2E218E060e434f2610e0", "0xB81b1d54a76170dD0c5c4306f5f0437329afA53F"],
+  "accounts": [
+    "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0",
+    "0xB81b1d54a76170dD0c5c4306f5f0437329afA53F",
+    "0xCF417EdF09c7a7247Ef99d9B0B71d753962d7fC8"
+  ],
   "gasLimit": "1500000",
   "perplApi": "https://testnet.perpl.xyz/api",
   "maxVenueDeviationBps": 100

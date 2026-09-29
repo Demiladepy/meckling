@@ -25,7 +25,6 @@ import {
   bytesToHex,
   encodeCallMsg,
   handler,
-  hexToBase64,
   getNetwork,
   prepareReportRequest,
   type CronPayload,
@@ -192,7 +191,8 @@ function submit(evm: EVMClient, runtime: Runtime<Config>, cfg: Config, action: n
   // The receiver decodes abi.encode(uint8, address, uint256); strip the 4-byte selector viem adds.
   const report = runtime.report(prepareReportRequest(`0x${payload.slice(10)}` as Hex)).result();
   return evm
-    .writeReport(runtime, { receiver: hexToBase64(cfg.receiver), report, gasConfig: { gasLimit: cfg.gasLimit } })
+    // The SDK takes the receiver as a hex address string; base64 fails at runtime ("Invalid hex string").
+    .writeReport(runtime, { receiver: cfg.receiver, report, gasConfig: { gasLimit: cfg.gasLimit } })
     .result();
 }
 
