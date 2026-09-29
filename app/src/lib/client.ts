@@ -12,6 +12,8 @@ export interface AppConfig {
   deployment: Deployment | null;
   agent: { operator: Address; sessionKey: Address };
   devFaucet: boolean;
+  /** Testnet judge faucet is available (api/faucet). */
+  faucet?: boolean;
   nansenLive: boolean;
 }
 

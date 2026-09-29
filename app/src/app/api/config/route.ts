@@ -1,5 +1,6 @@
 import { AGENT, NETWORK, net } from "@/lib/server/env";
 import { jsonResponse } from "@/lib/json";
+import { faucetAvailable } from "@/lib/server/faucet";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,8 @@ export function GET(req: Request) {
     deployment: net.deployment ?? null,
     agent: AGENT,
     devFaucet: NETWORK === "local",
+    /** Testnet judge faucet: test MON and AUSD for a new passkey account (api/faucet). */
+    faucet: faucetAvailable(),
     /** True when underwriting hits live Nansen (not a local fixture). */
     nansenLive: Boolean(process.env.NANSEN_API_KEY),
   });

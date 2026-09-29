@@ -125,6 +125,12 @@
   color: var(--ink);
 }
 
+.dripNote {
+  font-size: 13px;
+  color: var(--held);
+  padding: 0 8px;
+}
+
 .dot {
   width: 6px;
   height: 6px;
