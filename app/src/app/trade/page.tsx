@@ -3,7 +3,7 @@
 // Self-mandate mode (PRD 11.1): trade Perpl from a phone under rules you set yourself. Same MandateAccount and the
 // same on-chain enforcement the agent gets — you are simply your own operator, so no bond and no keeper are needed.
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { erc20Abi, keccak256, toBytes, type Address, type Hex } from "viem";
+import { erc20Abi, keccak256, parseAbi, toBytes, type Address, type Hex, type PublicClient } from "viem";
 import {
   RULE_NAMES,
   allowedMarkets,
@@ -46,6 +46,21 @@ import s from "./page.module.css";
 const SELF_SALT = keccak256(toBytes("mandate.self.v1"));
 /** No Nansen report underwrites a self-mandate: you set the limits, so the mandate stores no report hash. */
 const NO_REPORT = `0x${"0".repeat(64)}` as Hex;
+/** Perpl's minimum first deposit (docs/spikes.md S1): 100 AUSD on testnet, 10 on mainnet. Read live, never assumed. */
+const perplMinAbi = parseAbi(["function getMinAccountOpenCNS() view returns (uint256)"]);
+
+/** Whether this account already has a Perpl account (the first deposit must meet Perpl's minimum). */
+async function venueOpen(pub: PublicClient, exchange: Address, account: Address): Promise<boolean> {
+  try {
+    const info = (await pub.readContract({ address: exchange, abi: perplExchangeAbi, functionName: "getAccountByAddr", args: [account] })) as {
+      accountId: bigint;
+    };
+    return info.accountId !== 0n;
+  } catch {
+    return false;
+  }
+}
+
 /** Self-mandates carry no bond, so there is no dispute to hold open. */
 const DISPUTE_WINDOW = 0n;
 
@@ -84,6 +99,10 @@ interface View {
   notional: bigint;
   walletAusd: bigint;
   rules: Rule[];
+  /** False until the first deposit opens the account on Perpl. */
+  venueOpen: boolean;
+  /** Perpl's minimum first deposit, in AUSD base units. */
+  minOpen: bigint;
 }
 
 export default function SelfMandatePage() {
@@ -126,12 +145,14 @@ export default function SelfMandatePage() {
     if (!cfg?.deployment || !account || !signer || !created) return;
     const dep = cfg.deployment;
     const { pub } = clients(cfg, signer);
-    const [state, walletAusd, { rules }] = await Promise.all([
+    const [state, walletAusd, { rules }, open, minOpen] = await Promise.all([
       readAccountState(pub, dep.perplAdapter, account),
       pub.readContract({ address: dep.collateralToken, abi: erc20Abi, functionName: "balanceOf", args: [signer.address] }) as Promise<bigint>,
       readRules(pub, dep.mandateRegistry, account),
+      venueOpen(pub, dep.perplExchange, account),
+      pub.readContract({ address: dep.perplExchange, abi: perplMinAbi, functionName: "getMinAccountOpenCNS" }) as Promise<bigint>,
     ]);
-    setView({ equity: state.equity, notional: state.totalNotional, walletAusd, rules });
+    setView({ equity: state.equity, notional: state.totalNotional, walletAusd, rules, venueOpen: open, minOpen });
   }, [cfg, account, signer, created]);
 
   useEffect(() => {
@@ -401,7 +422,11 @@ function Trade({
   const [size, setSize] = useState("50");
   const working = phase.kind === "working";
   const active = market ?? tradable[0];
-  const addable = view ? Math.min(50, cnsToUsd(view.walletAusd)) : 0;
+  // The first deposit opens the Perpl account and must meet Perpl's minimum; after that, add in $50 steps.
+  const walletUsd = view ? cnsToUsd(view.walletAusd) : 0;
+  const minOpenUsd = view ? cnsToUsd(view.minOpen) : 0;
+  const addable = !view ? 0 : view.venueOpen ? Math.min(50, walletUsd) : walletUsd >= minOpenUsd ? minOpenUsd : 0;
+  const shortOfMinimum = Boolean(view && !view.venueOpen && walletUsd < minOpenUsd);
 
   useEffect(() => {
     if (!market && tradable[0]) setMarket(tradable[0]);
@@ -418,8 +443,13 @@ function Trade({
         </p>
         {addable > 0 && (
           <button className={s.secondary} onClick={() => onFund(addable)} disabled={working}>
-            Add {usd(addable)} AUSD
+            {view?.venueOpen ? `Add ${usd(addable)} AUSD` : `Open your account with ${usd(addable)} AUSD`}
           </button>
+        )}
+        {shortOfMinimum && (
+          <p className={s.fine}>
+            Perpl needs at least {usd(minOpenUsd)} AUSD to open your trading account. Your wallet has {usd(walletUsd)}.
+          </p>
         )}
       </section>
 

@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { keccak256, toBytes, type Address, type Hex } from "viem";
+import { keccak256, parseAbi, toBytes, type Address, type Hex } from "viem";
 import {
   approveCall,
+  cnsToUsd,
   createAccountCall,
   mandateAccountAbi,
   mandateAccountFactoryAbi,
@@ -133,6 +134,16 @@ export default function CreateMandate() {
       if (!account) return;
       const amount = usdToCns(Number(fund));
       const { pub, wallet } = clients(cfg, account);
+      // The first deposit opens the Perpl account and must meet Perpl's minimum (100 AUSD on testnet, 10 on mainnet).
+      const minOpen = (await pub.readContract({
+        address: dep.perplExchange,
+        abi: parseAbi(["function getMinAccountOpenCNS() view returns (uint256)"]),
+        functionName: "getMinAccountOpenCNS",
+      })) as bigint;
+      if (amount < minOpen) {
+        setError(`Perpl needs at least ${cnsToUsd(minOpen).toLocaleString("en-US")} AUSD to open the account. Enter ${cnsToUsd(minOpen)} or more.`);
+        return;
+      }
       setPhase({ kind: "working", step: "Moving AUSD into the account" });
       if (cfg.devFaucet) {
         await fetch("/api/dev/fund", { method: "POST", body: JSON.stringify({ ausdTo: accountAddr, ausdUsd: Number(fund) }) });
