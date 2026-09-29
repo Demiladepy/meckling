@@ -19,7 +19,13 @@ step "ABIs are regenerated and committed"
 node services/common/scripts/gen-abi.mjs
 git diff --exit-code services/common/src/abis.ts
 step "envio codegen"
-pnpm --filter indexer codegen >/dev/null
+# Envio ships no Windows binary, so on Windows this one step can only run in CI (Linux). The generated types from the
+# last Linux/WSL run stay in place, so the indexer still typechecks below. Indexer config or schema changes: run
+# codegen in WSL before pushing.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) echo "  skipped on Windows (runs in CI) — if you changed indexer/config.yaml or schema.graphql, run codegen in WSL" ;;
+  *) pnpm --filter indexer codegen >/dev/null ;;
+esac
 step "typecheck"
 pnpm typecheck
 step "common + underwriter tests"
