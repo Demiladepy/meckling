@@ -1,5 +1,5 @@
 // Shapes returned by the app's API routes (bigints arrive as strings) and formatting for the split screen.
-import { RuleKind } from "@mandate/common";
+import { RuleKind, type SealedRecord } from "@mandate/common";
 
 export interface RuleView {
   kind: RuleKind;
@@ -63,6 +63,8 @@ export interface LogRecordView {
   provider: string;
   intent: { action: "open_long" | "open_short" | "close" | "hold"; market: string; size_usd: number };
   reasoning: string;
+  /** Private reasoning (D13): sealed to the backer; only their passkey opens it. */
+  sealed?: SealedRecord;
   proposedOrder?: { market: string; side: "long" | "short" | "close"; lots: string; limitPrice: number; notionalUsd: number; leverageAfter: number };
   result: "filled" | "no-fill" | "blocked" | "held" | "error";
   resultBlock?: string;

@@ -12,6 +12,7 @@ import { ClaudeProvider } from "./providers/claude.ts";
 import { KimiProvider } from "./providers/kimi.ts";
 import { ScriptedProvider, defaultDemoScript } from "./providers/scripted.ts";
 import type { AgentConfig } from "./runtime.ts";
+import { recordSink } from "./records.ts";
 
 /** Repo-level data/ (gitignored): agent-logs/ for decision logs, reports/ for underwriting reports. */
 export const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "../../../data");
@@ -73,5 +74,6 @@ export function loadAgentConfig(env: NodeJS.ProcessEnv = process.env): AgentConf
       pub: createPublicClient({ chain: net.chain, transport: http(net.rpcUrl) }) as PublicClient,
       account: mandateAccount,
     }),
+    sink: recordSink(env, mandateAccount),
   };
 }

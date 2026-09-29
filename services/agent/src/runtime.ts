@@ -25,6 +25,7 @@ import {
   readMonitors,
   readRules,
   revertData,
+  sealRecord,
   shortError,
   usdToLots,
   violationMessage,
@@ -32,8 +33,10 @@ import {
   type MarketSymbol,
   type NetworkConfig,
   type Rule,
+  type SealedRecord,
 } from "@mandate/common";
 import type { Decision, DecisionContext, DecisionProvider } from "./decision.ts";
+import type { RecordSink } from "./records.ts";
 
 export interface AgentConfig {
   net: NetworkConfig;
@@ -48,6 +51,8 @@ export interface AgentConfig {
   venueLeverage: number;
   slippageBps: number;
   signals: (markets: MarketSymbol[]) => Promise<Record<string, string[]>>;
+  /** Publishes records for the public app, and supplies the backer's memory key when reasoning is private (D13). */
+  sink?: RecordSink;
 }
 
 export interface LogRecord {
@@ -57,6 +62,8 @@ export interface LogRecord {
   provider: string;
   intent: Pick<Decision, "action" | "market" | "size_usd">;
   reasoning: string;
+  /** Present when the backer made reasoning private: `reasoning` is then empty and only their passkey opens this. */
+  sealed?: SealedRecord;
   proposedOrder?: { market: MarketSymbol; side: "long" | "short" | "close"; lots: string; limitPrice: number; notionalUsd: number; leverageAfter: number };
   /** "no-fill": the transaction succeeded but the venue matched nothing (an IOC order that crossed no resting order). */
   result: "filled" | "no-fill" | "blocked" | "held" | "error";
@@ -129,7 +136,7 @@ export class AgentRuntime {
       decision = { action: "hold", market: "BTC", size_usd: 0, reasoning: `Decision failed (${err instanceof Error ? err.message : String(err)}). Holding.` };
     }
     const rec = await this.submit(decision, rules, state, ctx.block);
-    this.log(rec);
+    await this.log(rec);
     const intent = decision.action === "hold" ? "hold" : `${decision.action} ${decision.market} $${decision.size_usd}`;
     this.history = [...this.history, { block: rec.block, intent, result: rec.violation ? `blocked: ${rec.violation.message}` : rec.result }].slice(-6);
     return rec;

@@ -1,11 +1,14 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useMemo, useState } from "react";
+import { memoryKeyMessage, memoryKeyPair, memorySalt, openRecord } from "@mandate/common";
 import { AppHeader } from "@/components/AppHeader";
 import { ReportHashVerify } from "@/components/ReportHashVerify";
 import { formatBlock, shortAddr, useConfig, usePoll, usd } from "@/lib/client";
 import { headroom, observedVsLimit, type AccountView, type BreachView, type HistoryView, type LogRecordView, type RuleView } from "@/lib/view";
-import type { Hex } from "viem";
+import { bytesToHex, type Address, type Hex } from "viem";
+import { useMera } from "@/lib/mera";
+import { errorText } from "@/lib/tx";
 import s from "./page.module.css";
 
 const SIDE: Record<string, string> = { long: "long", short: "short", close: "close" };
@@ -20,6 +23,67 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
   const history = usePoll<HistoryView>(`/api/accounts/${account}/history`, 10000);
   const track = history?.indexer ? history.trackRecord : undefined;
   const records = log?.records ?? [];
+
+  // Private reasoning (D13): sealed to the backer's passkey. Decrypted text lives only in this tab's memory.
+  const mera = useMera();
+  const memory = usePoll<{ available: boolean; publicKey: string | null }>(`/api/accounts/${account}/memory-key`, 30000);
+  const [opened, setOpened] = useState<Record<string, string>>({});
+  const [memoryNote, setMemoryNote] = useState<string>();
+  const [memoryBusy, setMemoryBusy] = useState(false);
+  const sealedCount = records.filter((r) => r.sealed).length;
+  const isBacker = Boolean(
+    mera.account && view?.mandate?.backer && mera.account.address.toLowerCase() === view.mandate.backer.toLowerCase(),
+  );
+
+  async function memoryKeys() {
+    return memoryKeyPair(await mera.prfFor(memorySalt(account as Address)));
+  }
+
+  async function makePrivate() {
+    setMemoryBusy(true);
+    setMemoryNote(undefined);
+    try {
+      const signer = mera.account ?? (await mera.signIn());
+      if (!signer) return;
+      const publicKey = bytesToHex((await memoryKeys()).publicKey);
+      const signature = await signer.signMessage({ message: memoryKeyMessage(account as Address, publicKey) });
+      const res = await fetch(`/api/accounts/${account}/memory-key`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ publicKey, signature }),
+      });
+      const body = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(body.error ?? "Couldn't make the reasoning private.");
+      setMemoryNote("Private. From the agent's next decision, only your passkey can read its reasoning.");
+    } catch (e) {
+      setMemoryNote(errorText(e));
+    } finally {
+      setMemoryBusy(false);
+    }
+  }
+
+  async function unlock() {
+    setMemoryBusy(true);
+    setMemoryNote(undefined);
+    try {
+      const { secretKey } = await memoryKeys();
+      const next: Record<string, string> = {};
+      for (const r of records) {
+        if (!r.sealed) continue;
+        try {
+          next[recordKey(r)] = openRecord(secretKey, r.sealed);
+        } catch {
+          // Not this passkey's record: left sealed.
+        }
+      }
+      setOpened(next);
+      if (!Object.keys(next).length) setMemoryNote("This passkey can't open this agent's reasoning. Only the backer's can.");
+    } catch (e) {
+      setMemoryNote(errorText(e));
+    } finally {
+      setMemoryBusy(false);
+    }
+  }
 
   const marketName = useMemo(
     () => (id: number) => cfg?.markets.find((m) => m.perpId === id)?.symbol ?? `Market ${id}`,
@@ -82,6 +146,33 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
           />
         )}
 
+        {memory?.available && (memory.publicKey || isBacker) && (
+          <section className={`card ${s.memory}`} aria-label="Private reasoning">
+            <div>
+              <p className={s.memoryHead}>
+                {memory.publicKey ? "Private reasoning" : "Make this agent's reasoning private"}
+              </p>
+              <p className="body-secondary">
+                {memory.publicKey
+                  ? "The agent seals its reasoning to the backer's passkey. Nobody else — not the operator's viewers, not us — can read it, on any device."
+                  : "Its reasoning reveals the strategy and your positions. Seal it to your passkey: only you will be able to read it, on any device."}
+              </p>
+              {memoryNote && <p className={s.memoryNote}>{memoryNote}</p>}
+            </div>
+            {memory.publicKey ? (
+              sealedCount > 0 && (
+                <button type="button" className="button-ghost" onClick={() => void unlock()} disabled={memoryBusy}>
+                  {memoryBusy ? "Waiting for passkey…" : `Unlock ${sealedCount} with passkey`}
+                </button>
+              )
+            ) : (
+              <button type="button" className="button-primary" onClick={() => void makePrivate()} disabled={memoryBusy}>
+                {memoryBusy ? "Waiting for passkey…" : "Make reasoning private"}
+              </button>
+            )}
+          </section>
+        )}
+
         <section className={s.split} aria-label="Agent reasoning and chain verdicts">
           <div className={s.labels} aria-hidden>
             <span>Agent</span>
@@ -98,7 +189,15 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
             </div>
           )}
           {records.map((r, i) => (
-            <Row key={`${r.ts}-${i}`} r={r} view={view} marketName={marketName} first={i === 0} last={i === records.length - 1 && !view?.breaches.length} />
+            <Row
+              key={`${r.ts}-${i}`}
+              r={r}
+              view={view}
+              marketName={marketName}
+              first={i === 0}
+              last={i === records.length - 1 && !view?.breaches.length}
+              opened={opened[recordKey(r)]}
+            />
           ))}
           {view?.breaches.map((b, i) => (
             <BreachRow key={b.id} account={account} b={b} rule={view.rules[b.ruleIndex]} last={i === view.breaches.length - 1} />
@@ -180,18 +279,24 @@ function BreachRow({ account, b, rule, last }: { account: string; b: BreachView;
   );
 }
 
+/** Identifies a record across polls, so an unlocked note stays unlocked as new records arrive. */
+const recordKey = (r: LogRecordView) => `${r.block}:${r.ts}`;
+
 function Row({
   r,
   view,
   marketName,
   first,
   last,
+  opened,
 }: {
   r: LogRecordView;
   view?: AccountView;
   marketName: (id: number) => string;
   first: boolean;
   last: boolean;
+  /** This record's reasoning, decrypted in the browser with the backer's passkey. */
+  opened?: string;
 }) {
   const rule = r.violation ? view?.rules[r.violation.ruleIndex] : undefined;
   const block = r.resultBlock ?? r.block;
@@ -207,7 +312,11 @@ function Row({
             </span>
           )}
         </p>
-        <p className={s.reasoning}>&ldquo;{r.reasoning}&rdquo;</p>
+        {r.sealed && opened === undefined ? (
+          <p className={s.sealed}>Private — only the backer can read this reasoning.</p>
+        ) : (
+          <p className={s.reasoning}>&ldquo;{opened ?? r.reasoning}&rdquo;</p>
+        )}
         {r.proposedOrder && (
           <p className={s.proposed}>
             Proposed: {r.proposedOrder.market} {SIDE[r.proposedOrder.side]}

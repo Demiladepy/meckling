@@ -71,3 +71,11 @@ export function openRecord(secretKey: Uint8Array, sealed: SealedRecord): string 
   const { key, aad } = sealKey(shared, epk, recipient);
   return new TextDecoder().decode(gcm(key, hexToBytes(sealed.nonce), aad).decrypt(hexToBytes(sealed.ct)));
 }
+
+/**
+ * What the backer signs to register a memory key, so the server can prove the key came from the mandate's backer and
+ * not from someone who wants to read (or blank out) the agent's reasoning.
+ */
+export function memoryKeyMessage(account: Address, publicKey: Hex): string {
+  return `Mandate: make the reasoning of agent ${account.toLowerCase()} private to me.\nMemory key: ${publicKey.toLowerCase()}`;
+}

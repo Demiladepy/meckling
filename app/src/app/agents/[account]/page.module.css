@@ -285,3 +285,39 @@
     color: var(--graphite);
   }
 }
+
+/* ---------------------------------------------------------------- private reasoning (D13) */
+
+.memory {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.memory > div {
+  flex: 1 1 320px;
+  display: grid;
+  gap: 6px;
+}
+
+.memory p {
+  margin: 0;
+}
+
+.memoryHead {
+  font-weight: 560;
+}
+
+.memoryNote {
+  font-size: 14px;
+  color: var(--held);
+}
+
+.sealed {
+  margin: 0;
+  font-size: 15px;
+  color: var(--graphite);
+  font-style: italic;
+}

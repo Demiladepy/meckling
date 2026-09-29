@@ -50,6 +50,11 @@ interface MeraState {
   error?: string;
   signIn: () => Promise<LocalAccount | undefined>;
   signOut: () => void;
+  /**
+   * Evaluates the same passkey under another PRF salt: an isolated namespace for non-wallet keys (D13). Returns the
+   * 32-byte PRF output, deterministic for (passkey, salt) on any device. Shows one passkey prompt.
+   */
+  prfFor: (salt: Uint8Array) => Promise<Uint8Array>;
 }
 
 const MeraContext = createContext<MeraState | null>(null);
@@ -116,7 +121,15 @@ export function MeraProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ account, hasPasskey, busy, error, signIn, signOut }), [account, hasPasskey, busy, error, signIn, signOut]);
+  const prfFor = useCallback(async (salt: Uint8Array) => {
+    const { prfOutput } = await getPasskeyPrfOutput({ rpId: location.hostname, credential: loadCredential(), prfSalt: salt });
+    return prfOutput;
+  }, []);
+
+  const value = useMemo(
+    () => ({ account, hasPasskey, busy, error, signIn, signOut, prfFor }),
+    [account, hasPasskey, busy, error, signIn, signOut, prfFor],
+  );
   return <MeraContext.Provider value={value}>{children}</MeraContext.Provider>;
 }
 
