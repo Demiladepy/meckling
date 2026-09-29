@@ -165,6 +165,15 @@ Source: `docs.chain.link/cre/supported-networks-ts`.
 
 ---
 
+
+**Confirmed Sep 29 with `cre workflow supported-chains`** (logged in as the owner's org; deploy access not enabled, so the
+bounty is met by simulation):
+
+| Chain | Selector | Forwarder | Mock forwarder (simulation) |
+|---|---|---|---|
+| `monad-testnet` | `2183018362218727504` | `0xF8344CFd5c43616a4366C34E3EEE75af79a74482` | `0xB9F79d863261869B234c481D1f9A7af84AeAd192` |
+| `monad-mainnet` | `8481857512324358265` | `0x76c9cf548b4179F8901cda1f8623568b58215E62` | `0x9eF6468C5f37b976E57d52054c693269479A784d` |
+
 ## S5: Price sources
 
 - **Perpl mark:** on-chain via `getPosition(...)` (`markPricePNS`, `markPriceValid`) or `getPerpetualInfo(perpId).markPNS`. Also `lastPNS` and `oraclePNS` (Chainlink Data Streams, verified on-chain, `oracleTimestampSec`).

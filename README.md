@@ -141,6 +141,38 @@ cd contracts && FOUNDRY_PROFILE=fork forge test -vv      # real Perpl on a mainn
 pnpm -r typecheck && pnpm --filter @mandate/common test && pnpm --filter underwriter test
 ```
 
+## How this was built
+
+**AI coding tools.** Mandate was built with heavy use of AI coding assistants, as the Metropolis rules permit and
+require us to disclose: **Claude Code** (Anthropic) and **Cursor** wrote much of the code, tests and documentation under
+the author's direction. Every contract change is covered by Foundry tests, every address and interface was checked
+on-chain before use (`docs/spikes.md`), and the product decisions are recorded in `docs/decisions.md`. Separately, the
+agent inside the product uses Claude as its reasoning model.
+
+**Build window.** All of Mandate's code was written during the hackathon; the first commit is dated September 21, 2026
+and the full history is public. No pre-existing project code was reused.
+
+**Third-party code.** Mandate builds on, and does not copy, the following:
+
+| Component | Used for | License |
+|---|---|---|
+| [forge-std](https://github.com/foundry-rs/forge-std) | Contract tests | MIT / Apache-2.0 |
+| [OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) | `SafeERC20`, `ReentrancyGuard`, ERC-20 interfaces | MIT |
+| [viem](https://viem.sh) | Chain reads and writes in every service and the app | MIT |
+| [Next.js](https://nextjs.org), React | The web app | MIT |
+| [@category-labs/mera](https://mera.category.xyz) | Passkey accounts | per package |
+| [@scure/bip32, @scure/bip39](https://github.com/paulmillr) | Deriving the account key from the passkey | MIT |
+| [@chainlink/cre-sdk](https://docs.chain.link/cre) | The keeper workflow | per package |
+| [Envio HyperIndex](https://envio.dev) | The indexer | per package |
+| [@anthropic-ai/sdk](https://github.com/anthropics/anthropic-sdk-typescript) | The agent's reasoning model | MIT |
+| [zod](https://zod.dev) | Validating model output and API input | MIT |
+| Perpl exchange ABI from [PerplFoundation/dex-sdk](https://github.com/PerplFoundation/dex-sdk) | The Perpl adapter's interface | per repo |
+| Curvance interfaces from [curvance-web/sdk](https://github.com/curvance-web/sdk) | The collateral adapter's interface | per repo |
+
+## License
+
+[MIT](LICENSE).
+
 ## Documentation
 
 | | |
