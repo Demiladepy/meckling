@@ -5,6 +5,24 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 
 **You** = the owner. **Claude** = coding agent. A "you" item left undone blocks the "Claude" item after it.
 
+## Status — Tuesday Sep 29
+
+**Done**
+- [x] Envio indexer live: `https://indexer.dev.hyperindex.xyz/8534451/v1/graphql`, wired into the app and Vercel.
+- [x] `cre login` and the CRE fix: the workflow confirms breaches against Perpl's API, and a broadcast simulation
+      flagged a real breach on testnet (`docs/cre-simulation.md`).
+- [x] Rules read: MIT license added (it was missing — a disqualification risk), AI use disclosed, `docs/metropolis-rules.md`.
+- [x] CI green again, and a pre-push hook runs every CI check locally (`pnpm verify`).
+- [x] First deposits meet Perpl's minimum (100 AUSD on testnet).
+- [x] Upstash plugin installed — **authorise it with `/mcp`** before Claude can create the store.
+- [x] Video scripts: `docs/demo-script-metropolis.md` (3-min demo, 2-min pitch, 30-sec ad).
+
+**Still open this week** — owner items first, they unblock the rest
+- [ ] You: authorise Upstash (`/mcp`), choose the agent host, mainnet yes/no, faucet key into Vercel
+- [ ] You: community-group check, sponsor-channel messages, the two outreach messages
+- [ ] You: phone test (Wed), logo (Wed), three interviews (Thu), ten users (Fri), pitch draft (Fri), X posts
+- [ ] Claude: judge faucet → agent records to Upstash → live Claude agent → Mera non-wallet feature → MIP-8 gas
+
 ## Monday Sep 28 — unblock everything
 
 **You**
