@@ -19,7 +19,10 @@ interface ICurvanceBorrowableCToken is ICurvanceCToken {
 
 interface ICurvanceMarketManager {
     function isListed(address cToken) external view returns (bool);
-    function collConfig(address cToken) external view returns (uint256 collRatio, uint256 collReqSoft, uint256 collReqHard);
+    function collConfig(address cToken)
+        external
+        view
+        returns (uint256 collRatio, uint256 collReqSoft, uint256 collReqHard);
     /// @dev Nonpayable because it accrues interest first. Off-chain readers use eth_call.
     function statusOf(address account) external returns (uint256 collateral, uint256 maxDebt, uint256 debt);
 }

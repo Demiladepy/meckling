@@ -43,3 +43,4 @@ A risk-enforcement and capital layer for AI trading agents on Monad. An agent tr
 - Nansen matches EVM addresses in lowercase only; the free plan exhausts quickly, so the agent reads the stored report.
 - An anvil fork freezes Perpl's oracle; run `pnpm --filter agent fork:sync` or orders stop filling after 60 s.
 - Action rules only block trades that **increase** the limited exposure, so a price move can never trap the account (`docs/decisions.md` D3).
+- Before pushing, run `pnpm verify` (every CI step, including `forge fmt --check`). The pre-push hook in `.githooks/` runs it for pushes to main: `git config core.hooksPath .githooks`.

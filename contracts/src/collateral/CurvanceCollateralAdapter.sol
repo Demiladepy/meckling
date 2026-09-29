@@ -56,7 +56,9 @@ contract CurvanceCollateralAdapter is ReentrancyGuard {
         ICurvanceBorrowableCToken debtCToken_,
         uint256 maxUseBps_
     ) {
-        if (maxUseBps_ == 0 || maxUseBps_ > MAX_USE_OF_CURVANCE_BPS) revert BadUseBps(maxUseBps_);
+        if (maxUseBps_ == 0 || maxUseBps_ > MAX_USE_OF_CURVANCE_BPS) {
+            revert BadUseBps(maxUseBps_);
+        }
         address mm = collateralCToken_.marketManager();
         if (mm == address(0) || debtCToken_.marketManager() != mm) revert NotSameListedMarket();
         ICurvanceMarketManager m = ICurvanceMarketManager(mm);

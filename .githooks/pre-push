@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Blocks a push to main that CI would reject. Pushes to other branches (e.g. the envio deploy branch, which only
+# ever receives main) skip it. Bypass in an emergency with: git push --no-verify
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "pre-push: running the CI checks locally (scripts/verify.sh)…"
+    exec bash "$(git rev-parse --show-toplevel)/scripts/verify.sh"
+  fi
+done
+exit 0

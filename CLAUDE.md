@@ -11,7 +11,8 @@ Read this first, every session. Then read [docs/PRD.md](docs/PRD.md) (the spec),
 5. **Never commit secrets.** Keys live in `.env` (gitignored). Before any push, run `git log -p --all | grep -cE '(nsn_|zk_|QN_)[0-9a-f]{20,}|sk-ant-api[0-9]{2}-'` and expect `0`.
 6. **Monad specifics:** all time windows count blocks, never timestamps; gas is charged on the limit, so every transaction sets a tight explicit `gas`; full nodes serve no historical state (that is what the indexer is for); block time is measured at runtime (~0.30 s), never hardcoded.
 7. **Be honest in the product.** Sample data says "sample data". Scripted demos say they are scripted. Local-fork shims refuse to run against a real network. The README discloses all three.
-8. **Small commits**, clear messages, end with the `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>` line. The judges must see work done after Sep 1, 2026.
+8. **Never push something CI would reject.** `pnpm verify` runs every CI step locally (including `forge fmt --check`, which is what failed CI from Sep 27 to Sep 29). The pre-push hook in `.githooks/` runs it before any push to `main`; enable it once per clone with `git config core.hooksPath .githooks`.
+9. **Small commits**, clear messages, end with the `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>` line. The judges must see work done after Sep 1, 2026.
 
 ## Checks before you say a milestone is done
 
