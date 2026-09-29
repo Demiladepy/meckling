@@ -38,3 +38,6 @@ indexer/envio-env.d.ts
 .vercel
 
 .vercel
+
+# CRE simulator build output
+.cre_build_tmp.js
