@@ -1,0 +1,6 @@
+# CRE project for the Mandate keeper (PRD 10.1). Chain names and forwarders: docs/spikes.md S4.
+# Public RPC only: no credentials in this file.
+staging-settings:
+  rpcs:
+    - chain-name: monad-testnet
+      url: https://testnet-rpc.monad.xyz
