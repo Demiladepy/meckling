@@ -23,6 +23,24 @@ jobs:
       - run: forge build --sizes
       - run: forge test -vvv
 
+  formal:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install halmos==0.3.3
+      - run: halmos --contract RuleProofs --solver-command "python test/formal/yices_all_logic.py"
+
   typescript:
     runs-on: ubuntu-latest
     steps:

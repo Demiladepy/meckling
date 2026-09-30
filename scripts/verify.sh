@@ -14,6 +14,14 @@ step "forge build --sizes"
 step "forge test"
 (cd contracts && forge test)
 
+# ---- job: formal
+step "halmos (symbolic proofs of the rules)"
+if command -v halmos >/dev/null; then
+  (cd contracts && halmos --contract RuleProofs --solver-command "python test/formal/yices_all_logic.py" >/dev/null)
+else
+  echo "  halmos not installed (pip install halmos==0.3.3), runs in CI"
+fi
+
 # ---- job: typescript
 step "ABIs are regenerated and committed"
 node services/common/scripts/gen-abi.mjs
