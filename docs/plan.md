@@ -65,6 +65,9 @@ The same loop also ran earlier **on a fork** of real Perpl at mainnet state: a 3
 ## M4 — Hardening and story (Oct 9–11)
 
 - [ ] Ultrafuzz on `contracts/`, findings fixed, report committed
+- [x] Formal proofs (Sep 30): 8 Halmos proofs of the rule libraries pass for every input within bounds; 4 properties that multiply two unknowns are fuzzed at 10,000 runs instead. CI job `formal`. See `docs/formal.md`
+- [x] MIP-8 storage layout (Sep 30): an enforced trade touches **3 storage pages instead of 9** (`StoragePagesTest`). Expected ~48.6k gas saved per trade, calculated; **measure with `eth_estimateGas` after the next testnet deploy**
+- [x] Price protection (D14, Sep 29): optional rule, the user's choice at mandate creation; fork-tested against Perpl's live mark. **Not yet deployed**; ships with the next testnet deploy
 - [ ] `docs/benchmarks.md` filled with measured numbers
 - [ ] Landing page, README, demo video
 - [ ] Submission checklist (PRD 15), repo made **public**
