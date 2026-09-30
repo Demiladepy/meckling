@@ -39,7 +39,10 @@ contract MandateAccount is ReentrancyGuard {
     /// Set by BondVault when a market rule breach is flagged (M2). Permanent.
     bool public breached;
 
-    mapping(uint256 ruleIndex => Monitor) internal _monitors;
+    /// One monitor per rule index. A fixed array, not a mapping: its 32 slots sit right after the fields above, so every
+    /// monitor shares storage page 0 with the session key (Monad MIP-8 charges 8,100 gas per cold 128-slot page; a
+    /// mapping put each monitor on its own page). Never reorder these fields: the layout is the gas optimisation.
+    Monitor[16] internal _monitors; // = RuleEngine.MAX_RULES (a test pins the two together)
 
     event Executed(address indexed account, uint256 blockNumber, int256 equity, uint256 notional);
     event MonitorUpdated(address indexed account, uint256 ruleIndex, bytes32 stateHash);
@@ -272,6 +275,7 @@ contract MandateAccount is ReentrancyGuard {
     }
 
     function monitor(uint256 ruleIndex) external view returns (Monitor memory) {
+        if (ruleIndex >= _monitors.length) return Monitor(0, 0);
         return _monitors[ruleIndex];
     }
 

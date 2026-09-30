@@ -34,9 +34,20 @@ contract MandateRegistry is Ownable2Step {
     bool public paused;
 
     uint256 public mandateCount;
-    mapping(uint256 mandateId => Mandate) internal _mandates;
-    mapping(uint256 mandateId => Rule[]) internal _rules;
-    mapping(address account => uint256 mandateId) public mandateIdOf;
+    mapping(uint256 mandateId => address account) internal _accountOf;
+
+    /// Everything one account's mandate holds: 71 slots, stored at the start of a 128-slot storage page of its own
+    /// (see _book). Every execute reads the id, the active flag and the rules; Monad MIP-8 charges 8,100 gas per cold
+    /// page, so keeping them on one page costs one cold read where three mappings cost four.
+    struct Book {
+        uint256 id;
+        Mandate mandate;
+        uint256 ruleCount;
+        Rule[16] rules; // RuleEngine.MAX_RULES
+    }
+
+    /// Seed for the per-account pages. Changing it orphans every stored mandate.
+    bytes32 private constant BOOK_SEED = keccak256("mandate.registry.book.v1");
 
     event MandateCreated(
         uint256 indexed mandateId, address indexed account, address indexed backer, bytes32 reportHash
@@ -92,12 +103,14 @@ contract MandateRegistry is Ownable2Step {
         if (paused) revert NewMandatesPaused();
         if (address(factory) == address(0) || !factory.isAccount(account)) revert NotFactoryAccount(account);
         if (IMandateAccountView(account).owner() != msg.sender) revert NotAccountOwner();
-        if (mandateIdOf[account] != 0) revert MandateExists(account);
+        Book storage b = _book(account);
+        if (b.id != 0) revert MandateExists(account);
         if (rules.length == 0 || rules.length > RuleEngine.MAX_RULES) revert BadRuleCount();
 
         mandateId = ++mandateCount;
-        mandateIdOf[account] = mandateId;
-        _mandates[mandateId] = Mandate({
+        _accountOf[mandateId] = account;
+        b.id = mandateId;
+        b.mandate = Mandate({
             account: account,
             backer: msg.sender,
             operator: IMandateAccountView(account).operator(),
@@ -106,10 +119,10 @@ contract MandateRegistry is Ownable2Step {
             disputeWindowBlocks: disputeWindowBlocks,
             active: true
         });
-        Rule[] storage stored = _rules[mandateId];
+        b.ruleCount = rules.length;
         for (uint256 i; i < rules.length; ++i) {
             if (!RuleEngine.validate(rules[i])) revert InvalidRule(i);
-            stored.push(rules[i]);
+            b.rules[i] = rules[i];
             emit RuleSet(mandateId, i, rules[i]);
         }
         emit MandateCreated(mandateId, account, msg.sender, reportHash);
@@ -117,21 +130,20 @@ contract MandateRegistry is Ownable2Step {
 
     /// @notice Replaces rule `ruleIndex` with a stricter version of the same kind. Backer only.
     function tightenRule(uint256 mandateId, uint256 ruleIndex, Rule calldata newRule) external {
-        Mandate storage m = _mandate(mandateId);
-        if (msg.sender != m.backer) revert NotBacker();
-        if (!m.active) revert Inactive();
-        Rule[] storage rules = _rules[mandateId];
-        if (ruleIndex >= rules.length || !RuleEngine.isTightening(rules[ruleIndex], newRule)) {
+        Book storage b = _bookOf(mandateId);
+        if (msg.sender != b.mandate.backer) revert NotBacker();
+        if (!b.mandate.active) revert Inactive();
+        if (ruleIndex >= b.ruleCount || !RuleEngine.isTightening(b.rules[ruleIndex], newRule)) {
             revert NotTightening(ruleIndex);
         }
-        rules[ruleIndex] = newRule;
+        b.rules[ruleIndex] = newRule;
         emit RuleSet(mandateId, ruleIndex, newRule);
         emit RuleTightened(mandateId, ruleIndex);
     }
 
     /// @notice Ends the mandate. The account moves to close-only mode permanently. Backer only.
     function deactivate(uint256 mandateId) external {
-        Mandate storage m = _mandate(mandateId);
+        Mandate storage m = _bookOf(mandateId).mandate;
         if (msg.sender != m.backer) revert NotBacker();
         if (!m.active) revert Inactive();
         m.active = false;
@@ -141,18 +153,43 @@ contract MandateRegistry is Ownable2Step {
     // ---------------------------------------------------------------- views
 
     function getMandate(uint256 mandateId) external view returns (Mandate memory, Rule[] memory) {
-        return (_mandate(mandateId), _rules[mandateId]);
+        Book storage b = _bookOf(mandateId);
+        return (b.mandate, _rulesIn(b));
     }
 
-    /// @notice What a MandateAccount reads on every execute.
+    function mandateIdOf(address account) external view returns (uint256 mandateId) {
+        return _book(account).id;
+    }
+
+    /// @notice What a MandateAccount reads on every execute: one storage page.
     function rulesOf(address account) external view returns (bool exists, bool active, Rule[] memory rules) {
-        uint256 id = mandateIdOf[account];
-        if (id == 0) return (false, false, rules);
-        return (true, _mandates[id].active, _rules[id]);
+        Book storage b = _book(account);
+        if (b.id == 0) return (false, false, rules);
+        return (true, b.mandate.active, _rulesIn(b));
     }
 
-    function _mandate(uint256 mandateId) internal view returns (Mandate storage m) {
-        m = _mandates[mandateId];
-        if (m.account == address(0)) revert UnknownMandate(mandateId);
+    // ---------------------------------------------------------------- storage
+
+    /// The account's Book lives at the first slot of the page `keccak256(account, BOOK_SEED) >> 7`: the low 7 bits are
+    /// cleared so the Book (71 slots) never straddles two pages. Two accounts share a page only if their hashes agree
+    /// in 249 bits, and the contract's declared variables (slots 0-5) sit on page 0.
+    function _book(address account) internal pure returns (Book storage b) {
+        uint256 slot = uint256(keccak256(abi.encode(account, BOOK_SEED))) & ~uint256(127);
+        assembly ("memory-safe") {
+            b.slot := slot
+        }
+    }
+
+    function _bookOf(uint256 mandateId) internal view returns (Book storage b) {
+        address account = _accountOf[mandateId];
+        if (account == address(0)) revert UnknownMandate(mandateId);
+        b = _book(account);
+    }
+
+    function _rulesIn(Book storage b) internal view returns (Rule[] memory rules) {
+        rules = new Rule[](b.ruleCount);
+        for (uint256 i; i < rules.length; ++i) {
+            rules[i] = b.rules[i];
+        }
     }
 }

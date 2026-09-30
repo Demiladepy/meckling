@@ -244,3 +244,12 @@ The public Monad RPCs are strict, and this shapes the architecture more than any
   - Full nodes serve no arbitrary historical state.
   - The contract size limit is 128 KB.
 - Timestamp sharing between blocks isn't mentioned on that page; we use `block.number` for all windows regardless.
+
+## MIP-8 storage pages (read Sep 30)
+
+Source: `docs.monad.xyz/developer-essentials/opcode-pricing`. Active from the `MONAD_TEN` revision (MIP-8).
+
+- Storage is priced by page. A page is 128 consecutive slots: `page_index = slot >> 7`.
+- SLOAD: 8,100 gas for the first access to a page, 100 for later accesses to the same page.
+- SSTORE adds up these parts: base 100 on every write, page load 8,000 on first access to the page, page write 2,800 on the first write that changes a value on the page, state growth 17,000 when the page reaches a new high-water mark.
+- What this means for us: a Solidity mapping puts every entry on its own random page, so reading six entries costs six cold pages. Data read together should share a page. `contracts/test/StoragePages.t.sol` counts pages touched per enforced trade (Foundry meters gas the Ethereum way and can't show this).
