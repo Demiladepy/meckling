@@ -22,6 +22,16 @@ library PriceCollarRule {
         return newR.p1 <= oldR.p1;
     }
 
+    /// Distance of a limit price from the mark in bps, rounded up so a hair over the limit never passes. Returns
+    /// type(uint256).max ("unbounded") for a missing price or mark, or a distance too large to compute without
+    /// overflow, so it never reverts. Proven in test/formal/RuleProofs.t.sol: never under-reports, at most 1 bps over.
+    function deviationBps(uint256 price, uint256 mark) internal pure returns (uint256) {
+        if (price == 0 || mark == 0) return type(uint256).max;
+        uint256 diff = price > mark ? price - mark : mark - price;
+        if (diff > (type(uint256).max - mark) / 10_000) return type(uint256).max;
+        return (diff * 10_000 + mark - 1) / mark;
+    }
+
     function check(Rule memory r, ExecContext memory c) internal pure returns (bool ok, int256 observed, int256 limit) {
         ok = c.maxPriceDeviationBps <= r.p1;
         observed = StateLib.toInt(c.maxPriceDeviationBps); // saturates, so "unbounded" reports as int256 max

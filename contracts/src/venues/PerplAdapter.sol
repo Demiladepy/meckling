@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IVenue} from "./IVenue.sol";
 import {IPerplExchange} from "./IPerplExchange.sol";
+import {PriceCollarRule} from "../rules/PriceCollarRule.sol";
 
 /// @notice IVenue for Perpl (spike S1). Stateless apart from a permissionless cache of per-market decimals read
 ///         from the exchange itself, so no admin can change how positions are valued.
@@ -243,17 +244,13 @@ contract PerplAdapter is IVenue {
         }
     }
 
-    /// Distance of an order's limit price from the mark in bps, rounded up so a hair over the limit never passes.
+    /// An order's limit-price distance from the mark (PriceCollarRule.deviationBps); unbounded without a valid mark.
     function _deviationBps(IPerplExchange.OrderDesc memory d, uint256 accountId) internal view returns (uint256) {
         if (d.pricePNS == 0) return type(uint256).max; // no limit price: unbounded
         try perpl.getPosition(d.perpId, accountId) returns (
             IPerplExchange.PositionInfo memory, uint256 mark, bool valid
         ) {
-            if (!valid || mark == 0) {
-                return type(uint256).max;
-            }
-            uint256 diff = d.pricePNS > mark ? d.pricePNS - mark : mark - d.pricePNS;
-            return (diff * 10_000 + mark - 1) / mark;
+            return valid ? PriceCollarRule.deviationBps(d.pricePNS, mark) : type(uint256).max;
         } catch {
             return type(uint256).max; // no mark to measure against: treat as unbounded
         }
