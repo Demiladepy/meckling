@@ -1856,6 +1856,30 @@ export const perplAdapterAbi = [
   },
   {
     "type": "function",
+    "name": "orderPriceDeviationBps",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "worst",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "perpl",
     "inputs": [],
     "outputs": [

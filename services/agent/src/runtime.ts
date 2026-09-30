@@ -27,6 +27,7 @@ import {
   revertData,
   sealRecord,
   shortError,
+  slippageWithinCollar,
   usdToLots,
   violationMessage,
   type AccountState,
@@ -235,7 +236,8 @@ export class AgentRuntime {
     if (lots === 0n) return { ...base, result: "error", error: `Size $${d.size_usd} is below one lot of ${d.market}` };
 
     const isBuy = type === OrderType.OpenLong || type === OrderType.CloseShort;
-    const limitPNS = marketableLimit(mark, isBuy, this.cfg.slippageBps);
+    // Stay inside a price collar if the backer set one (D14), or our own order would be the one it blocks.
+    const limitPNS = marketableLimit(mark, isBuy, slippageWithinCollar(rules, this.cfg.slippageBps));
     const desc = orderDesc({ market: m, type, lots, limitPricePNS: limitPNS, venueLeverage: this.cfg.venueLeverage, orderDescId: block });
     const calls = [execOrdersCall(net.perplExchange, [desc])];
     const addNotional = notionalCns(m, lots, mark);

@@ -14,6 +14,8 @@ export const RuleKind = {
   OrderRateLimit: 3,
   LossCooldown: 4,
   MaxDrawdown: 5,
+  /** Optional (D14): max bps between an opening order's limit price and the venue mark. */
+  PriceCollar: 6,
 } as const;
 export type RuleKind = (typeof RuleKind)[keyof typeof RuleKind];
 
@@ -31,6 +33,7 @@ export const RULE_NAMES: Record<RuleKind, string> = {
   [RuleKind.OrderRateLimit]: "Order rate limit",
   [RuleKind.LossCooldown]: "Loss cooldown",
   [RuleKind.MaxDrawdown]: "Max drawdown",
+  [RuleKind.PriceCollar]: "Price protection",
 };
 
 export const isMarketRule = (k: RuleKind) => k === RuleKind.MaxDrawdown;
@@ -53,6 +56,8 @@ export const orderRateLimit = (maxOrders: number, windowBlocks: number): Rule =>
 });
 export const lossCooldown = (lossCns: bigint, blocks: number): Rule => ({ kind: RuleKind.LossCooldown, p1: lossCns, p2: BigInt(blocks), p3: 0n });
 export const maxDrawdown = (pct: number): Rule => ({ kind: RuleKind.MaxDrawdown, p1: BigInt(Math.round(pct * 100)), p2: 0n, p3: 0n });
+/** Price protection: reject any opening order priced more than `pct`% from the market (SEC Rule 15c3-5's price check). */
+export const priceCollar = (pct: number): Rule => ({ kind: RuleKind.PriceCollar, p1: BigInt(Math.round(pct * 100)), p2: 0n, p3: 0n });
 
 // ------------------------------------------------------------------ copy
 
@@ -84,6 +89,8 @@ export function describeLimit(r: Rule, net?: MarketNames): string {
       return `${r.p2} blocks after a ${usd(r.p1)} loss`;
     case RuleKind.MaxDrawdown:
       return `${Number(r.p1) / 100}% from peak`;
+    case RuleKind.PriceCollar:
+      return `orders within ${Number(r.p1) / 100}% of the market`;
   }
 }
 
@@ -121,6 +128,11 @@ export function violationMessage(v: Violation, rule: Rule, net?: MarketNames): s
       return `Blocked: you're in a loss cooldown. ${v.limit - v.observed} blocks left of ${v.limit}.`;
     case RuleKind.MaxDrawdown:
       return `Breach: equity is ${Number(v.observed) / 100}% below its peak. Your limit is ${Number(v.limit) / 100}%.`;
+    case RuleKind.PriceCollar:
+      // The contract reports an order with no limit price, or no trustworthy market price, as the largest int.
+      return v.observed >= 2n ** 255n - 1n
+        ? `Blocked: this order has no price limit, or the market price isn't available. Price protection needs both.`
+        : `Blocked: this order is priced ${Number(v.observed) / 100}% from the market. Your limit is ${Number(v.limit) / 100}%.`;
   }
 }
 
@@ -144,4 +156,22 @@ export function drawdownBps(peak: bigint, equity: bigint): number {
 export function isDrawdownBreached(peak: bigint, equity: bigint, limitBps: bigint): boolean {
   const eq = equity > 0n ? equity : 0n;
   return peak > 0n && eq * 10_000n < peak * (10_000n - limitBps);
+}
+
+/**
+ * Slippage for a marketable order that stays inside the mandate's price collar, if it has one (D14).
+ * Limits are rounded to whole price units and the contract rounds the distance *up*, so a sell at exactly the collar
+ * can measure one bps over it; keeping two bps of room makes our own orders always pass.
+ */
+export function slippageWithinCollar(rules: readonly Rule[], desiredBps: number): number {
+  const collar = rules.find((r) => r.kind === RuleKind.PriceCollar);
+  if (!collar) return desiredBps;
+  return Math.max(1, Math.min(desiredBps, Number(collar.p1) - 2));
+}
+
+/** The contract's measurement (PerplAdapter._deviationBps), for tests and previews: distance from mark in bps, rounded up. */
+export function priceDeviationBps(limitPNS: bigint, markPNS: bigint): bigint {
+  if (limitPNS === 0n || markPNS === 0n) return 2n ** 256n - 1n;
+  const diff = limitPNS > markPNS ? limitPNS - markPNS : markPNS - limitPNS;
+  return (diff * 10_000n + markPNS - 1n) / markPNS;
 }

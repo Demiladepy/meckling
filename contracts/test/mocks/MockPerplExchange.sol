@@ -67,6 +67,10 @@ contract MockPerplExchange {
         markets[perpId].mark = mark;
     }
 
+    function setMarkValid(uint256 perpId, bool valid) external {
+        markets[perpId].markValid = valid;
+    }
+
     // ------------------------------------------------------------ account
 
     function createAccount(uint256 amountCNS) external returns (uint256 id) {

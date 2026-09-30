@@ -31,6 +31,12 @@ interface IVenue {
         uint256 ordersPlaced; // order placements (opens and closes), for OrderRateLimit
     }
 
+    /// @notice The worst distance, in bps, between an opening order's limit price and the venue mark across the orders
+    ///         in `data` (a venue call). 0 for calls that place no opening order; type(uint256).max when an opening
+    ///         order has no limit price or the mark is unavailable or invalid. Closes are never measured, so a price
+    ///         collar can never trap a position.
+    function orderPriceDeviationBps(address account, bytes calldata data) external view returns (uint256);
+
     function exchange() external view returns (address);
     function collateralToken() external view returns (address);
 

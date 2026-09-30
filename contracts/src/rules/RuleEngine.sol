@@ -8,6 +8,7 @@ import {AllowedMarketsRule} from "./AllowedMarketsRule.sol";
 import {OrderRateLimitRule} from "./OrderRateLimitRule.sol";
 import {LossCooldownRule} from "./LossCooldownRule.sol";
 import {MaxDrawdownRule} from "./MaxDrawdownRule.sol";
+import {PriceCollarRule} from "./PriceCollarRule.sol";
 
 /// Dispatches to the per-rule libraries. MandateAccount's control flow is: update every monitor, then check every
 /// action rule; adding a rule means adding a library and a branch here, never changing the account.
@@ -24,7 +25,8 @@ library RuleEngine {
         if (r.kind == RuleKind.AllowedMarkets) return AllowedMarketsRule.validate(r);
         if (r.kind == RuleKind.OrderRateLimit) return OrderRateLimitRule.validate(r);
         if (r.kind == RuleKind.LossCooldown) return LossCooldownRule.validate(r);
-        return MaxDrawdownRule.validate(r);
+        if (r.kind == RuleKind.MaxDrawdown) return MaxDrawdownRule.validate(r);
+        return PriceCollarRule.validate(r);
     }
 
     /// True iff `newR` is the same kind and at least as strict as `oldR`.
@@ -35,7 +37,8 @@ library RuleEngine {
         if (newR.kind == RuleKind.AllowedMarkets) return AllowedMarketsRule.isTightening(oldR, newR);
         if (newR.kind == RuleKind.OrderRateLimit) return OrderRateLimitRule.isTightening(oldR, newR);
         if (newR.kind == RuleKind.LossCooldown) return LossCooldownRule.isTightening(oldR, newR);
-        return MaxDrawdownRule.isTightening(oldR, newR);
+        if (newR.kind == RuleKind.MaxDrawdown) return MaxDrawdownRule.isTightening(oldR, newR);
+        return PriceCollarRule.isTightening(oldR, newR);
     }
 
     /// Updates the monitor for rule `r` after an execute. Returns true if its state changed.
@@ -57,6 +60,7 @@ library RuleEngine {
         if (r.kind == RuleKind.AllowedMarkets) return AllowedMarketsRule.check(r, c);
         if (r.kind == RuleKind.OrderRateLimit) return OrderRateLimitRule.check(m, r, c);
         if (r.kind == RuleKind.LossCooldown) return LossCooldownRule.check(m, r, c);
+        if (r.kind == RuleKind.PriceCollar) return PriceCollarRule.check(r, c);
         return (true, 0, 0);
     }
 

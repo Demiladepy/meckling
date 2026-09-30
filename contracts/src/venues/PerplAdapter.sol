@@ -216,6 +216,50 @@ contract PerplAdapter is IVenue {
     }
 
     /// @inheritdoc IVenue
+    function orderPriceDeviationBps(address account, bytes calldata data)
+        external
+        view
+        override
+        returns (uint256 worst)
+    {
+        if (data.length < 4) return 0;
+        bytes4 sel = bytes4(data[:4]);
+        IPerplExchange.OrderDesc[] memory descs;
+        if (sel == IPerplExchange.execOrders.selector) {
+            (descs,) = abi.decode(data[4:], (IPerplExchange.OrderDesc[], bool));
+        } else if (sel == IPerplExchange.execOrder.selector) {
+            descs = new IPerplExchange.OrderDesc[](1);
+            descs[0] = abi.decode(data[4:], (IPerplExchange.OrderDesc));
+        } else {
+            return 0;
+        }
+        (bool exists, IPerplExchange.AccountInfo memory info) = _account(account);
+        uint256 accountId = exists ? info.accountId : 0;
+        for (uint256 i; i < descs.length; ++i) {
+            uint8 t = descs[i].orderType;
+            if (t != OPEN_LONG && t != OPEN_SHORT) continue; // closes, cancels and margin changes are never measured
+            uint256 d = _deviationBps(descs[i], accountId);
+            if (d > worst) worst = d;
+        }
+    }
+
+    /// Distance of an order's limit price from the mark in bps, rounded up so a hair over the limit never passes.
+    function _deviationBps(IPerplExchange.OrderDesc memory d, uint256 accountId) internal view returns (uint256) {
+        if (d.pricePNS == 0) return type(uint256).max; // no limit price: unbounded
+        try perpl.getPosition(d.perpId, accountId) returns (
+            IPerplExchange.PositionInfo memory, uint256 mark, bool valid
+        ) {
+            if (!valid || mark == 0) {
+                return type(uint256).max;
+            }
+            uint256 diff = d.pricePNS > mark ? d.pricePNS - mark : mark - d.pricePNS;
+            return (diff * 10_000 + mark - 1) / mark;
+        } catch {
+            return type(uint256).max; // no mark to measure against: treat as unbounded
+        }
+    }
+
+    /// @inheritdoc IVenue
     function encodeWithdraw(uint256 amount) external view override returns (address target, bytes memory data) {
         return (address(perpl), abi.encodeCall(IPerplExchange.withdrawCollateral, (amount)));
     }

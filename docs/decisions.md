@@ -80,8 +80,17 @@ backer's positions, yet today it is public. Design, from reading `@category-labs
 - Opt-in per mandate ("private reasoning"). The public screen keeps showing verdicts; reasoning shows as encrypted
   until the backer unlocks it with the passkey.
 
-**D14. Price collar rule (candidate — needs the owner's yes).** (Sep 29)
-SEC Rule 15c3-5 rejects "erroneous orders" on price as well as size (`docs/research.md`). Mandate limits size and
-capital but not price. A `PriceCollar` action rule would revert any order whose limit price sits more than N bps from
-the OracleGuard-trusted mark — the Knight Capital failure mode. It is outside the PRD, so it is not built until the owner
-approves (CLAUDE.md rule 1).
+**D14. Price collar — optional, the user's choice.** (Sep 29 proposed; approved by the owner Sep 29; built Sep 30)
+SEC Rule 15c3-5 rejects "erroneous orders" on price as well as size (`docs/research.md`). `PriceCollar` (`p1` = max bps,
+1–10,000) reverts any execute whose opening orders carry a limit price more than `p1` bps from the venue mark — the
+Knight Capital failure mode. Details that matter:
+- **Optional and off by default.** Offered as Off / 1% / 2% / 5% on both setup screens; on "Back an agent" it is the
+  backer's own addition on top of Nansen's limits (the report fingerprint still records Nansen's proposal).
+- **Zero cost when unused.** The account measures prices only if the mandate has a collar, so every other mandate pays
+  no extra gas.
+- **Measured before the calls run**, against the pre-trade mark (`PerplAdapter.orderPriceDeviationBps`), rounded up.
+- **Fail closed:** an opening order with no limit price, or placed while the mark is invalid or unreadable, measures as
+  unbounded and is blocked.
+- **Never traps a position:** closes, cancels and margin changes are not measured.
+- Our own order builders keep two bps inside any collar (`slippageWithinCollar`): the contract rounds a sell at
+  exactly 1% through the mark up to 101 bps, found while testing.

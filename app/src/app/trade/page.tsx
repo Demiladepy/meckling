@@ -22,12 +22,14 @@ import {
   maxNotional,
   orderDesc,
   orderRateLimit,
+  priceCollar,
   perplExchangeAbi,
   pnsToPrice,
   readAccountState,
   readMark,
   readRules,
   revertData,
+  slippageWithinCollar,
   usdToCns,
   usdToLots,
   venueErrorMessage,
@@ -68,9 +70,11 @@ interface Limits {
   leverage: number;
   sizeUsd: number;
   markets: number[];
+  /** Price protection (D14): reject orders priced more than this % from the market. 0 = off. */
+  collarPct: number;
 }
 
-const DEFAULT_LIMITS: Limits = { leverage: 3, sizeUsd: 250, markets: [] };
+const DEFAULT_LIMITS: Limits = { leverage: 3, sizeUsd: 250, markets: [], collarPct: 0 };
 
 /**
  * Action rules only. They are checked inside `execute`, so a trade that breaks one reverts and nothing reaches the
@@ -84,6 +88,7 @@ function rulesFrom(limits: Limits, markets: MarketInfo[]): Rule[] {
     maxLeverage(limits.leverage),
     ...chosen.map((perpId) => maxNotional(perpId, usdToCns(limits.sizeUsd))),
     orderRateLimit(10, 600),
+    ...(limits.collarPct > 0 ? [priceCollar(limits.collarPct)] : []),
   ];
 }
 
@@ -261,7 +266,7 @@ export default function SelfMandatePage() {
         market,
         type,
         lots,
-        limitPricePNS: marketableLimit(mark, isBuy),
+        limitPricePNS: marketableLimit(mark, isBuy, slippageWithinCollar(view?.rules ?? [], 100)),
         venueLeverage: limits.leverage,
         orderDescId: block,
       });
@@ -390,6 +395,26 @@ function SetRules({
             </button>
           ))}
         </div>
+      </div>
+
+      <div className={s.field}>
+        <span>Price protection</span>
+        <div className={s.choices}>
+          {[0, 1, 2, 5].map((pct) => (
+            <button
+              key={pct}
+              type="button"
+              data-on={limits.collarPct === pct || undefined}
+              onClick={() => setLimits({ ...limits, collarPct: pct })}
+            >
+              {pct === 0 ? "Off" : `${pct}%`}
+            </button>
+          ))}
+        </div>
+        <p className={s.fine}>
+          Blocks any order priced further than this from the market — the check that would have stopped a runaway
+          algorithm like Knight Capital's. Closing a position is never blocked.
+        </p>
       </div>
 
       <button className="button-primary" onClick={onCreate} disabled={working}>

@@ -144,6 +144,7 @@ contract MandateAccount is ReentrancyGuard {
 
         ExecContext memory ctx;
         ctx.ordersPlaced = ordersPlaced;
+        if (!co) ctx.maxPriceDeviationBps = _collarDeviation(rules, calls);
         ctx.pre = venue.accountState(address(this));
 
         results = new bytes[](calls.length);
@@ -173,6 +174,21 @@ contract MandateAccount is ReentrancyGuard {
             }
         }
         emit Executed(address(this), block.number, ctx.post.equity, ctx.post.totalNotional);
+    }
+
+    /// Worst opening-order price distance from the mark, measured before the calls run (the price the order was placed
+    /// against). Skipped entirely — no venue reads, no extra gas — unless the mandate has a PriceCollar rule (D14).
+    function _collarDeviation(Rule[] memory rules, Call[] calldata calls) internal view returns (uint256 worst) {
+        bool hasCollar;
+        for (uint256 i; i < rules.length; ++i) {
+            if (rules[i].kind == RuleKind.PriceCollar) hasCollar = true;
+        }
+        if (!hasCollar) return 0;
+        for (uint256 i; i < calls.length; ++i) {
+            if (calls[i].target != exchange) continue;
+            uint256 d = venue.orderPriceDeviationBps(address(this), calls[i].data);
+            if (d > worst) worst = d;
+        }
     }
 
     /// @notice Closes every open position and puts the account in close-only mode permanently. Only the BondVault the

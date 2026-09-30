@@ -113,6 +113,20 @@ contract MandatePerplForkTest is Test {
         assertEq(adapter.accountState(address(account)).markets[0].size, 240, "nothing changed on-chain");
     }
 
+    /// D14: the price collar's measurement against real Perpl's live mark (the unit tests use a mock).
+    function test_priceCollarMeasuresAgainstRealPerplMark() public view {
+        uint256 mark = adapter.marketState(address(account), BTC).mark;
+        assertGt(mark, 0, "live mark");
+        MandateAccount.Call[] memory atOnePct = _long(BTC, 120, mark * 101 / 100);
+        uint256 d = adapter.orderPriceDeviationBps(address(account), atOnePct[0].data);
+        assertGe(d, 99, "about 1% from the mark");
+        assertLe(d, 101, "about 1% from the mark");
+        MandateAccount.Call[] memory atMark = _long(BTC, 120, mark);
+        assertEq(adapter.orderPriceDeviationBps(address(account), atMark[0].data), 0, "at the mark");
+        console2.log("real BTC mark (PNS)", mark);
+        console2.log("deviation of a limit 1% through the mark (bps)", d);
+    }
+
     function test_gasPerEnforcedTrade() public {
         uint256 mark = adapter.marketState(address(account), BTC).mark;
         MandateAccount.Call[] memory c = _long(BTC, 120, mark * 101 / 100);

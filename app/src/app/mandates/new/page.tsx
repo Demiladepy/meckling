@@ -10,6 +10,7 @@ import {
   mandateAccountAbi,
   mandateAccountFactoryAbi,
   mandateRegistryAbi,
+  priceCollar,
   toAbiRule,
   usdToCns,
   type MarketSymbol,
@@ -46,6 +47,8 @@ export default function CreateMandate() {
   const [draft, setDraft] = useState<Draft>();
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const [fund, setFund] = useState("100");
+  /** Price protection (D14): the backer's own addition on top of Nansen's limits. 0 = off. */
+  const [collarPct, setCollarPct] = useState(0);
   const [error, setError] = useState<string>();
 
   const available = useMemo(() => ALL.filter((m) => cfg?.markets.some((x) => x.symbol === m)), [cfg]);
@@ -312,13 +315,41 @@ export default function CreateMandate() {
               />
             </section>
 
+            {phase.kind === "idle" && (
+              <section className={`card ${s.setup}`} aria-labelledby="collar-h">
+                <h2 id="collar-h" className={s.h2}>
+                  Price protection
+                </h2>
+                <p className={s.setupHint}>
+                  Your own addition, not part of Nansen&rsquo;s report: block any order the agent prices further than
+                  this from the market. Closing a position is never blocked.
+                </p>
+                <div className={s.chips} role="group" aria-label="Price protection">
+                  {[0, 1, 2, 5].map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      className={s.chip}
+                      aria-pressed={collarPct === pct}
+                      onClick={() => setCollarPct(pct)}
+                    >
+                      {pct === 0 ? "Off" : `${pct}%`}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <section className={s.actions} aria-live="polite">
               {phase.kind === "idle" && (
                 <button
                   type="button"
                   className="button-primary"
                   disabled={!cfg?.deployment || (draft?.needsOverride && !draft.overrideAccepted) || mera.busy}
-                  onClick={() => approve(draft?.rules ?? uw.rules)}
+                  onClick={() => {
+                    const rules = draft?.rules ?? uw.rules;
+                    void approve(collarPct > 0 ? [...rules, priceCollar(collarPct)] : rules);
+                  }}
                 >
                   Approve mandate on-chain
                 </button>
