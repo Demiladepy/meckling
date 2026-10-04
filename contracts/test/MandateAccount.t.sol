@@ -240,6 +240,20 @@ contract MandateAccountTest is MandateTestBase {
         account.execute(openLong(BTC, 10));
     }
 
+    /// Rotation: the old key stops working in the same block the new one is set (docs/rules-spec.md, section 6).
+    function test_rotationRetiresTheOldKeyAtOnce() public {
+        address next = makeAddr("next-agent");
+        vm.prank(backer);
+        account.setSessionKey(next, uint64(block.number + 100));
+
+        vm.prank(agent);
+        vm.expectRevert(MandateAccount.Unauthorized.selector);
+        account.execute(openLong(BTC, 10));
+
+        vm.prank(next);
+        account.execute(openLong(BTC, 10));
+    }
+
     function test_strangerCannotRevoke() public {
         vm.prank(stranger);
         vm.expectRevert(MandateAccount.Unauthorized.selector);

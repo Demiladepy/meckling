@@ -45,7 +45,7 @@ controls failed. AI agents now trade on-chain with no broker in between, so nobo
 
 ## Corrections to the Monad facts in the list
 
-- Blocks are ~**400 ms** with ~**800 ms finality** (Metropolis track page); we measured **~0.30–0.31 s** per block on
+- Blocks are **300 ms** with **600 ms finality** in normal operation, targeting 100 ms and 200 ms (Keone Hon, Oct 4 2026; the Metropolis track page said 400 ms and 800 ms earlier); we measured **~0.30–0.31 s** per block on
   testnet over 2,000 blocks (`docs/spikes.md`). "10,000 TPS with 1-second blocks" is out of date.
 - The list names three pillars and calls them four. The missing one is **asynchronous execution** — consensus runs ahead
   of execution — and it is exactly why Monad **charges the full gas limit**, which Mandate designs around.
