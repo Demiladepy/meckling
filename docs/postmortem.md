@@ -12,6 +12,8 @@ What broke while building Mandate, why, and what changed so it doesn't happen ag
 
 **Price protection measured a sell at exactly the band as 1 bps over (found Sep 30, before release).** The distance rounds up, deliberately, so a hair over the limit never passes. An agent aiming exactly at the band edge was therefore blocked. *Change:* the agent sets its slippage at least 2 bps inside the band (`slippageWithinCollar`). The contract stays strict; the agent adapts.
 
+**Reports made on the live site vanished, so their fingerprints couldn't be checked (found Oct 6).** Underwriting reports were kept in server memory and a temp file. Vercel keeps neither, so of the three reports Monad testnet mandates point at, two were gone and the live agent's returned 404. That broke the promise that anyone can check a mandate's evidence. *Change:* reports are stored in Upstash as raw text (the default client re-serialises JSON, which would change the bytes and the hash; a check confirmed nine reports come back byte-exact). The live agent's report also ships with the app. The two lost reports can't be recovered; their mandates were test runs.
+
 ## In the infrastructure
 
 **CI was red from Sep 27 to Sep 29.** Two Curvance files were committed without `forge fmt`, and `forge fmt --check` failed every CI run for three days without anyone looking. *Change:* `pnpm verify` runs every CI step locally, and a pre-push hook runs it before anything reaches `main`. It has since stopped a real test bug from reaching `main` (next item).

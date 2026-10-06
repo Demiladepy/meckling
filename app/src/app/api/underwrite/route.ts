@@ -4,6 +4,7 @@ import { z } from "zod";
 import { NansenClient, canonicalJson, fixtureClient, underwrite } from "underwriter";
 import { DATA_DIR, net } from "@/lib/server/env";
 import { storeReport } from "@/lib/server/reportsStore";
+import { saveReport } from "@/lib/server/records";
 import { jsonResponse } from "@/lib/json";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,13 @@ export async function POST(req: Request) {
   });
   const body = canonicalJson(result.report);
   storeReport(result.reportHash, body);
+  try {
+    // The durable copy. Without it the report lives only in this serverless instance and is lost on the next cold
+    // start, which breaks verification for the mandate that points at it.
+    await saveReport(result.reportHash, body);
+  } catch (e) {
+    console.error("report not persisted", result.reportHash, e);
+  }
   try {
     await mkdir(join(DATA_DIR, "reports"), { recursive: true });
     await writeFile(join(DATA_DIR, "reports", `${result.reportHash}.json`), body);
