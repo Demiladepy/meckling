@@ -61,7 +61,14 @@ The full argument, rule by rule, is in [`docs/rules-spec.md`](docs/rules-spec.md
 
 ## Proven, measured, tested
 
-**On Monad testnet**, on the current contracts, checkable on-chain:
+**On Monad testnet**, checkable on-chain. The current contracts (deployed Oct 7, with price protection and the MIP-8 storage layout):
+
+| | |
+|---|---|
+| **A live Claude agent** | Account [`0xB70a…64C3`](https://mandate-rose.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3): 8 rules from a fresh Nansen report (smart money ~77% net short BTC and ETH, so risk-off and 1.5× max) plus 1% price protection, a $50 operator bond. Claude (`claude-sonnet-5-5`) opened a $100 BTC short and an $80 ETH short through every rule, then held at 0.89× because there was no new signal. |
+| **No false flag** | A staged breach recovered before the CRE workflow ran; the workflow checked the account and correctly took no action. |
+
+The first deployment (Sep 23–29, addresses below), checkable on-chain:
 
 | | |
 |---|---|
@@ -75,8 +82,8 @@ The full argument, rule by rule, is in [`docs/rules-spec.md`](docs/rules-spec.md
 
 | | |
 |---|---|
-| Gas per enforced trade, 4 rules | **520,808** vs **307,047** for the same raw Perpl order (`eth_estimateGas` on testnet, Sep 27). Enforcement costs ~214k gas. |
-| Storage pages per enforced trade | **3**, down from **9**. Monad's MIP-8 charges 8,100 gas per cold 128-slot storage page, so we laid each account's rules, mandate and monitors out to share pages. About 48,600 gas saved per trade: *calculated, to be measured after the next deploy*. |
+| Gas per enforced trade, 4 rules | **499,277** vs **306,653** for the same raw Perpl order (`eth_estimateGas` on testnet, Oct 7). Enforcement costs ~193k gas. With 8 rules, 530,674. |
+| MIP-8 storage layout | An enforced trade touches **3** storage pages instead of **9**. Measured on the same 4-rule account, old contracts vs new: **21,342 gas saved per trade**. |
 | Monad block time | ~0.30 s, measured over 2,000 blocks (Monad states 300 ms blocks and 600 ms finality). |
 
 **Tested and proven:**
@@ -124,21 +131,32 @@ Everything runs on Monad testnet with test AUSD.
 - **The first breach was flagged by the fallback keeper**, which runs the same checks as the CRE workflow. CRE flagged its own breach later.
 - **Local-fork tools refuse to run on real networks.** The price-sync script for anvil forks only runs against localhost.
 - **Testnet only, unaudited.** Proofs, invariants and fork tests are not an audit.
-- **The contracts below are the deployed version.** Price protection and the storage layout are in the code and tests; they ship with the next testnet deploy, and this table will update.
+- **The live agent's earlier history is on the first deployment.** The Oct 7 redeploy brought new addresses; the blocked 12× trade, the paid breach and the CRE flag happened on the first deployment and stay checkable there.
 - Every failure we hit, and what we changed: [`docs/postmortem.md`](docs/postmortem.md).
 
 ## Contracts on Monad testnet
 
+Current (deployed Oct 7, 2026, from block 68,815,384):
+
+| Contract | Address |
+|---|---|
+| MandateRegistry | `0x9E1C7e886Da953B96D091D1b8324c69F0260bc68` |
+| MandateAccountFactory | `0xA8A3dB9d38187dA5Df7d79E45234d3322D9F4581` |
+| PerplAdapter | `0x47c0ac6203E321d2Bc797fB97298900f584D3716` |
+| OracleGuard | `0x7642e42A07074f70cB45aBC713D26D9c96C608d9` |
+| BondVault | `0x8CA4854e7fB030ec9168f197450E16A305c2600B` |
+| CRE receiver | `0x129712c1b853067e0f5c1b9f214397c719a6242B` |
+| Live agent account | `0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3` |
+| Its report fingerprint | `0x977e286d510488cef67012b6f9c9a1c25ceaab30be6f3556ca0be487aecbe171` |
+
+First deployment (Sep 23), where the blocked trade, the paid breach and the first CRE flag happened:
+
 | Contract | Address |
 |---|---|
 | MandateRegistry | `0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133` |
-| MandateAccountFactory | `0x8F721E6B1367d471cFbA5fBdBbD714f208eB4F34` |
-| PerplAdapter | `0xE8F999dECEB04FC84a9da540b577cB4C66ec69bE` |
-| OracleGuard | `0xC395AFc52F37133091ec70907d859Fb0aeeDfAA2` |
 | BondVault | `0xe6FB91056f899656d3700DbDb7BcE5680984686f` |
 | CRE receiver | `0x0ebECec6eA87650D9bBcc4F553d0f4713b09beAc` |
-| Live agent account | `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0` |
-| Its report fingerprint | `0x0882f77cc1ac9fa615372254d3a4dd0bc2e29caa5a2af5128883237c112c9a66` |
+| Agent account | `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0` (report `0x0882f77c…c9a66`) |
 
 ## Repository
 

@@ -28,6 +28,8 @@ What broke while building Mandate, why, and what changed so it doesn't happen ag
 
 **Envio's code generator has no Windows binary.** *Change:* `pnpm verify` skips that one step on Windows and says so; CI runs it on Linux.
 
+**A setup script wrote to the old contracts after the redeploy (Oct 7).** Testnet addresses are bundled in `services/common/src/node.ts` so Vercel can read them, and that copy still held the old addresses. The first run of the live agent's setup created an account on the old factory before failing on the old registry. Harmless (a test account), but it would have pointed the live site at stale contracts. *Change:* the bundled copy was updated, and a test now fails if it ever differs from `contracts/deployments/10143.json`.
+
 ## In the proofs
 
 **Halmos "timed out" on proofs that were trivial (found Sep 30).** On Windows, the yices 2.6.4 solver build never answers a query declared `QF_AUFBV`, even one with an obvious answer. We first read the timeouts as hard proofs. *Change:* a small wrapper (`test/formal/yices_all_logic.py`) changes only the logic line; the suite now runs in about a second. Lesson: before believing a timeout, run the solver on the smallest query by hand.
@@ -40,6 +42,6 @@ What broke while building Mandate, why, and what changed so it doesn't happen ag
 
 **The first breach was flagged by our fallback keeper, not CRE (Sep 23).** We said so at the time. CRE flagged its own real breach on Sep 29.
 
-**We claimed gas savings before measuring them.** The storage-layout change cuts an enforced trade from 9 storage pages to 3, which should save about 48,600 gas on Monad. That figure is calculated. It stays labelled "calculated" until `eth_estimateGas` on the redeployed contracts says otherwise.
+**We claimed gas savings before measuring them, and the estimate was 2.3× too high (measured Oct 7).** We calculated about 48,600 gas saved from the 6-rule page count. Measured with `eth_estimateGas` on the same 4-rule account, old contracts against new, the saving is **21,342 gas**. The calculation assumed three rule monitors on three pages; a 4-rule account has one, so the old layout cost about 3 extra cold pages, not 6. *Change:* the number in the README is the measured one, and `pnpm --filter agent measure:gas` reproduces it. Lesson: a page count is a model; the chain's own estimator is the measurement.
 
 **A research summary we were handed was half wrong (Oct 2).** An AI-generated overview listed agent incidents. Checked against primary sources, about half held up and half didn't (a "$500M AI flash crash" that no source attributes to AI; a "$1M Clawdbot loss" that exists only as a viral post). *Change:* `docs/research.md` keeps only what was verified, with sources, and marks the rest "don't use".
