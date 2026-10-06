@@ -23,6 +23,7 @@ import {
   mandateAccountFactoryAbi,
   mandateRegistryAbi,
   measureBlockTimeMs,
+  priceCollar,
   RuleKind,
   bondVaultAbi,
   toAbiRule,
@@ -53,6 +54,8 @@ const symbols = (process.env.MARKETS || "BTC,ETH").split(",") as MarketSymbol[];
 const disputeWindowBlocks = BigInt(process.env.DISPUTE_WINDOW_BLOCKS || 600);
 const drawdownPct = process.env.DRAWDOWN_PCT ? Number(process.env.DRAWDOWN_PCT) : undefined;
 const bondUsd = Number(process.env.BOND_USD || 0);
+// Optional price protection (D14): the backer's choice, like in the app. Not part of Nansen's proposal.
+const collarPct = process.env.PRICE_COLLAR_PCT ? Number(process.env.PRICE_COLLAR_PCT) : undefined;
 
 const transport = http(net.rpcUrl);
 const pub = createPublicClient({ chain: net.chain, transport }) as PublicClient;
@@ -98,6 +101,7 @@ for (const p of report.proposal) console.log(`  ${p.label}: ${p.limit}`);
 const demoRules = rules.map((r) =>
   drawdownPct !== undefined && r.kind === RuleKind.MaxDrawdown ? { ...r, p1: BigInt(Math.round(drawdownPct * 100)) } : r,
 );
+if (collarPct !== undefined) demoRules.push(priceCollar(collarPct));
 
 // 2. MandateAccount.
 console.log("\nTransactions:");

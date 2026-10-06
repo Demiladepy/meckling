@@ -5,7 +5,10 @@ import { readStoredReport } from "@/lib/server/reportsStore";
 import { storedReport } from "@/lib/server/records";
 
 /** Reports shipped with the app as static files (public/reports), byte-exact. */
-const BUNDLED = new Set(["0x0882f77cc1ac9fa615372254d3a4dd0bc2e29caa5a2af5128883237c112c9a66"]);
+const BUNDLED = new Set([
+  "0x0882f77cc1ac9fa615372254d3a4dd0bc2e29caa5a2af5128883237c112c9a66",
+  "0x977e286d510488cef67012b6f9c9a1c25ceaab30be6f3556ca0be487aecbe171",
+]);
 const HEADERS = { "content-type": "application/json", "cache-control": "public, max-age=31536000, immutable" };
 
 /** The stored underwriting report. Its keccak256 is the mandate's on-chain reportHash, so anyone can verify it. */

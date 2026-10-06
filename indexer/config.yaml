@@ -48,12 +48,12 @@ contracts:
 chains:
   # Monad testnet. Addresses come from contracts/deployments/10143.json.
   - id: 10143
-    start_block: 64968808
+    start_block: 68815384
     contracts:
       - name: MandateAccountFactory
-        address: "0x8F721E6B1367d471cFbA5fBdBbD714f208eB4F34"
+        address: "0xA8A3dB9d38187dA5Df7d79E45234d3322D9F4581"
       - name: MandateRegistry
-        address: "0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133"
+        address: "0x9E1C7e886Da953B96D091D1b8324c69F0260bc68"
       - name: BondVault
-        address: "0xe6FB91056f899656d3700DbDb7BcE5680984686f"
+        address: "0x8CA4854e7fB030ec9168f197450E16A305c2600B"
       - name: MandateAccount

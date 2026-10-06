@@ -1,15 +1,15 @@
 {
   "chainSelectorName": "monad-testnet",
   "schedule": "*/30 * * * * *",
-  "mandateRegistry": "0x9e6F25f2291AFD83d56fFf502670Dcc781E2A133",
-  "perplAdapter": "0xE8F999dECEB04FC84a9da540b577cB4C66ec69bE",
-  "oracleGuard": "0xC395AFc52F37133091ec70907d859Fb0aeeDfAA2",
-  "bondVault": "0xe6FB91056f899656d3700DbDb7BcE5680984686f",
-  "receiver": "0x0ebECec6eA87650D9bBcc4F553d0f4713b09beAc",
+  "mandateRegistry": "0x9E1C7e886Da953B96D091D1b8324c69F0260bc68",
+  "perplAdapter": "0x47c0ac6203E321d2Bc797fB97298900f584D3716",
+  "oracleGuard": "0x7642e42A07074f70cB45aBC713D26D9c96C608d9",
+  "bondVault": "0x8CA4854e7fB030ec9168f197450E16A305c2600B",
+  "receiver": "0x129712c1b853067e0f5c1b9f214397c719a6242B",
   "accounts": [
-    "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0",
-    "0xB81b1d54a76170dD0c5c4306f5f0437329afA53F",
-    "0xCF417EdF09c7a7247Ef99d9B0B71d753962d7fC8"
+    "0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3",
+    "0x1FF625a70751984426f7F6680568B3055944AC0c",
+    "0xc7Eb03EDfafF6062fE756f53e7B021B495fCa30B"
   ],
   "gasLimit": "1500000",
   "perplApi": "https://testnet.perpl.xyz/api",
