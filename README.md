@@ -2,6 +2,8 @@
 
 **AI traders that can't break your rules.**
 
+[![ci](https://github.com/Demiladepy/mandate/actions/workflows/ci.yml/badge.svg)](https://github.com/Demiladepy/mandate/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Monad testnet](https://img.shields.io/badge/Monad-testnet-836EF9) ![proofs: Halmos](https://img.shields.io/badge/proofs-Halmos%208%2F8-success)
+
 > Risk control should be a property of the infrastructure. It is unreasonable to expect everyone who funds an agent to become an expert in monitoring it.
 
 Mandate is a risk-enforcement layer for AI trading agents on Monad. The agent trades through an account that checks its limits inside every transaction, so a trade that breaks a rule never happens. The agent's key can trade but can never move money out. And when the market alone breaks a limit, the operator's bond pays the backer back.
@@ -85,11 +87,11 @@ The full argument, rule by rule, is in [`docs/rules-spec.md`](docs/rules-spec.md
 
 ## Where this goes
 
-Monad co-founder Keone Hon describes the next phase with "fair execution should be a property of the infrastructure" (["A world computer worthy of the world's money"](https://x.com/keoneHD/status/2106670836761633202), Oct 4, 2026). Three items on that roadmap extend Mandate directly:
+Monad co-founder Keone Hon describes the next phase with "fair execution should be a property of the infrastructure" (["A world computer worthy of the world's money"](https://x.com/keoneHD/status/2106670836761633202), Oct 4, 2026). Three items on that roadmap extend Mandate directly, and the third shipped as an announcement two days later:
 
 - **Encrypted transactions until the order is final.** An agent's intent with its limits ("at most X, no further than Y from the mark") is what a mandate with price protection already expresses. With encrypted submission, it also couldn't be traded ahead of.
 - **Application-specific sequencing**, such as "an exchange may need to process cancellations before new orders." Mandate's breach handling already applies one such rule inside a transaction: unwind first, then close-only. Sequencing would let it apply across transactions.
-- **Private environments with shared liquidity.** Institutional allocators can't publish their positions, but could publish their mandate's guarantees.
+- **Private settlement.** Category Labs announced [Monad Private Settlement](https://www.category.xyz/monad-private-settlement) at Monad Open (Oct 6, 2026): institutions keep trading positions and orders encrypted in their own domain, settle against public Monad liquidity, and open specific information to regulators and auditors. A fund there can't publish its positions, but it can publish its mandate. Its limits and breach record stay public and enforced on-chain, so "this fund never exceeds 2× leverage" becomes checkable without revealing a single position.
 
 **Agent keys.** The author's Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation), found that rotation, delegation withdrawal and retirement of agent keys have no published mechanism. Mandate gives each one an on-chain answer: a scoped session key with an expiry block, replaced in one transaction, revocable by the owner or operator, with a blast radius bounded by the rules. An agent's authority lives in its account, not its key, so the key can move to a post-quantum scheme without touching the rules. That fits the top priority Monad names for quantum security: flexible, upgradeable account authorization.
 
@@ -155,7 +157,7 @@ app/                Next.js PWA: landing, agents, underwriting, agent screen, ri
 docs/               Spec, rule guarantees, proofs, benchmarks, research, postmortem, decisions, spikes
 ```
 
-## Running it
+## Quickstart
 
 Requirements: Node 22+, pnpm 10, Foundry, and a Nansen API key.
 
