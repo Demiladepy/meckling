@@ -66,6 +66,7 @@ The full argument, rule by rule, is in [`docs/rules-spec.md`](docs/rules-spec.md
 | | |
 |---|---|
 | **A live Claude agent** | Account [`0xB70a…64C3`](https://mandate-rose.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3): 8 rules from a fresh Nansen report (smart money ~77% net short BTC and ETH, so risk-off and 1.5× max) plus 1% price protection, a $50 operator bond. Claude (`claude-sonnet-5-5`) opened a $100 BTC short and an $80 ETH short through every rule, then held at 0.89× because there was no new signal. |
+| **A breach paid** | On account [`0xc7Eb…a30B`](https://mandate-rose.vercel.app/agents/0xc7Eb03EDfafF6062fE756f53e7B021B495fCa30B), a BTC long fell 0.98% from its peak, past a drawdown floor its backer had tightened to 0.01%. The keeper flagged it 17 blocks after it began, the account closed out, and the bond paid the backer **0.989276 AUSD**, the exact loss from peak (slash tx `0xd6f8bd6d…81dc`). |
 | **No false flag** | A staged breach recovered before the CRE workflow ran; the workflow checked the account and correctly took no action. |
 
 The first deployment (Sep 23–29, addresses below), checkable on-chain:

@@ -3,11 +3,13 @@ import { AppHeader } from "@/components/AppHeader";
 import s from "./page.module.css";
 
 /**
- * The live agent on the current testnet contracts: Nansen mandate #1. Everything the hero and the step images show
- * is read from this account — its reasoning log, the 12x block, the fill and the breach the bond paid.
+ * The live Claude agent on the current testnet contracts (deployed Oct 7). The hero and the stats show the first
+ * deployment's run (Sep 23): the 12x block, the fill and the breach the bond paid. Those stay checkable on-chain at
+ * the addresses in the README.
  */
-const LIVE_AGENT = "0xAdb15A72D8e01FC641ad2E218E060e434f2610e0";
-const BREACH_AGENT = LIVE_AGENT;
+const LIVE_AGENT = "0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3";
+/** A real drawdown breach on the current contracts: flagged by the keeper, the bond paid the backer 0.989276 AUSD. */
+const BREACH_AGENT = "0xc7Eb03EDfafF6062fE756f53e7B021B495fCa30B";
 
 export default function Home() {
   return (
@@ -39,9 +41,9 @@ export default function Home() {
             <div className={s.glow} aria-hidden />
             <AgentWindow />
             <figcaption className={s.caption}>
-              The live agent on Monad testnet, shown as it happened. This run used the scripted demo agent: it quotes
-              the real Nansen report and deliberately tries 12× to test the limits. The block and the fill are real
-              on-chain transactions.
+              The first deployment&rsquo;s agent on Monad testnet, shown as it happened. This run used the scripted demo
+              agent: it quotes the real Nansen report and deliberately tries 12× to test the limits. The block and the
+              fill are real on-chain transactions. The agent running now is Claude.
             </figcaption>
           </figure>
         </section>
@@ -249,10 +251,10 @@ function Headroom({ label, used, text }: { label: string; used: number; text: st
 function UnderwritingFragment() {
   const rows = [
     ["Max leverage", "1.5×"],
-    ["BTC position", "$160"],
-    ["Markets", "BTC only"],
-    ["Order rate", "10 per 100 blocks"],
+    ["Per market", "$160"],
+    ["Markets", "BTC, ETH"],
     ["Cooldown after an $8 loss", "600 blocks"],
+    ["Price protection", "1% from the market"],
   ];
   return (
     <div className={`${s.fragment} ${s.frost}`} aria-hidden>
@@ -272,7 +274,7 @@ function UnderwritingFragment() {
       </ul>
       <div className={s.fingerprint}>
         <span>Report fingerprint</span>
-        <span className="onchain">0x0882f77c…9a66</span>
+        <span className="onchain">0x977e286d…e171</span>
         <span className="badge" data-tone="held">
           Matches on-chain
         </span>
