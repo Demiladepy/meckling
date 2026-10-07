@@ -93,6 +93,13 @@ The first deployment (Sep 23–29, addresses below), checkable on-chain:
 - **Eight invariants** (PRD 7.8) hold over 16,384 random calls each, on every CI run.
 - **Fork tests against the real Perpl exchange** at Monad mainnet state, including price protection against Perpl's live mark.
 
+## Why Monad
+
+- **Enforcement has to fit inside the trade.** Every rule runs inside the agent's own transaction, before Perpl sees the order. At 300 ms blocks that costs about 193k gas on a trade, measured, with no extra round trip.
+- **Its storage is priced by page (MIP-8), and we built for that.** Laying each account's rules and monitors out to share pages cut 21,342 gas per enforced trade.
+- **A clean record so far, stated honestly.** A three-year study of sandwich attacks on protected order flow across six chains ("No Place to Hide", [arXiv 2609.28115](https://arxiv.org/abs/2609.28115), Category Labs, ETH Zurich, Flashbots and the University of Lisbon, Sep 2026) found 28.0M on Solana and attacks on Ethereum, Tron and Base, over $346M to attackers, and none on Arbitrum or Monad. The authors note Monad has been live for less than a year, so this is partly youth, not proof. What makes it more than luck is Monad's stated direction: encrypted transactions until the order is final.
+- **Where Mandate stops.** Mandate isn't MEV protection. Monad's encrypted mempool is meant to protect an order before it's included; Mandate constrains what an agent's included orders can do.
+
 ## Where this goes
 
 Monad co-founder Keone Hon describes the next phase with "fair execution should be a property of the infrastructure" (["A world computer worthy of the world's money"](https://x.com/keoneHD/status/2106670836761633202), Oct 4, 2026). Three items on that roadmap extend Mandate directly, and the third shipped as an announcement two days later:
