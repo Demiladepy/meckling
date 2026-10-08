@@ -4,6 +4,7 @@ import Link from "next/link";
 import { use, useMemo } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { formatBlock, shortAddr, usd, usePoll } from "@/lib/client";
+import { flaggedBy } from "@/lib/keepers";
 import { observedVsLimit, type AccountView } from "@/lib/view";
 import s from "./page.module.css";
 
@@ -55,7 +56,8 @@ export default function BreachDetail({ params }: { params: Promise<{ account: st
           </p>
           <h1 className="section-heading">Breach {id}</h1>
           <p className="body-secondary">
-            The market broke a rule. The keeper flagged it on-chain; the agent did nothing.
+            The market broke a rule and the agent did nothing. The flag only went through because the chain recomputed
+            the breach itself and confirmed Perpl&rsquo;s prices against Chainlink feeds.
           </p>
         </header>
 
@@ -77,7 +79,8 @@ export default function BreachDetail({ params }: { params: Promise<{ account: st
                 {status.label}
               </p>
               <p className={s.metaInk}>
-                Flagged at block <span className="onchain">{formatBlock(breach.flaggedAtBlock)}</span>
+                {flaggedBy(breach.reporter) ? `Flagged by the ${flaggedBy(breach.reporter)} at block ` : "Flagged at block "}
+                <span className="onchain">{formatBlock(breach.flaggedAtBlock)}</span>
                 {head !== undefined && (
                   <>
                     {" · "}

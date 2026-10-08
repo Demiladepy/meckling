@@ -10,7 +10,7 @@ const mono = Fira_Code({ subsets: ["latin"], variable: "--font-mono", display: "
 
 export const metadata: Metadata = {
   title: "Mandate",
-  description: "Fund an AI trading agent on Monad. The chain enforces the risk rules you set.",
+  description: "AI traders that can't break your rules. Monad checks an agent's limits inside every trade, and a bond pays you back when the market breaks one.",
   applicationName: "Mandate",
   appleWebApp: { capable: true, title: "Mandate", statusBarStyle: "black-translucent" },
   icons: {

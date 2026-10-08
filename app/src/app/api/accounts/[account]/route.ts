@@ -127,6 +127,8 @@ async function readBreaches(account: Address) {
       resolved: b.resolved,
       upheld: b.upheld,
       slashed: b.slashed,
+      /** Who called flagBreach: a keeper's address, or the Chainlink CRE receiver when CRE flagged it. */
+      reporter: b.reporter,
       /** What the backer was paid, once slashed: the loss from peak, capped at the bond. */
       loss: b.peakEquity > BigInt(b.equityAtFlag) ? b.peakEquity - BigInt(b.equityAtFlag) : 0n,
     }));

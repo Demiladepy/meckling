@@ -3,9 +3,8 @@ import { AppHeader } from "@/components/AppHeader";
 import s from "./page.module.css";
 
 /**
- * The live Claude agent on the current testnet contracts (deployed Oct 7). The hero and the stats show the first
- * deployment's run (Sep 23): the 12x block, the fill and the breach the bond paid. Those stay checkable on-chain at
- * the addresses in the README.
+ * The live Claude agent on the current testnet contracts (deployed Oct 7). The hero shows its real run; the 12x block
+ * in the stats and Step 2 happened on the first deployment (Sep 23) and stays checkable there (README).
  */
 const LIVE_AGENT = "0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3";
 /** A real drawdown breach on the current contracts: flagged by the keeper, the bond paid the backer 0.989276 AUSD. */
@@ -23,8 +22,8 @@ export default function Home() {
             </h1>
             <div className={s.heroSide}>
               <p className={s.lede}>
-                Nansen&rsquo;s smart-money data sets the limits. Monad checks them inside every trade. If the market breaks
-                one anyway, the operator&rsquo;s bond pays you back.
+                Monad checks an AI agent&rsquo;s limits inside every trade it makes. Its key can trade but never withdraw.
+                If the market breaks a limit anyway, the operator&rsquo;s bond pays you back.
               </p>
               <div className={s.ctas}>
                 <Link className="button-primary" href="/mandates/new">
@@ -41,18 +40,17 @@ export default function Home() {
             <div className={s.glow} aria-hidden />
             <AgentWindow />
             <figcaption className={s.caption}>
-              The first deployment&rsquo;s agent on Monad testnet, shown as it happened. This run used the scripted demo
-              agent: it quotes the real Nansen report and deliberately tries 12× to test the limits. The block and the
-              fill are real on-chain transactions. The agent running now is Claude.
+              The live agent on Monad testnet: Claude, trading on Perpl under eight on-chain rules set from a Nansen
+              report. Its words and both fills are real, shown as they happened.
             </figcaption>
           </figure>
         </section>
 
         <section className={s.ledger} aria-label="Measured on Monad testnet">
-          <Stat value="12.0×" label="Attempted leverage, stopped against a 1.5× limit set from Nansen data" />
-          <Stat value="6 blocks" label="From a market breach to an on-chain flag, about two seconds" />
-          <Stat value="$0.109218" label="Paid to the backer from the operator’s bond, the exact loss" />
-          <Stat value="16,000" label="Randomised attacks on the contracts, and every safety rule held" />
+          <Stat value="12.0×" label="An agent’s attempted leverage, blocked on-chain against a 1.5× limit" />
+          <Stat value="0.989276" label="AUSD paid to a backer from the operator’s bond after a real breach: the exact loss" />
+          <Stat value="21,342" label="Gas saved on every checked trade by laying storage out for Monad’s page pricing" />
+          <Stat value="8 of 8" label="Rule properties proven for every possible input, not just tested" />
         </section>
 
         <section className={s.steps} aria-labelledby="how-h">
@@ -63,11 +61,10 @@ export default function Home() {
           <article className={s.step}>
             <div className={s.stepCopy}>
               <p className={s.stepIndex}>Step 1</p>
-              <h3 className={s.stepTitle}>Nansen sets the limits.</h3>
+              <h3 className={s.stepTitle}>Set the limits from evidence.</h3>
               <p className={s.stepBody}>
-                Pick the markets. Mandate reads smart-money flows and positioning from Nansen and turns them into hard
-                numbers: leverage, position size, a cooldown after losses, a drawdown floor. Every limit shows the signal
-                behind it.
+                Back an agent with limits drawn from Nansen smart-money data, or set your own from your phone. The rules
+                are written to Monad, and from then on they can only get tighter.
               </p>
             </div>
             <UnderwritingFragment />
@@ -76,10 +73,11 @@ export default function Home() {
           <article className={s.step}>
             <div className={s.stepCopy}>
               <p className={s.stepIndex}>Step 2</p>
-              <h3 className={s.stepTitle}>Every trade is checked before it lands.</h3>
+              <h3 className={s.stepTitle}>Monad checks every trade, inside the trade.</h3>
               <p className={s.stepBody}>
-                The agent trades through an account that tests each order against your limits in the same transaction. A
-                trade that breaks one never happens. There is no alert to miss and no one to trust.
+                The agent trades on Perpl through an account that tests each order against every rule in the same
+                transaction. A trade that breaks one never happens. The agent&rsquo;s key can&rsquo;t withdraw, so even a
+                hijacked agent has nowhere to send the money.
               </p>
             </div>
             <VerdictFragment />
@@ -90,8 +88,9 @@ export default function Home() {
               <p className={s.stepIndex}>Step 3</p>
               <h3 className={s.stepTitle}>When the market breaks a rule, the bond pays.</h3>
               <p className={s.stepBody}>
-                Some limits can be broken by price alone. A keeper watches every account; when one slips past its
-                drawdown floor, the position is closed and the operator&rsquo;s bond covers the loss.
+                Some limits can be broken by price alone. A keeper or Chainlink&rsquo;s CRE network flags the breach;
+                Monad re-checks it against Chainlink prices, closes the position, and the operator&rsquo;s bond pays you
+                back in AUSD.
               </p>
               <Link className={s.inline} href={`/agents/${BREACH_AGENT}`}>
                 See the breach that paid out
@@ -102,29 +101,22 @@ export default function Home() {
         </section>
 
         <section className={s.parts} aria-labelledby="parts-h">
-          <h2 id="parts-h" className="section-heading">
-            Who does what.
-          </h2>
-          <div className={s.partGrid}>
-            <div className={s.part}>
-              <h3>Nansen</h3>
-              <p>
-                Supplies the evidence. Its report is fingerprinted and stored with the mandate, so anyone can check the
-                limits came from it.
-              </p>
-            </div>
-            <div className={s.part}>
-              <h3>The agent</h3>
-              <p>
-                Reads the market and proposes trades. It never sets its own limits and can never withdraw your money.
-              </p>
-            </div>
-            <div className={s.part}>
-              <h3>Monad</h3>
-              <p>
-                Decides. Every trade is checked on-chain, and every breach is settled from the bond in AUSD.
-              </p>
-            </div>
+          <div>
+            <h2 id="parts-h" className="section-heading">
+              Built on Monad.
+            </h2>
+            <p className={s.partsSub}>Each part does one job, and you can see each one working.</p>
+          </div>
+          <div className={`${s.partGrid} ${s.partGrid4}`}>
+            {PARTS.map((p) => (
+              <div key={p.name} className={s.part}>
+                <h3>{p.name}</h3>
+                <p>{p.role}</p>
+                <Link className={s.inline} href={p.href}>
+                  {p.see}
+                </Link>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -152,12 +144,67 @@ export default function Home() {
             <Link href="/mandates/new">Back an agent</Link>
             <Link href="/trade">Trade</Link>
           </nav>
-          <p className={s.footerNote}>Running on Monad testnet with test AUSD.</p>
+          <p className={s.footerNote}>
+            Built for Monad Metropolis 2026 · Running on Monad testnet with test AUSD ·{" "}
+            <a href="https://github.com/Demiladepy/mandate">Source</a>
+          </p>
         </div>
       </footer>
     </>
   );
 }
+
+/** Every integration, in plain words, with the place in the app where it can be seen working. */
+const PARTS = [
+  {
+    name: "Monad",
+    role: "Runs every rule inside the agent’s own transaction, before the order reaches the exchange. Storage is laid out for Monad’s per-page pricing.",
+    href: `/agents/${LIVE_AGENT}`,
+    see: "Watch a checked trade",
+  },
+  {
+    name: "Perpl",
+    role: "The on-chain order book. Each account trades on Perpl in its own name, so every order passes through its rules.",
+    href: `/risk/${LIVE_AGENT}`,
+    see: "See the positions",
+  },
+  {
+    name: "Agora AUSD",
+    role: "The dollar every account holds, every limit is counted in, and every bond pays out in. Trade it from your phone.",
+    href: "/trade",
+    see: "Trade under your own rules",
+  },
+  {
+    name: "Mera",
+    role: "Passkey accounts with no seed phrase. The agent’s private reasoning is sealed to the backer’s passkey, so only they can read it.",
+    href: `/agents/${LIVE_AGENT}`,
+    see: "See the agent screen",
+  },
+  {
+    name: "Chainlink",
+    role: "Price feeds guard every breach, and a CRE workflow checks a breach against Perpl’s own data before flagging it.",
+    href: `/agents/${BREACH_AGENT}`,
+    see: "See a flagged breach",
+  },
+  {
+    name: "Envio",
+    role: "Indexes every trade, blocked attempt and breach into track records, which Monad nodes don’t keep.",
+    href: `/risk/${LIVE_AGENT}`,
+    see: "See the track record",
+  },
+  {
+    name: "Nansen",
+    role: "Smart-money evidence behind an agent’s limits. The report is fingerprinted on-chain, so anyone can check where each limit came from.",
+    href: "/mandates/new",
+    see: "Get limits from Nansen",
+  },
+  {
+    name: "Claude",
+    role: "The agent’s reasoning. It reads the evidence and proposes trades; it never sets its own limits.",
+    href: `/agents/${LIVE_AGENT}`,
+    see: "Read its decisions",
+  },
+];
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
@@ -177,13 +224,13 @@ function AgentWindow() {
     <div className={s.window} aria-hidden>
       <div className={s.windowBar}>
         <span className={s.windowTitle}>
-          Agent <span className="onchain">0xAdb1…10e0</span>
+          Agent <span className="onchain">0xB70a…64C3</span>
         </span>
         <span className="badge" data-tone="held">
           <span className={s.liveDot} /> Live on Monad
         </span>
         <span className={s.windowEquity}>
-          Equity <strong>$200.01</strong>
+          Claude · <strong>8 rules</strong>
         </span>
       </div>
 
@@ -195,41 +242,40 @@ function AgentWindow() {
       <div className={s.row}>
         <div className={s.agentCell}>
           <p className={s.quote}>
-            &ldquo;Smart money on Hyperliquid is net short BTC: 66% skew across 100 traders at 14.2x average leverage.
-            (from the underwriting report of 2026-09-23) Going 12x short.&rdquo;
+            &ldquo;Nansen shows smart money on Hyperliquid is 77% net short BTC across 100 traders, and the regime is
+            risk-off, so I&rsquo;m taking a short. At $100 notional the account is at 0.5x leverage, under the 1.5x
+            cap.&rdquo;
           </p>
-          <p className={s.proposal}>Proposed: BTC short, 12.0×</p>
-        </div>
-        <div className={s.chainCell} data-tone="breach">
-          <span className="badge" data-tone="breach">
-            Blocked on-chain
-          </span>
-          <p className={s.verdict}>This trade would put you at 12.0× leverage. Your limit is 1.5×.</p>
-          <div className={s.meter}>
-            <span className={s.meterFill} style={{ width: "100%" }} data-tone="breach" />
-            <span className={s.meterMark} style={{ left: "12.5%" }} />
-          </div>
-          <p className={s.quiet}>Nothing changed. The order never reached the exchange.</p>
-        </div>
-      </div>
-
-      <div className={s.row}>
-        <div className={s.agentCell}>
-          <p className={s.quote}>&ldquo;Limit is 1.5x and $160 on BTC. Going 0.7x short.&rdquo;</p>
-          <p className={s.proposal}>Proposed: BTC short, 0.7×</p>
+          <p className={s.proposal}>Proposed: BTC short, 0.5×</p>
         </div>
         <div className={s.chainCell} data-tone="held">
           <span className="badge" data-tone="held">
             Filled on Perpl
           </span>
-          <p className={s.verdict}>$143.47 notional. Every rule held.</p>
+          <p className={s.verdict}>$99.87 notional. Every rule held.</p>
+        </div>
+      </div>
+
+      <div className={s.row}>
+        <div className={s.agentCell}>
+          <p className={s.quote}>
+            &ldquo;Smart money is net short ETH (78% skew across 93 traders). An $80 short keeps ETH under the $160 cap
+            and total leverage near 0.9x.&rdquo;
+          </p>
+          <p className={s.proposal}>Proposed: ETH short, 0.9×</p>
+        </div>
+        <div className={s.chainCell} data-tone="held">
+          <span className="badge" data-tone="held">
+            Filled on Perpl
+          </span>
+          <p className={s.verdict}>$78.15 notional. Every rule held.</p>
         </div>
       </div>
 
       <div className={s.headroom}>
-        <Headroom label="Leverage" used={0.47} text="0.7 of 1.5×" />
-        <Headroom label="BTC size" used={0.897} text="$143 of $160" />
-        <Headroom label="Orders" used={0.1} text="1 of 10 in window" />
+        <Headroom label="Leverage" used={0.89 / 1.5} text="0.89 of 1.5×" />
+        <Headroom label="BTC size" used={99.87 / 160} text="$100 of $160" />
+        <Headroom label="ETH size" used={78.15 / 160} text="$78 of $160" />
       </div>
     </div>
   );
@@ -309,10 +355,10 @@ function VerdictFragment() {
 /** Step 3 image: the breach as it actually happened on testnet. */
 function BreachFragment() {
   const events = [
-    { t: "Block 64,986,214", h: "Breach flagged", d: "Drawdown past the floor. Caught 6 blocks after it happened." },
+    { t: "Block 69,048,617", h: "Breach flagged", d: "A 0.98% drawdown against a 0.01% floor, re-checked on-chain." },
     { t: "Same transaction", h: "Position closed", d: "The account can only close trades from here on." },
-    { t: "200 blocks later", h: "Dispute window ends", d: "No one disputed the breach." },
-    { t: "Settled", h: "Bond paid $0.109218", d: "The exact loss from the equity peak, in AUSD." },
+    { t: "20 blocks later", h: "Dispute window ends", d: "No one disputed the breach." },
+    { t: "Settled", h: "Bond paid 0.989276 AUSD", d: "The exact loss from the equity peak." },
   ];
   return (
     <div className={`${s.fragment} ${s.ember}`} aria-hidden>

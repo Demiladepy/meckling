@@ -15,7 +15,7 @@ export default function AgentsList() {
         <header className={s.intro}>
           <h1 className="section-heading">Agents</h1>
           <p className="body-secondary">
-            Live accounts on Monad testnet, each trading under limits set from Nansen data. Open one to watch the
+            Live accounts on Monad testnet, each trading under rules the chain enforces. Open one to watch the
             agent propose and the chain decide.
           </p>
         </header>

@@ -55,6 +55,8 @@ export interface BreachView {
   upheld: boolean;
   slashed: boolean;
   loss: string;
+  /** Absent on responses from before Oct 8. */
+  reporter?: string;
 }
 
 export interface LogRecordView {

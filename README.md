@@ -8,9 +8,9 @@
 
 Mandate is a risk-enforcement layer for AI trading agents on Monad. The agent trades through an account that checks its limits inside every transaction, so a trade that breaks a rule never happens. The agent's key can trade but can never move money out. And when the market alone breaks a limit, the operator's bond pays the backer back.
 
-[**Live app**](https://mandate-rose.vercel.app) &nbsp;·&nbsp; [**Demo video**](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp; [**What each rule guarantees, and what it can't**](docs/rules-spec.md) &nbsp;·&nbsp; [Postmortem](docs/postmortem.md)
+[**Live app**](https://mandate-rose.vercel.app) &nbsp;·&nbsp; [Earlier demo (Sep 27)](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp; [**What each rule guarantees, and what it can't**](docs/rules-spec.md) &nbsp;·&nbsp; [Postmortem](docs/postmortem.md)
 
-[![Mandate — demo](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
+[![Mandate — earlier demo, Sep 27](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
 
 ---
 
@@ -252,4 +252,4 @@ cd contracts && halmos --contract RuleProofs --solver-command "python test/forma
 
 ---
 
-Built for the Monad Metropolis hackathon and the Nansen Meridian Buildathon, 2026.
+Built for Monad Metropolis 2026 (Track 01, Onchain Finance & Trading). An earlier version was submitted to the Nansen Meridian Buildathon in September 2026.
