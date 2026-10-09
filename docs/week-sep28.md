@@ -5,25 +5,25 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 
 **You** = the owner. **Claude** = coding agent. A "you" item left undone blocks the "Claude" item after it.
 
-## Status — Tuesday Sep 29
+## Status: Tuesday Sep 29
 
 **Done**
 - [x] Envio indexer live: `https://indexer.dev.hyperindex.xyz/8534451/v1/graphql`, wired into the app and Vercel.
 - [x] `cre login` and the CRE fix: the workflow confirms breaches against Perpl's API, and a broadcast simulation
       flagged a real breach on testnet (`docs/cre-simulation.md`).
-- [x] Rules read: MIT license added (it was missing — a disqualification risk), AI use disclosed, `docs/metropolis-rules.md`.
+- [x] Rules read: MIT license added (it was missing, a disqualification risk), AI use disclosed, `docs/metropolis-rules.md`.
 - [x] CI green again, and a pre-push hook runs every CI check locally (`pnpm verify`).
 - [x] First deposits meet Perpl's minimum (100 AUSD on testnet).
-- [x] Upstash plugin installed — **authorise it with `/mcp`** before Claude can create the store.
+- [x] Upstash plugin installed: **authorise it with `/mcp`** before Claude can create the store.
 - [x] Video scripts: `docs/demo-script-metropolis.md` (3-min demo, 2-min pitch, 30-sec ad).
 
-**Still open this week** — owner items first, they unblock the rest
+**Still open this week**: owner items first, they unblock the rest
 - [ ] You: authorise Upstash (`/mcp`), choose the agent host, mainnet yes/no, faucet key into Vercel
 - [ ] You: community-group check, sponsor-channel messages, the two outreach messages
 - [ ] You: phone test (Wed), logo (Wed), three interviews (Thu), ten users (Fri), pitch draft (Fri), X posts
 - [ ] Claude: judge faucet → agent records to Upstash → live Claude agent → Mera non-wallet feature → MIP-8 gas
 
-## Monday Sep 28 — unblock everything
+## Monday Sep 28: unblock everything
 
 **You**
 - [ ] Envio dashboard: set root folder to `indexer`, config `config.yaml`, deploy branch `main`. Send the GraphQL URL.
@@ -36,12 +36,12 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 - [ ] Send the two messages below (senior builder, Category Labs).
 
 **Claude**
-- [ ] Chainlink CRE: add the external call — before flagging a breach, the workflow confirms the price against Perpl's
+- [ ] Chainlink CRE: add the external call: before flagging a breach, the workflow confirms the price against Perpl's
       own API, so a breach needs two independent sources. Then simulate with the CLI and save the logs.
 - [ ] Judge access: a rate-limited testnet faucet in the app (test MON + AUSD to a new passkey account), so judges can
       use the product with no setup.
 
-## Tuesday Sep 29 — the agent goes live
+## Tuesday Sep 29: the agent goes live
 
 **You**
 - [ ] Mainnet decision: yes or no to deploying Mandate on Monad mainnet with small caps (unlocks the Curvance Fund
@@ -55,7 +55,7 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 - [ ] Agent runtime hardened for a long run (restarts, a health log), with a deploy script for your host.
 - [ ] Start the Claude agent on a fresh Nansen mandate. From here it runs until submission.
 
-## Wednesday Sep 30 — mobile and the passkey
+## Wednesday Sep 30: mobile and the passkey
 
 **You**
 - [ ] **Phone test** of `/trade`: passkey sign-in, installed to home screen, AUSD balance, a filled trade, a blocked
@@ -67,10 +67,10 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 - [ ] Wire the Envio GraphQL URL into track records and the Risk screen; verify the numbers against chain state.
 - [ ] Fix whatever the phone test breaks.
 
-## Thursday Oct 1 — the Mera feature and users
+## Thursday Oct 1: the Mera feature and users
 
 **You**
-- [ ] **User interviews**: three real people, the same question — *"If an agent's rules were enforced on-chain and its
+- [ ] **User interviews**: three real people, the same question, *"If an agent's rules were enforced on-chain and its
       operator had a bond you'd get paid from, would you put $500 behind it? What would make you say no?"* Write down
       the answers word for word, including the nos.
 - [ ] Second X post: a clip of a blocked trade.
@@ -79,7 +79,7 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 - [ ] Mera non-wallet feature: the backer's private notes and the agent's memory encrypted to the backer's passkey
       (its own PRF salt namespace), readable on a second device with the same passkey. Nothing stored in plain text.
 
-## Friday Oct 2 — measure and tell the story
+## Friday Oct 2: measure and tell the story
 
 **You**
 - [ ] Get **ten people** to try `/trade` with the judge faucet. Note every place they got stuck.
@@ -91,7 +91,7 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
       update `benchmarks.md`.
 - [ ] Refresh the README with the live agent's numbers.
 
-## Saturday Oct 3 — review
+## Saturday Oct 3: review
 
 **You and Claude**
 - [ ] Walk the whole product as a judge would, from the landing page with an empty wallet. Fix the top three problems.
@@ -100,6 +100,6 @@ Goal for the week: **close every "you" blocker, get a real agent live, and fix t
 
 ## Not this week (on purpose)
 
-- Perpl analytics dashboard bounty — skipped (see `metropolis.md`).
-- Kuru or any second venue — not load-bearing; Perpl is the venue.
-- `proposeLoosen` (D12) and the `CollateralHealth` rule (D11) — next week, after the plan is finished.
+- Perpl analytics dashboard bounty: skipped (see `metropolis.md`).
+- Kuru or any second venue: not load-bearing; Perpl is the venue.
+- `proposeLoosen` (D12) and the `CollateralHealth` rule (D11): next week, after the plan is finished.

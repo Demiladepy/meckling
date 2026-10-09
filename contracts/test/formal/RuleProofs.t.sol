@@ -11,7 +11,7 @@ import {MaxDrawdownRule} from "../../src/rules/MaxDrawdownRule.sol";
 import {PriceCollarRule} from "../../src/rules/PriceCollarRule.sol";
 
 /// Symbolic proofs of the rule libraries, run with Halmos (`halmos --contract RuleProofs`). Where a fuzzer samples random
-/// inputs, each `check_` here holds for every input the solver can construct — all of them, within the
+/// inputs, each `check_` here holds for every input the solver can construct, all of them, within the
 /// stated bounds. Forge doesn't run `check_` functions; Halmos runs them separately (docs/formal.md).
 ///
 /// Bounds are stated with vm.assume and kept far above anything real: amounts below 2^64 collateral units (~1.8e13
@@ -69,7 +69,7 @@ contract RuleProofs is Test {
 
     // ------------------------------------------------------------ max leverage
 
-    /// D3: a trade that does not grow total notional is never blocked, whatever equity did — so a price move can
+    /// D3: a trade that does not grow total notional is never blocked, whatever equity did, so a price move can
     /// never trap an account in a position it can't reduce.
     function check_maxLeverage_neverBlocksAReducingTrade(
         uint256 p1,
@@ -116,7 +116,7 @@ contract RuleProofs is Test {
         assert(ok);
     }
 
-    /// Blocks exactly the trades that end over the limit and grew the market — no more, no less.
+    /// Blocks exactly the trades that end over the limit and grew the market, no more, no less.
     function check_maxNotional_blocksExactlyGrowthOverTheLimit(
         uint256 marketId,
         uint256 limit,

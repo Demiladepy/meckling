@@ -8,18 +8,18 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 
 **M0 and M1 are done. M2 is built and proven on a fork.** The enforcement core is live on Monad testnet, and the full breach path (flag, unwind, dispute window, slash) ran end to end against real Perpl on a mainnet fork.
 
-## M0 — Spikes and scaffold (due Sep 22) — **done**
+## M0: Spikes and scaffold (due Sep 22): **done**
 
-- [x] S1 Perpl from a contract — passes, proven by a mainnet fork test
-- [x] S2 Curvance AUSD borrow — passes, markets and LTVs read on-chain
-- [x] S3 Mera passkeys — passes on docs; **open: installed-PWA (standalone) mode is untested on a real phone**
-- [x] S4 Chainlink CRE on Monad — supported on paper; confirm with `cre workflow supported-chains` when the owner has an account
-- [x] S5 Price sources — Chainlink feeds confirmed live on mainnet; testnet has BTC and ETH only, with a 24 h heartbeat
-- [x] S6 Nansen API — verified live; lowercase-address finding recorded
-- [x] S7 Envio on Monad — HyperSync supports 143 and 10143
+- [x] S1 Perpl from a contract: passes, proven by a mainnet fork test
+- [x] S2 Curvance AUSD borrow: passes, markets and LTVs read on-chain
+- [x] S3 Mera passkeys: passes on docs; **open: installed-PWA (standalone) mode is untested on a real phone**
+- [x] S4 Chainlink CRE on Monad: supported on paper; confirm with `cre workflow supported-chains` when the owner has an account
+- [x] S5 Price sources: Chainlink feeds confirmed live on mainnet; testnet has BTC and ETH only, with a 24 h heartbeat
+- [x] S6 Nansen API: verified live; lowercase-address finding recorded
+- [x] S7 Envio on Monad: HyperSync supports 143 and 10143
 - [x] Monorepo, Foundry project, PWA shell, `.env.example`, CI running `forge test`
 
-## M1 — Nansen slice and enforcement core (due Sep 27, Meridian) — **done except the recording**
+## M1: Nansen slice and enforcement core (due Sep 27, Meridian): **done except the recording**
 
 - [x] `MandateRegistry`, `MandateAccount`, `MandateAccountFactory`
 - [x] Action rules: MaxLeverage, MaxNotionalPerMarket, AllowedMarkets, OrderRateLimit, LossCooldown (+ MaxDrawdown peak tracking, flagged in M2)
@@ -33,7 +33,7 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 - [ ] **Record the Meridian video** (underwriting screen → on-chain mandate with report hash → blocked trade) and submit by Sep 27
 - [ ] Needs: Nansen credits (the free plan is exhausted) for live evidence on camera
 
-## M2 — Market rules, bond and keeper (Sep 28 – Oct 3) — **built, three items left**
+## M2: Market rules, bond and keeper (Sep 28 – Oct 3): **built, three items left**
 
 - [x] `MaxDrawdown` flagging path (peak monitor updates on every execute and `poke`)
 - [x] `BondVault`: post, flag, dispute window, resolve, slash, withdraw
@@ -45,24 +45,24 @@ Last updated: Sep 23, 2026 (M2 built; the live testnet breach is still to run).
 - [x] Deployed to Monad testnet (registry, factory, adapter, guard, vault)
 - [x] **Ran the breach live on Monad testnet** (Sep 23): flagged in 6 blocks, unwound, bond paid the backer $0.11 after the dispute window
 - [x] App reads track records, equity curves and blocked attempts from the indexer (`/api/accounts/[account]/history`); it degrades to live chain state when `ENVIO_GRAPHQL_URL` is unset
-- [ ] Run the indexer live: repo connected to Envio hosted, deploy branch `envio` pushed — waiting on the build result and its GraphQL URL
+- [ ] Run the indexer live: repo connected to Envio hosted, deploy branch `envio` pushed, waiting on the build result and its GraphQL URL
 - [x] CRE workflow simulated and **broadcast on Monad testnet** (Sep 29): the workflow confirms each breach against Perpl's public API (nodes agree by median) plus the Chainlink-backed oracle guard, then flags through the CRE forwarder. Breach #1 on `0xCF41…7fC8`, tx `0xa97b6ebd…795d`, reporter = CRE receiver `0x0ebE…beAc`. Evidence: `docs/cre-simulation.md`
 
 **Exit criterion met live on Monad testnet** (Sep 23): account `0xAdb15A72D8e01FC641ad2E218E060e434f2610e0`, breach flagged in **6 blocks** (~2 s) at block 64,986,214, position unwound into close-only, and after a 200-block dispute window the bond paid the backer **$0.109218**, the exact loss from peak. Flag tx `0x76f0f447…`, slash tx `0xacfd9371…`. 397 keeper rounds, 0 false flags. The split screen shows the whole story.
 
 The same loop also ran earlier **on a fork** of real Perpl at mainnet state: a 3.56% drawdown against a 2% limit was flagged in **7 blocks**, the account unwound into close-only mode, and after the 20-block dispute window the bond paid the backer **$3.57**, the exact loss from the equity peak. 63 keeper rounds, 0 false flags.
 
-## M3 — Capital, mobile and risk surfaces (Oct 4–8)
+## M3: Capital, mobile and risk surfaces (Oct 4–8)
 
 - [ ] Mera passkey accounts across the app (sign-in exists; **test on a real phone, including installed-PWA mode**)
-- [x] Self-mandate mode (the Agora surface): `/trade`, mobile-first. **Proven live on Monad testnet** (Sep 23), account `0xB81b1d54a76170dD0c5c4306f5f0437329afA53F` — created from a fixed salt, 4 rules written on-chain, funded with 100 AUSD into a fresh Perpl account, a $50 long filled (`0x11e41a8e…`), and a $220 long was blocked with "Blocked: this trade would make your BTC position $268.92. Your limit is $250."
+- [x] Self-mandate mode (the Agora surface): `/trade`, mobile-first. **Proven live on Monad testnet** (Sep 23), account `0xB81b1d54a76170dD0c5c4306f5f0437329afA53F`: created from a fixed salt, 4 rules written on-chain, funded with 100 AUSD into a fresh Perpl account, a $50 long filled (`0x11e41a8e…`), and a $220 long was blocked with "Blocked: this trade would make your BTC position $268.92. Your limit is $250."
 - [ ] Self-mandate mode on a real phone: passkey sign-in and installed-PWA mode still to test on a device
-- [x] Risk screen (the Perpl analytics surface): `/risk/[account]` — leverage, equity vs peak, headroom per rule, breach list and a drawdown alert. Live numbers from chain state, history from the indexer. Renders 200 against the live testnet account.
+- [x] Risk screen (the Perpl analytics surface): `/risk/[account]`: leverage, equity vs peak, headroom per rule, breach list and a drawdown alert. Live numbers from chain state, history from the indexer. Renders 200 against the live testnet account.
 - [x] `CurvanceCollateralAdapter` (Sep 27): one per backer; posts earnAUSD to Curvance, borrows AUSD straight to the MandateAccount, and reverts any borrow or withdrawal past half of Curvance's own maximum (D11). 7 unit tests + 7 fork tests against the **real Curvance earnAUSD market on mainnet**, all green; full suite 97/97, fork suite 10/10
 - [ ] Fund screen using the adapter (earnAUSD by default; PT-AUSD matures Oct 8, so config-only). Needs a mainnet deployment: Curvance has no testnet
-- [ ] `CollateralHealth` keeper rule (PRD 7.7) — deferred pending the owner's call (D11)
+- [ ] `CollateralHealth` keeper rule (PRD 7.7): deferred pending the owner's call (D11)
 
-## M4 — Hardening and story (Oct 9–11)
+## M4: Hardening and story (Oct 9–11)
 
 - [ ] Ultrafuzz on `contracts/`, findings fixed, report committed
 - [x] Formal proofs (Sep 30): 8 Halmos proofs of the rule libraries pass for every input within bounds; 4 properties that multiply two unknowns are fuzzed at 10,000 runs instead. CI job `formal`. See `docs/formal.md`
@@ -89,8 +89,8 @@ Three things need your accounts: Envio hosted (or Docker) to run the indexer, a 
 
 ## Open questions for the owner (PRD 17)
 
-1. ~~Spike S1 result~~ — passed, no fallback needed.
-2. **Agent model** — Claude (`claude-opus-5`) works and is wired. Kimi is implemented but untested; the Kimi bounty needs Kimi to be the model actually used.
-3. **Mainnet vs testnet for the final demo** — testnet works today; mainnet is needed for M2's oracle guard, because testnet feeds update once a day.
+1. ~~Spike S1 result~~, passed, no fallback needed.
+2. **Agent model**: Claude (`claude-opus-5`) works and is wired. Kimi is implemented but untested; the Kimi bounty needs Kimi to be the model actually used.
+3. **Mainnet vs testnet for the final demo**: testnet works today; mainnet is needed for M2's oracle guard, because testnet feeds update once a day.
 4. **Dispute arbiter** for the demo configuration.
 5. **Final product name.**

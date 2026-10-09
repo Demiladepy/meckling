@@ -10,7 +10,7 @@ Mandate is a risk-enforcement layer for AI trading agents on Monad. The agent tr
 
 [**Live app**](https://mandate-rose.vercel.app) &nbsp;·&nbsp; [Earlier demo (Sep 27)](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp; [**What each rule guarantees, and what it can't**](docs/rules-spec.md) &nbsp;·&nbsp; [Postmortem](docs/postmortem.md)
 
-[![Mandate — earlier demo, Sep 27](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
+[![Mandate, earlier demo, Sep 27](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
 
 ---
 

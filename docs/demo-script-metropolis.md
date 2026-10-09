@@ -1,41 +1,41 @@
-# Metropolis videos — scripts
+# Metropolis videos: scripts
 
 Three videos. The rules (§4.1, §9.4) require the demo to show **the live product actually operating, with Monad
-interactions** — no slides, no mockups — and cap it at 3 minutes. The pitch is 2 minutes. The ad is optional and not
+interactions**: no slides, no mockups, and cap it at 3 minutes. The pitch is 2 minutes. The ad is optional and not
 judged.
 
 Record the product at 1440×900, browser zoom 110%, dark mode, one tab, notifications off. Keep the cursor slow.
 
 ---
 
-## 1. Technical demo — 3:00 (required)
+## 1. Technical demo: 3:00 (required)
 
 Built so a judge from **any** sponsor sees their integration inside the first minute they care about. Every on-chain
 moment shows a transaction hash or a block number on screen.
 
 | Time | Screen | What happens | Say |
 |---|---|---|---|
-| 0:00–0:12 | Landing hero | The product window with the blocked 12× trade | "AI agents can trade your money. Mandate makes sure they can't break the rules you set — enforced on Monad, not promised." |
+| 0:00–0:12 | Landing hero | The product window with the blocked 12× trade | "AI agents can trade your money. Mandate makes sure they can't break the rules you set, enforced on Monad, not promised." |
 | 0:12–0:45 | **Back an agent** | Pick BTC and ETH → **Get limits from Nansen** → evidence cards → limits table | "Nansen's smart-money flows and perp positioning set every limit, and each limit names its signal." Point at one row. |
-| 0:45–1:05 | Approve | Passkey prompt → mandate written → **Check the fingerprint** → match | "The report's fingerprint is stored on Monad. My browser just recomputed it — it matches. Anyone can check." |
+| 0:45–1:05 | Approve | Passkey prompt → mandate written → **Check the fingerprint** → match | "The report's fingerprint is stored on Monad. My browser just recomputed it, it matches. Anyone can check." |
 | 1:05–1:35 | Live agent screen | Row 1: agent tries 12× → **Blocked on-chain**. Row 2: 0.7× **Filled on Perpl**. Headroom bars | "The agent trades on Perpl through its account. A 12× order reverted inside its own transaction; the 0.7× one filled." |
-| 1:35–2:05 | Terminal: `cre workflow simulate … --broadcast` | The log line *"Perpl API agrees on 1 market(s)"*, then the explorer showing the `BreachFlagged` tx | "Market rules are watched by a Chainlink CRE workflow. It flags a breach only when Monad, the Chainlink feed and Perpl's own API all agree — here it just did, on-chain." |
+| 1:35–2:05 | Terminal: `cre workflow simulate … --broadcast` | The log line *"Perpl API agrees on 1 market(s)"*, then the explorer showing the `BreachFlagged` tx | "Market rules are watched by a Chainlink CRE workflow. It flags a breach only when Monad, the Chainlink feed and Perpl's own API all agree, here it just did, on-chain." |
 | 2:05–2:25 | Breach detail | Flagged → position closed → **Bond paid $0.109218** | "The position closes in the same transaction, and the operator's bond pays the backer the exact loss." |
-| 2:25–2:45 | Risk screen | Worst drawdown and trades blocked (both read from the indexer) | "History comes from an Envio indexer — Monad nodes don't serve it." |
+| 2:25–2:45 | Risk screen | Worst drawdown and trades blocked (both read from the indexer) | "History comes from an Envio indexer, Monad nodes don't serve it." |
 | 2:45–3:00 | Phone, `/trade` | Passkey sign-in, AUSD balance, one filled trade, one blocked trade | "And the same protection on your phone, for your own trading. That's Mandate." |
 
 **Before recording:** Nansen credits confirmed, the passkey account holds ~0.5 test MON, a fresh breach staged for the CRE
 segment (`pnpm --filter agent stage:breach`), and the phone clip recorded separately and cut in.
 
 **Do not claim:** that the model went rogue (the 12× was a deliberate test), that CRE is deployed live (it is simulated
-and broadcast — say "simulated"), or that anything is on mainnet if it isn't.
+and broadcast, say "simulated"), or that anything is on mainnet if it isn't.
 
 ---
 
-## 2. Pitch — 2:00 (required)
+## 2. Pitch: 2:00 (required)
 
 You on camera, then the product. The rules ask for the team, the problem and why you are building it. The track's
-judges weigh **who the first user is** and **why this market doesn't exist yet** — answer both out loud.
+judges weigh **who the first user is** and **why this market doesn't exist yet**: answer both out loud.
 
 | Time | Beat | Words (say it in your own voice) |
 |---|---|---|
@@ -49,7 +49,7 @@ Record the last 20 seconds **after** this week's interviews. A real name and a r
 
 ---
 
-## 3. Product ad — 0:30 (optional, not judged)
+## 3. Product ad: 0:30 (optional, not judged)
 
 For X and post-event promotion. Product footage only, fast cuts, no voice, one line of text per shot.
 
@@ -70,5 +70,5 @@ Claude can't generate video from a prompt, and neither can Hermes by itself. You
   and real testnet numbers, so every frame is the real UI, sharp at any size. Claude can build this.
 - **Screen Studio** (Mac) or **Cursorful** / **Tella** (Windows-friendly): record the real app; they add the smooth
   zooms and cursor motion that make product ads look expensive.
-- **Veo, Sora, Runway**: text-to-video. Fine for a few seconds of atmosphere, but **never** for the judged demo — the
+- **Veo, Sora, Runway**: text-to-video. Fine for a few seconds of atmosphere, but **never** for the judged demo, the
   rules require the real product operating.

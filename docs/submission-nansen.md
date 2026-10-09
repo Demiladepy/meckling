@@ -1,4 +1,4 @@
-# Nansen Meridian Buildathon — what has to be true by Sep 27
+# Nansen Meridian Buildathon: what has to be true by Sep 27
 
 Today is **Sep 25**. Two days. This file is the whole checklist; work top to bottom and stop at "nice to have"
 if time runs out.
@@ -9,12 +9,12 @@ The bounty reads: *"a product experience powered by Nansen data, API, MCP or CLI
 data."* Nearly every entrant will show a dashboard that prints Nansen numbers on a page. **The winning argument for
 Mandate is one sentence:**
 
-> Nansen evidence doesn't inform a human decision here — it is compiled into limits a smart contract enforces, and
+> Nansen evidence doesn't inform a human decision here, it is compiled into limits a smart contract enforces, and
 > the report that justified them is hashed on-chain with the mandate.
 
 Everything below exists to make that sentence undeniable in 3 minutes.
 
-## Blocking — the submission fails without these
+## Blocking: the submission fails without these
 
 - [ ] **Nansen credits.** 30,000 added; confirm a live call still succeeds the morning of the recording. If the
       plan is exhausted again, the demo shows sample data and the argument collapses. Check first, not last.
@@ -27,7 +27,7 @@ Everything below exists to make that sentence undeniable in 3 minutes.
 - [ ] **A live URL.** Deploy the app (Vercel is fine, `NETWORK=testnet` plus the QuickNode URL and Nansen key as
       environment variables). Judges click links; they do not clone repos.
 - [ ] **The 3-minute video**, in this order:
-      1. Nansen underwriting runs live — smart-money flows on screen, limits proposed from them (20s)
+      1. Nansen underwriting runs live, smart-money flows on screen, limits proposed from them (20s)
       2. Backer approves; the mandate and `reportHash` land on-chain (30s)
       3. The agent trades; a good trade fills (20s)
       4. The agent tries a trade that breaks a limit; the chain reverts it (40s)
@@ -35,31 +35,31 @@ Everything below exists to make that sentence undeniable in 3 minutes.
       6. One closing line: *rules a human wrote from Nansen evidence, enforced by the chain, paid out in AUSD* (10s)
 - [x] **README rewritten for a judge**, not a developer: the one-sentence argument, the live URL, the video, the
       addresses, then how it works. _(Paste live URL + video link into README before submit.)_
-      Live underwriting requires `NANSEN_API_KEY` — fixtures are not a silent fallback on the public deploy.
+      Live underwriting requires `NANSEN_API_KEY`: fixtures are not a silent fallback on the public deploy.
 
-## Strong — this is what separates first from third
+## Strong: this is what separates first from third
 
 - [x] **Show the evidence, not the conclusion.** On the underwriting screen, every proposed limit must name the
-      Nansen signal that produced it: *"$160 on BTC — smart-money netflow turned negative over 7 days."* A judge
+      Nansen signal that produced it: *"$160 on BTC, smart-money netflow turned negative over 7 days."* A judge
       who sees the chain of evidence → limit → on-chain enforcement cannot mistake this for a dashboard.
 - [x] **Make the hash checkable.** A "verify" affordance that shows the stored report, recomputes its hash in the
       browser and compares it to the on-chain value. Trust nothing, check everything.
-- [x] **Name the numbers.** Blocked in N blocks, flagged in 6 blocks, bond paid $0.109218 — the exact loss from
+- [x] **Name the numbers.** Blocked in N blocks, flagged in 6 blocks, bond paid $0.109218, the exact loss from
       peak. Specific numbers read as real work; round numbers read as marketing. _(In README + landing caption.)_
-- [x] **One screenshot in the README that tells the whole story** — the split screen with a revert on the right.
-      _(docs/demo-split.svg — paper propose / ink revert.)_
+- [x] **One screenshot in the README that tells the whole story**: the split screen with a revert on the right.
+      _(docs/demo-split.svg, paper propose / ink revert.)_
 - [x] **Say what Nansen is not doing.** Admitting the agent's reasoning model is Claude and Nansen sets the limits
       is more convincing than implying Nansen does everything.
 
 ## Nice to have
 
 - [x] Agents list with track records from the indexer (also serves the Envio bounty).
-      _(`/agents` — live equity/bond; indexer strip when configured.)_
+      _(`/agents`: live equity/bond; indexer strip when configured.)_
 - [x] The landing page in one scroll with the live split screen embedded.
 - [x] Breach detail screen with the dispute countdown.
-      _(`/breaches/[account]/[id]` — peak, loss, window countdown, slash amount.)_
+      _(`/breaches/[account]/[id]`: peak, loss, window countdown, slash amount.)_
 
-## Already done — say these plainly, they are the credibility
+## Already done: say these plainly, they are the credibility
 
 - Live on Monad testnet: mandate created from live Nansen evidence, a 12x trade reverted with `MandateViolation`
   (observed 11.3x against a 1.5x limit), then a 0.7x trade filled on Perpl.

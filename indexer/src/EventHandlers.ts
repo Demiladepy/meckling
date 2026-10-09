@@ -1,5 +1,5 @@
 // Envio HyperIndex handlers (PRD 10.3). Monad full nodes serve no historical state, so everything historical the UI
-// shows — track records, equity curves, blocked attempts, breach timelines — comes from here.
+// shows, track records, equity curves, blocked attempts, breach timelines, comes from here.
 import { indexer } from "envio";
 
 const eventId = (event: { transaction: { hash: string }; logIndex: number }) => `${event.transaction.hash}-${event.logIndex}`;

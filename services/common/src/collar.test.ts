@@ -12,7 +12,7 @@ test("price collar copy says what happened and the limit", () => {
   assert.match(violationMessage({ ruleIndex: 6, observed: 2n ** 255n - 1n, limit: 100n }, priceCollar(1)), /no price limit/);
 });
 
-test("the contract's rounding would block a 1% sell against a 1% collar — the case that motivated the helper", () => {
+test("the contract's rounding would block a 1% sell against a 1% collar, the case that motivated the helper", () => {
   const mark = 835_995n; // real BTC mark on the mainnet fork, Sep 29
   assert.equal(priceDeviationBps(marketableLimit(mark, false, 100), mark), 101n);
 });

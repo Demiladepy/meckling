@@ -9,7 +9,7 @@ import {PriceCollarRule} from "../src/rules/PriceCollarRule.sol";
 import {RuleKind, Rule, ExecContext} from "../src/rules/RuleTypes.sol";
 
 /// Price collar (D14): an optional action rule that reverts any order opening or adding exposure at a limit price more
-/// than p1 bps from the venue mark — SEC Rule 15c3-5's "erroneous order" price check, the Knight Capital failure mode.
+/// than p1 bps from the venue mark, SEC Rule 15c3-5's "erroneous order" price check, the Knight Capital failure mode.
 contract PriceCollarTest is MandateTestBase {
     uint256 constant COLLAR_BPS = 100; // 1%
     uint256 constant COLLAR_INDEX = 6; // appended after the six default rules

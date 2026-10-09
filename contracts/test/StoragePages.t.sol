@@ -8,7 +8,7 @@ import {Monitor} from "../src/rules/RuleTypes.sol";
 
 /// Monad's MIP-8 prices storage by 128-slot page: the first read on a page costs 8,100 gas, later reads on that page
 /// 100 (docs/spikes.md). Foundry meters gas the Ethereum way, so it can't show a paging win; this test records which
-/// storage slots one enforced trade actually touches in Mandate's own contracts and counts the distinct pages — the
+/// storage slots one enforced trade actually touches in Mandate's own contracts and counts the distinct pages, the
 /// quantity MIP-8 charges for. It also fails if a change makes execute touch more pages than today.
 contract StoragePagesTest is MandateTestBase {
     uint256 constant PAGE_SHIFT = 7; // 128 slots per page

@@ -1,4 +1,4 @@
-# Design system — Fey-led
+# Design system: Fey-led
 
 Primary reference: **Fey** (owner's choice, Sep 26). Matte near-black canvas, one narrowed sans doing every job, the
 product itself as the imagery, pill controls, and colour only as signal. This replaced the light "paper and ink" theme

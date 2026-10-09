@@ -1,5 +1,5 @@
 // Typed client for the Nansen endpoints confirmed in spike S6 (docs/spikes.md). Nothing else is called.
-// Docs: https://docs.nansen.ai — base https://api.nansen.ai/api/v1, auth header `apikey`.
+// Docs: https://docs.nansen.ai, base https://api.nansen.ai/api/v1, auth header `apikey`.
 
 export const NANSEN_BASE_URL = "https://api.nansen.ai/api/v1";
 

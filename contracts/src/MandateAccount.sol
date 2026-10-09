@@ -180,7 +180,7 @@ contract MandateAccount is ReentrancyGuard {
     }
 
     /// Worst opening-order price distance from the mark, measured before the calls run (the price the order was placed
-    /// against). Skipped entirely — no venue reads, no extra gas — unless the mandate has a PriceCollar rule (D14).
+    /// against). Skipped entirely, no venue reads, no extra gas, unless the mandate has a PriceCollar rule (D14).
     function _collarDeviation(Rule[] memory rules, Call[] calldata calls) internal view returns (uint256 worst) {
         bool hasCollar;
         for (uint256 i; i < rules.length; ++i) {

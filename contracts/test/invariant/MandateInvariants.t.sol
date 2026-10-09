@@ -366,8 +366,8 @@ contract MandateInvariantTest is MandateTestBase {
         assertEq(ausd.balanceOf(agent), 0);
         assertEq(ausd.balanceOf(stranger), 0);
         assertEq(ausd.balanceOf(address(handler)), 0);
-        // Every token that exists sits with an allowed holder: the account, the venue, the backer, or — once bonds
-        // are in play — the bond vault and the operator who funds it. Measured against the whole supply rather than
+        // Every token that exists sits with an allowed holder: the account, the venue, the backer, or, once bonds
+        // are in play, the bond vault and the operator who funds it. Measured against the whole supply rather than
         // a hand-kept mint count, so a token reaching any other address, known or not, breaks this.
         // (Sep 29: the earlier form summed only account + venue + backer against the initial mint, which predates
         // bonds, and failed on a fuzzed sequence where a slash paid the backer from the vault.)

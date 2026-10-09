@@ -1,4 +1,4 @@
-# Mandate — Product Requirements Document
+# Mandate: Product Requirements Document
 
 Version 1.0 · Owner: Demilade (0xharp) · Written Sep 21, 2026
 Build target: Monad Metropolis (submissions close Oct 13, 2026) and Nansen Meridian Buildathon (closes Sep 27, 2026)
@@ -39,8 +39,8 @@ AI agents are starting to manage real capital. Nansen is shipping agentic tradin
 
 A **mandate** is a set of risk rules attached to an agent's on-chain trading account. Rules come in two classes:
 
-- **Action rules** — rules the agent's own trade could break (leverage, position size, allowed markets, order rate, cooldown after a loss). The trading account checks them after every trade inside the same transaction and reverts on violation. A violation never lands on-chain.
-- **Market rules** — rules the market can break without the agent acting (drawdown from equity peak). Anyone can report a violation, but the report only succeeds if the contract itself recomputes the violation from on-chain state. Then the position unwinds and, after a dispute window, the operator's bond pays the backer.
+- **Action rules**: rules the agent's own trade could break (leverage, position size, allowed markets, order rate, cooldown after a loss). The trading account checks them after every trade inside the same transaction and reverts on violation. A violation never lands on-chain.
+- **Market rules**: rules the market can break without the agent acting (drawdown from equity peak). Anyone can report a violation, but the report only succeeds if the contract itself recomputes the violation from on-chain state. Then the position unwinds and, after a dispute window, the operator's bond pays the backer.
 
 Several rules are **temporal**: they depend on history, not just the current state (rolling windows, cooldowns, equity peaks). Each temporal rule compiles to a small on-chain state machine with constant-size state, updated on every trade and every keeper check. This is past-time temporal logic enforced by the EVM.
 
@@ -99,12 +99,12 @@ Explicitly **not** targeted: Kuru, Dynamic, Privy (conflicts with Mera as the wh
 
 Deadlines are hard. Each milestone has exit criteria that must pass before it's called done.
 
-### M0 — Spikes and scaffold (Sep 22)
+### M0: Spikes and scaffold (Sep 22)
 - Run all spikes in section 5. Record results in `docs/spikes.md`.
 - Monorepo scaffold (section 6.2), Foundry project, Next.js PWA shell, `.env.example`, CI running `forge test`.
 - **Exit:** spikes S1 and S2 have a recorded answer; `forge test` runs in CI.
 
-### M1 — Nansen slice and enforcement core (Sep 23–27) → Nansen Meridian submission Sep 27
+### M1: Nansen slice and enforcement core (Sep 23–27) → Nansen Meridian submission Sep 27
 - `MandateRegistry`, `MandateAccount` with action rules: `MaxLeverage`, `MaxNotionalPerMarket`, `AllowedMarkets`, `OrderRateLimit`, `LossCooldown`.
 - `PerplAdapter` (per spike S1).
 - Nansen underwriting service and "Create mandate" screen (section 9).
@@ -112,7 +112,7 @@ Deadlines are hard. Each milestone has exit criteria that must pass before it's 
 - Minimal split-screen agent view (section 11.4) showing a blocked trade.
 - **Exit:** a recorded run where the agent trades on Perpl, then attempts a trade that breaks a Nansen-proposed limit, and the transaction reverts with `MandateViolation`. Submit to Nansen Meridian with that recording.
 
-### M2 — Market rules, bond and keeper (Sep 28–Oct 3)
+### M2: Market rules, bond and keeper (Sep 28–Oct 3)
 - `MaxDrawdown` market rule with equity peak tracking.
 - `BondVault`: post, flag, dispute window, slash, resolve.
 - Oracle guard (section 7.5).
@@ -120,14 +120,14 @@ Deadlines are hard. Each milestone has exit criteria that must pass before it's 
 - Envio indexer (section 10.3).
 - **Exit:** full demo loop on testnet or mainnet: action breach reverts; market move triggers a breach; keeper flags it; position unwinds; bond is slashed to the backer after the dispute window.
 
-### M3 — Capital, mobile and risk surfaces (Oct 4–8)
+### M3: Capital, mobile and risk surfaces (Oct 4–8)
 - Mera passkey accounts across the app.
 - Self-mandate mode PWA (Agora surface).
 - Risk screen (Perpl risk bounty surface).
 - `CurvanceCollateralAdapter` (per spike S2), built last within M3.
 - **Exit:** from a phone, sign in with Mera, see an AUSD balance, place a Perpl trade under a self-mandate, and have a rule-breaking trade blocked, all on video.
 
-### M4 — Hardening and story (Oct 9–11)
+### M4: Hardening and story (Oct 9–11)
 - Run Ultrafuzz on `contracts/`. Fix findings. Commit the report to `docs/security/ultrafuzz-report.md`.
 - Publish benchmark numbers (section 13).
 - Landing page, README, demo video (section 14).
@@ -142,7 +142,7 @@ Submission on Oct 12. Oct 13 is buffer only. Note that the Crypto World's Fair a
 
 Each spike has a question, a method and a fallback. Do not skip these.
 
-### S1 — Can a smart contract trade on Perpl? (blocking)
+### S1: Can a smart contract trade on Perpl? (blocking)
 - **Question:** Can a contract account (not an EOA) deposit AUSD, place and cancel orders, and hold a position on Perpl's exchange contract?
 - **Method:** Read Perpl's docs (`docs.perpl.xyz/resources/for-developers`), SDK and API docs (`github.com/PerplFoundation/api-docs`). Find how the exchange identifies an account: `msg.sender`, an EIP-712 signature, or an API session. Read the verified exchange contract on the explorer (mainnet exchange `0x34B6552d57a35a1D042CcAe1951BD1C370112a6F`, testnet `0x1964c32f0be608e7d29302aff5e61268e72080cc`; mainnet collateral token is AUSD `0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a`). Then write a Foundry fork test where a test contract deposits and places a small order.
 - **Pass:** `MandateAccount` calls the exchange directly. Proceed as specified.
@@ -150,27 +150,27 @@ Each spike has a question, a method and a fallback. Do not skip these.
 - **Fallback B:** If neither works, enforcement moves to a pre-trade guard: the agent submits intended orders to `MandateAccount.authorize(order)`, which checks rules and emits a one-time authorization the off-chain relayer must present. Document this weakening honestly in the README. Tell the owner the same day.
 - Also record: Perpl builder or referral ID requirements, rate limits, and whether testnet and mainnet market IDs differ (they do: store per-network market maps).
 
-### S2 — Curvance: borrow AUSD against yield-bearing collateral
+### S2: Curvance: borrow AUSD against yield-bearing collateral
 - **Question:** Which collateral assets let you borrow AUSD on Curvance today (hyAUSD, PT-AUSD or others)? What are the LTV and liquidation thresholds? Is there an SDK path (`docs.curvance.com/app/developer-docs/sdk`)?
 - **Fallback:** If no suitable market exists, the collateral adapter is cut from the demo and described as roadmap. Backers fund with AUSD directly.
 
-### S3 — Mera passkey accounts
+### S3: Mera passkey accounts
 - **Question:** How does Mera create an account, sign transactions and expose PRF-derived keys from a web app? Read `docs.monad.xyz/guides/mera`. Does it work in mobile Safari and Chrome as a PWA?
 - **Fallback:** None. Mera is required for Agora and Mera bounties. If blocked, escalate to the owner immediately.
 
-### S4 — Chainlink CRE on Monad
+### S4: Chainlink CRE on Monad
 - **Question:** Can a CRE workflow read Monad state and write a transaction to a Monad contract? Which SDK (TypeScript or Go)?
 - **Fallback:** The workflow runs in CRE simulation and a fallback relayer (same code path, same checks) submits the transaction. The bounty explicitly accepts "build, simulate, or deploy".
 
-### S5 — Price sources
+### S5: Price sources
 - **Question:** Where does Perpl publish its mark price (contract read or API)? Which Chainlink feeds or Data Streams exist on Monad for the markets we trade (BTC, ETH, MON)?
 - **Output:** The oracle guard design in section 7.5 uses both.
 
-### S6 — Nansen API
+### S6: Nansen API
 - **Question:** Which endpoints are available on the owner's plan (base `https://api.nansen.ai/api/v1`)? Confirm smart-money netflow, holders, and smart-money PnL leaderboard endpoints, and which chains they cover. Does Nansen cover Monad directly? If not, underwrite on the underlying assets' flows on other chains.
 - **Output:** `services/underwriter/nansen.ts` with typed clients for the confirmed endpoints only.
 
-### S7 — Envio on Monad
+### S7: Envio on Monad
 - **Question:** Confirm HyperIndex supports Monad mainnet (chain ID 143) and testnet (10143), and whether Perpl events can be indexed alongside our contracts.
 
 ---
@@ -265,7 +265,7 @@ The core never calls Perpl directly; it calls a venue adapter. This isolates the
 ```solidity
 interface IVenue {
     struct AccountState {
-        int256 equity;            // collateral + unrealized PnL, in collateral units (AUSD, 6 decimals — verify)
+        int256 equity;            // collateral + unrealized PnL, in collateral units (AUSD, 6 decimals, verify)
         uint256 totalNotional;    // sum of |position size * mark| across markets
         uint256 marginUsed;
     }

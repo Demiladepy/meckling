@@ -9,7 +9,7 @@ import {ICurvanceCToken, ICurvanceBorrowableCToken, ICurvanceMarketManager} from
 /// The collateral adapter against the real Curvance earnAUSD market on Monad mainnet (PRD 7.7, spike S2).
 /// Curvance has no testnet deployment, so this is the only place the adapter moves real value in tests.
 contract CurvanceCollateralAdapterForkTest is Test {
-    // docs/spikes.md S2 — read from the Curvance SDK and confirmed on-chain.
+    // docs/spikes.md S2, read from the Curvance SDK and confirmed on-chain.
     ICurvanceMarketManager constant MARKET = ICurvanceMarketManager(0xd6365555f6a697C7C295bA741100AA644cE28545);
     ICurvanceCToken constant C_EARN_AUSD = ICurvanceCToken(0x852FF1EC21D63b405eC431e04AE3AC760e29263D);
     ICurvanceBorrowableCToken constant C_AUSD = ICurvanceBorrowableCToken(0xAd4AA2a713fB86FBb6b60dE2aF9E32a11DB6Abf2);

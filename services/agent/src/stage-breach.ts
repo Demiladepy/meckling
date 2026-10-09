@@ -1,6 +1,6 @@
 // Stages a genuine drawdown breach on testnet so the CRE keeper has something real to flag (docs/cre-simulation.md).
-// Every step is a transaction the app can perform: create an account and mandate, fund it, open a small long, and —
-// as the backer, which is their right — tighten the drawdown floor below the drawdown that already happened.
+// Every step is a transaction the app can perform: create an account and mandate, fund it, open a small long, and , 
+// as the backer, which is their right, tighten the drawdown floor below the drawdown that already happened.
 // Nothing here flags the breach; the CRE workflow does.
 //
 //   pnpm --filter agent stage:breach      (testnet only; uses DEPLOYER_PRIVATE_KEY as backer)

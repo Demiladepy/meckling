@@ -317,7 +317,7 @@ export class AgentRuntime {
     mkdirSync(dirname(this.cfg.logPath), { recursive: true });
     appendFileSync(this.cfg.logPath, `${JSON.stringify(rec)}\n`);
     const tag = rec.result === "blocked" ? "BLOCKED" : rec.result === "no-fill" ? "NO FILL" : rec.result.toUpperCase();
-    console.log(`[block ${rec.block}] ${tag} ${rec.intent.action} ${rec.intent.market} $${rec.intent.size_usd} — ${rec.reasoning}`);
+    console.log(`[block ${rec.block}] ${tag} ${rec.intent.action} ${rec.intent.market} $${rec.intent.size_usd}, ${rec.reasoning}`);
     if (rec.violation) console.log(`  ${rec.violation.message}`);
     if (rec.error) console.log(`  error: ${rec.error}`);
   }

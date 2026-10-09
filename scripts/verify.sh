@@ -31,7 +31,7 @@ step "envio codegen"
 # last Linux/WSL run stay in place, so the indexer still typechecks below. Indexer config or schema changes: run
 # codegen in WSL before pushing.
 case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*) echo "  skipped on Windows (runs in CI) — if you changed indexer/config.yaml or schema.graphql, run codegen in WSL" ;;
+  MINGW*|MSYS*|CYGWIN*) echo "  skipped on Windows (runs in CI): if you changed indexer/config.yaml or schema.graphql, run codegen in WSL" ;;
   *) pnpm --filter indexer codegen >/dev/null ;;
 esac
 step "typecheck"

@@ -77,7 +77,7 @@ Gas seen in the trace: IOC open fill about 153k, reduce-only close about 89k, ca
 
 ---
 
-## S2: Curvance — borrow AUSD against yield-bearing collateral
+## S2: Curvance: borrow AUSD against yield-bearing collateral
 
 **Answer: yes, several isolated markets on Monad mainnet.** Read on-chain via `MarketManager.collConfig(cToken)`, which returns `(collRatio, collReqSoft, collReqHard)` in bps. The maximum `collRatio` is 9750.
 
@@ -184,8 +184,8 @@ bounty is met by simulation):
   | BTC/USD | `0xc1d4C3331635184fA4C3c22fb92211B2Ac9E0546` (0.02%) | `0x187efD8ba8483105f2735740D956f7CD23723deC` (0.05%) |
   | ETH/USD | `0x1B1414782B859871781bA3E4B0979b9ca57A0A04` (0.05%) | `0x38057D0458ca56068e1A57E62D3874cA129A7A78` |
   | MON/USD | `0xBcD78f76005B7515837af6b50c7C52BCf73822fb` (0.02%) | `0xFB504aD06Ab5E6c63FE0A46FEa245214838E8015` |
-  | SOL/USD | `0x16F8008c3e89f62e5e2b909Ce70999370D38F4F2` | — |
-  | AUSD/USD | `0x91D9c75fe73e25f22d9F5e0C6a2a5eC48B6bFBeB`, `0xE20751C7B5867bCBef815ffc1b284c3f412a9e13` | — |
+  | SOL/USD | `0x16F8008c3e89f62e5e2b909Ce70999370D38F4F2` | n/a |
+  | AUSD/USD | `0x91D9c75fe73e25f22d9F5e0C6a2a5eC48B6bFBeB`, `0xE20751C7B5867bCBef815ffc1b284c3f412a9e13` | n/a |
 
 - **Monad testnet feeds:** BTC/USD `0x12C0F44368a02081ce58a936d1C1F606BB301715` and ETH/USD `0x5c8c8482f064049248F86D9F4aFa4B1f2F5b6d31`, both live but with a 24 h heartbeat and 0.5% deviation. There is **no MON/USD on testnet**.
 - **OracleGuard design:** `markIsTrusted(perpId)` requires all three of:

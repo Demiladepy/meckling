@@ -1,4 +1,4 @@
-# Handoff — the live state
+# Handoff: the live state
 
 What exists right now, so a new session (or a different tool) can continue without rediscovering it. Pair with [plan.md](plan.md) for what is done and next.
 
@@ -6,7 +6,7 @@ Last updated: Sep 23, 2026 (after M2).
 
 ## Deployed contracts
 
-**Monad testnet (chain 10143)** — `contracts/deployments/10143.json`
+**Monad testnet (chain 10143)**: `contracts/deployments/10143.json`
 
 | Contract | Address |
 |---|---|
@@ -47,7 +47,7 @@ The backer address also holds ~9,600 test AUSD and ~4 MON, and has its own Perpl
 
 Run on Sep 23 with the same contract calls `/trade` makes: a $50 long filled (`0x11e41a8e…`), a $220 long was blocked
 ("Blocked: this trade would make your BTC position $268.92. Your limit is $250."), and a $4,000 long never reached the
-rules — Perpl rejected it first with `TakerOrderSettlementFailed`, which is why the screen now translates venue
+rules, Perpl rejected it first with `TakerOrderSettlementFailed`, which is why the screen now translates venue
 errors too.
 
 ## Keys and environment

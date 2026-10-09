@@ -1,7 +1,7 @@
 // Agent memory encrypted to the backer's passkey (docs/decisions.md D13).
 //
 // An agent's reasoning reveals the operator's strategy and the backer's positions, so it should be readable by the
-// backer and nobody else — on any device, with nothing stored anywhere.
+// backer and nobody else, on any device, with nothing stored anywhere.
 //
 //   1. Namespace. The backer's passkey is evaluated with a PRF salt unique to this agent account,
 //      SHA-256("mandate/agent-memory/v1/" + account). The wallet uses Mera's default salt, so the memory key is

@@ -1,4 +1,4 @@
-# Metropolis rules — what binds us
+# Metropolis rules: what binds us
 
 A summary of the clauses in the official Terms & Conditions (v3.0, last updated Sep 3, 2026) that affect Mandate. The
 full text lives on the hackathon website; read it there before submitting. Summarised Sep 29.
@@ -18,7 +18,7 @@ full text lives on the hackathon website; read it there before submitting. Summa
 - Teams of 1–5. The designated contact receives the prize.
 - Sanctions screening applies to registrants and wallet addresses.
 
-## Mandatory for every submission (§4.1, §7.2, §9) — status
+## Mandatory for every submission (§4.1, §7.2, §9): status
 
 | Requirement | Status |
 |---|---|
@@ -52,6 +52,6 @@ Sponsor bounties are scored (§5.2): **adherence to the bounty's published requi
 ## Things that could disqualify us
 
 - A missing mandatory component (above).
-- False or misleading information — every figure in the README must stay checkable on-chain.
+- False or misleading information: every figure in the README must stay checkable on-chain.
 - Code that harms or deceives users. Local-fork shims refuse to run on real networks, and they must keep doing so.
 - Submissions are **non-confidential**: judges and sponsors may build similar products. Nothing secret goes in.

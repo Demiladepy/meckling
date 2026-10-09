@@ -6,7 +6,7 @@ import {StateLib} from "./StateLib.sol";
 
 /// Action rule (optional, D14): no order that opens or adds exposure may carry a limit price more than p1 bps from the
 /// venue mark. SEC Rule 15c3-5 requires brokers to reject "erroneous orders" that exceed price parameters; this is that
-/// check for an agent, enforced inside its own trade. It stops a fat-fingered or manipulated price — the way Knight
+/// check for an agent, enforced inside its own trade. It stops a fat-fingered or manipulated price, the way Knight
 /// Capital lost more than $460M in 45 minutes in 2012.
 ///
 /// An order with no limit price, or placed while the mark is unavailable, measures as unbounded and is blocked.
