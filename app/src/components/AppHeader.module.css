@@ -2,9 +2,9 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(11, 11, 11, 0.72);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  background: rgba(11, 11, 11, 0.92);
+  backdrop-filter: saturate(160%) blur(18px);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
   border-bottom: 1px solid var(--hairline);
   padding-top: env(safe-area-inset-top);
 }
@@ -25,17 +25,16 @@
   gap: 10px;
   color: var(--ink);
   text-decoration: none;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 800;
   letter-spacing: -0.03em;
 }
 
-/* The mark: two halves of one square — the agent's side and the chain's side. */
+/* The mark: the isometric M cube from the brand files (public/brand). */
 .mark {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, var(--graphite) 0 50%, var(--ink) 50% 100%);
+  width: 28px;
+  height: 28px;
+  display: block;
 }
 
 .nav {
@@ -51,7 +50,7 @@
   color: var(--graphite);
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   transition: color var(--ease), background var(--ease);
 }
 

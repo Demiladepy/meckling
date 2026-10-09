@@ -5,6 +5,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useMera } from "@/lib/mera";
 import { shortAddr, useConfig } from "@/lib/client";
+import { useFaucet } from "@/lib/faucet";
 import s from "./AppHeader.module.css";
 
 const NAV = [
@@ -19,21 +20,7 @@ export function AppHeader() {
   const path = usePathname();
   const [copied, setCopied] = useState(false);
   const cfg = useConfig();
-  const [drip, setDrip] = useState<{ state: "idle" | "busy" | "done" | "error"; text?: string }>({ state: "idle" });
-
-  // Judges arrive with an empty passkey account; one tap gets test MON for gas and AUSD to trade (testnet only).
-  async function getTestFunds(address: string) {
-    setDrip({ state: "busy" });
-    try {
-      const res = await fetch("/api/faucet", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ address }) });
-      const body = (await res.json()) as { error?: string; message?: string; mon?: { amount: string } | null; ausd?: { amount: number } | null };
-      if (!res.ok) return setDrip({ state: "error", text: body.error ?? "The faucet failed." });
-      const parts = [body.mon && `${body.mon.amount} MON`, body.ausd && `${body.ausd.amount} AUSD`].filter(Boolean);
-      setDrip({ state: "done", text: parts.length ? `Sent ${parts.join(" and ")}` : body.message });
-    } catch {
-      setDrip({ state: "error", text: "The faucet is unreachable. Try again in a moment." });
-    }
-  }
+  const { drip, getTestFunds } = useFaucet();
 
   // Clicking the address copies it (you need it to send test MON); signing out is its own, separate button.
   async function copyAddress(address: string) {
@@ -49,7 +36,8 @@ export function AppHeader() {
     <header className={s.header}>
       <div className={s.inner}>
         <Link href="/" className={s.brand} aria-label="Mandate home">
-          <span className={s.mark} aria-hidden />
+          {/* eslint-disable-next-line @next/next/no-img-element -- a 28px static brand mark needs no optimiser */}
+          <img className={s.mark} src="/brand/mandate-mark-white.png" alt="" width={28} height={28} />
           Mandate
         </Link>
         <nav className={s.nav} aria-label="Main">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
+import { HeroFilm } from "@/components/HeroFilm";
 import s from "./page.module.css";
 
 /**
@@ -15,33 +16,34 @@ export default function Home() {
     <>
       <AppHeader />
       <main className={s.main}>
+        <div className="atmosphere" aria-hidden />
         <section className={s.hero} aria-labelledby="hero-h">
           <div className={s.heroCopy}>
+            <p className={s.eyebrow}>
+              <span className={s.liveDot} /> Live on Monad testnet
+            </p>
             <h1 id="hero-h" className="display">
               AI traders that can&rsquo;t break your rules.
             </h1>
-            <div className={s.heroSide}>
-              <p className={s.lede}>
-                Monad checks an AI agent&rsquo;s limits inside every trade it makes. Its key can trade but never withdraw.
-                If the market breaks a limit anyway, the operator&rsquo;s bond pays you back.
-              </p>
-              <div className={s.ctas}>
-                <Link className="button-primary" href="/mandates/new">
-                  Back an agent
-                </Link>
-                <Link className="button-ghost" href={`/agents/${LIVE_AGENT}`}>
-                  Watch one live
-                </Link>
-              </div>
+            <p className={s.lede}>
+              Monad checks an AI agent&rsquo;s limits inside every trade it makes. Its key can trade but never withdraw. If
+              the market breaks a limit anyway, the operator&rsquo;s bond pays you back.
+            </p>
+            <div className={s.ctas}>
+              <Link className="button-primary" href="/trade">
+                Trade under your own rules
+              </Link>
+              <Link className="button-ghost" href="/mandates/new">
+                Back an agent
+              </Link>
             </div>
           </div>
 
           <figure className={s.showcase}>
             <div className={s.glow} aria-hidden />
-            <AgentWindow />
+            <HeroFilm />
             <figcaption className={s.caption}>
-              The live agent on Monad testnet: Claude, trading on Perpl under eight on-chain rules set from a Nansen
-              report. Its words and both fills are real, shown as they happened.
+              An illustration built from real runs on Monad testnet. Every number in it happened on-chain.
             </figcaption>
           </figure>
         </section>
@@ -51,6 +53,25 @@ export default function Home() {
           <Stat value="0.989276" label="AUSD paid to a backer from the operator’s bond after a real breach: the exact loss" />
           <Stat value="21,342" label="Gas saved on every checked trade by laying storage out for Monad’s page pricing" />
           <Stat value="8 of 8" label="Rule properties proven for every possible input, not just tested" />
+        </section>
+
+        <section className={s.live} aria-labelledby="live-h">
+          <div className={s.liveHead}>
+            <h2 id="live-h" className="section-heading">
+              Live right now.
+            </h2>
+            <p className={s.liveSub}>
+              Claude trading on Perpl under eight on-chain rules set from a Nansen report. Its words and both fills are
+              real, shown as they happened.
+            </p>
+            <Link className={s.inline} href={`/agents/${LIVE_AGENT}`}>
+              Open the live agent
+            </Link>
+          </div>
+          <figure className={s.showcase}>
+            <div className={s.glowFrost} aria-hidden />
+            <AgentWindow />
+          </figure>
         </section>
 
         <section className={s.steps} aria-labelledby="how-h">

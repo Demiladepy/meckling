@@ -1,5 +1,6 @@
 /*
- * Design tokens — Fey is the primary reference (docs/design.md).
+ * Design tokens. Fey-led dark product UI (docs/design.md), set in Montserrat and lit by an aurora built from our own
+ * signal colours.
  *
  * Matte near-black canvas, one narrowed sans doing every job, product UI as the imagery, pill controls, and colour
  * only as signal: green means the chain allowed it, ember means the chain stopped it, blue is where you are.
@@ -17,8 +18,8 @@
   --midnight-deep: #070707;
 
   /* Type */
-  --ink: #f4f4f2; /* primary text, luminous */
-  --bone: #f4f4f2;
+  --ink: #ffffff; /* primary text */
+  --bone: #ffffff;
   --graphite: #868f97; /* secondary text */
   --fog: #a9b0b6;
   --smoke: #525252;
@@ -34,6 +35,16 @@
   /* Atmosphere behind product imagery only (Fey's showcase gradients). */
   --ember-glow: radial-gradient(60% 55% at 50% 40%, rgba(255, 143, 94, 0.22), rgba(85, 27, 16, 0.08) 45%, transparent 75%);
   --frost-glow: radial-gradient(60% 55% at 50% 40%, rgba(182, 214, 255, 0.16), rgba(57, 63, 86, 0.06) 45%, transparent 75%);
+
+  /* Page atmosphere: decorative only, never behind text that needs contrast. Built from --action and --held so the
+     glow belongs to the product, not to a template. */
+  --aurora:
+    radial-gradient(48% 60% at 18% 0%, rgba(71, 159, 250, 0.26), transparent 70%),
+    radial-gradient(42% 52% at 82% 6%, rgba(78, 190, 150, 0.2), transparent 70%),
+    radial-gradient(60% 40% at 50% 100%, rgba(71, 159, 250, 0.08), transparent 75%);
+  --grid-lines:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
 
   /* Fonts: one family. Older modules still ask for --font-inter / --font-serif; both resolve to it. */
   --font-inter: var(--font-sans);
@@ -81,8 +92,8 @@ body {
   color: var(--ink);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   font-size: 16px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  letter-spacing: -0.005em;
   line-height: 1.55;
   font-variant-numeric: lining-nums tabular-nums;
   -webkit-font-smoothing: antialiased;
@@ -97,7 +108,7 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 500;
+  font-weight: 700;
   text-wrap: balance;
 }
 
@@ -110,32 +121,57 @@ a {
 }
 
 /*
- * Display type is the signature: narrowed, tight, calm. Large and confident without going heavy.
+ * Display type is the signature: heavy, tight and white.
  */
 .display,
 .section-heading {
   font-family: var(--font-sans), system-ui, sans-serif;
-  font-stretch: 88%;
   color: var(--ink);
 }
 
 .display {
-  font-size: clamp(46px, 8vw, 96px);
-  font-weight: 600;
-  line-height: 0.98;
-  letter-spacing: -0.055em;
+  font-size: clamp(42px, 7.2vw, 88px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
 }
 
 .section-heading {
-  font-size: clamp(32px, 4.4vw, 52px);
-  font-weight: 560;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
+  font-size: clamp(30px, 4.2vw, 50px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+/* The page atmosphere: an aurora and a faint grid that fades out, behind the first screen of a page. */
+.atmosphere {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 980px;
+  transform: translateX(-50%);
+  z-index: -1;
+  pointer-events: none;
+  background: var(--aurora);
+  mask-image: linear-gradient(180deg, #000 55%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent);
+}
+
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grid-lines);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(70% 60% at 50% 20%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 20%, #000 20%, transparent 75%);
 }
 
 .body-secondary {
-  color: var(--graphite);
+  color: var(--fog);
   font-size: 16px;
+  font-weight: 500;
 }
 
 .editorial {
@@ -176,7 +212,7 @@ a {
   background: var(--midnight-raised);
   color: var(--ink);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
 }
 

@@ -1,6 +1,8 @@
-/* Landing — Fey: the product is the imagery, floating on matte black; type is large, narrow and calm. */
+/* Landing, Fey: the product is the imagery, floating on matte black; type is large, narrow and calm. */
 
 .main {
+  position: relative;
+  isolation: isolate;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
@@ -12,35 +14,77 @@
   padding: clamp(56px, 9vw, 112px) 0 0;
 }
 
+/* Centred and short: the headline, one sentence of what happens, two ways in. */
 .heroCopy {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 48px;
-  align-items: end;
+  justify-items: center;
+  gap: 24px;
+  text-align: center;
 }
 
 .heroCopy h1 {
-  max-width: 11ch;
+  max-width: 13ch;
 }
 
-.heroSide {
-  display: grid;
-  gap: 28px;
-  padding-bottom: 10px;
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--held);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .lede {
   margin: 0;
-  font-size: 19px;
-  line-height: 1.5;
+  font-size: clamp(17px, 1.6vw, 20px);
+  font-weight: 600;
+  line-height: 1.55;
   color: var(--fog);
-  max-width: 44ch;
+  max-width: 52ch;
 }
 
 .ctas {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
+}
+
+/* ---------------------------------------------------------------- live right now */
+
+.live {
+  margin-top: var(--gap-section);
+  display: grid;
+  gap: 40px;
+}
+
+.liveHead {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.liveSub {
+  margin: 0;
+  max-width: 56ch;
+  color: var(--fog);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.glowFrost {
+  position: absolute;
+  inset: -12% -8% -4%;
+  background: var(--frost-glow);
+  filter: blur(8px);
+  pointer-events: none;
 }
 
 .showcase {
@@ -261,7 +305,6 @@
   margin: 0;
   font-size: clamp(30px, 3.4vw, 44px);
   font-weight: 560;
-  font-stretch: 88%;
   letter-spacing: -0.045em;
   line-height: 1;
   color: var(--ink);
@@ -310,7 +353,6 @@
 .stepTitle {
   font-size: clamp(26px, 2.8vw, 34px);
   font-weight: 560;
-  font-stretch: 90%;
   line-height: 1.1;
   letter-spacing: -0.035em;
 }
@@ -420,7 +462,6 @@
   margin: 0;
   font-size: clamp(72px, 9vw, 120px);
   font-weight: 600;
-  font-stretch: 85%;
   letter-spacing: -0.06em;
   line-height: 0.9;
   color: var(--breach);

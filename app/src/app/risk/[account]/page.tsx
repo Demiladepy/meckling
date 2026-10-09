@@ -1,6 +1,6 @@
 "use client";
 
-// Risk screen (PRD 11.1): one Perpl account's live risk — leverage, equity against its peak, headroom on every rule
+// Risk screen (PRD 11.1): one Perpl account's live risk, leverage, equity against its peak, headroom on every rule
 // and the breaches that already happened. Live numbers come from chain state; anything historical comes from the
 // Envio indexer, because Monad full nodes serve none.
 import { use, useEffect, useMemo, useState } from "react";
@@ -74,7 +74,7 @@ export default function RiskScreen({ params }: { params: Promise<{ account: stri
         )}
 
         <section className={s.tiles}>
-          <Tile label="Equity" value={equity === undefined ? "—" : usd(equity)} note={peak ? `Peak ${usd(peak)}` : undefined} />
+          <Tile label="Equity" value={equity === undefined ? "n/a" : usd(equity)} note={peak ? `Peak ${usd(peak)}` : undefined} />
           <Tile label="Leverage" value={`${leverage.toFixed(1)}x`} note={notional === undefined ? undefined : `${usd(notional)} open`} />
           <Tile
             label="Drawdown"
@@ -84,7 +84,7 @@ export default function RiskScreen({ params }: { params: Promise<{ account: stri
           />
           <Tile
             label="Trades blocked"
-            value={track ? String(track.violationsAttempted) : "—"}
+            value={track ? String(track.violationsAttempted) : "0"}
             note={track ? `${track.executions} allowed` : "Needs the indexer"}
           />
         </section>

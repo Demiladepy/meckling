@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPublicClient, createWalletClient, defineChain, http, type Address, type LocalAccount, type PublicClient } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  defineChain,
+  http,
+  type Account,
+  type Address,
+  type EIP1193Provider,
+  type PublicClient,
+} from "viem";
 import type { Deployment, MarketInfo, NetworkKey } from "@mandate/common";
 
 export interface AppConfig {
@@ -37,12 +47,18 @@ export function chainOf(cfg: AppConfig) {
   });
 }
 
-export function clients(cfg: AppConfig, account: LocalAccount) {
+/**
+ * Reads always go through our RPC. Writes are signed by the passkey session in the page, or, for someone who signed in
+ * with a browser wallet, sent through that wallet so it can show its own confirmation.
+ */
+export function clients(cfg: AppConfig, account: Account) {
   const chain = chainOf(cfg);
   const transport = http(cfg.rpcUrl, { batch: { wait: 20 }, retryCount: 3, retryDelay: 250 });
+  const injected = (globalThis as { ethereum?: EIP1193Provider }).ethereum;
+  const walletTransport = account.type === "json-rpc" && injected ? custom(injected) : transport;
   return {
     pub: createPublicClient({ chain, transport }) as PublicClient,
-    wallet: createWalletClient({ chain, transport, account }),
+    wallet: createWalletClient({ chain, transport: walletTransport, account }),
   };
 }
 

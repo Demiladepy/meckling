@@ -71,11 +71,11 @@ function AgentCard({ agent }: { agent: (typeof DEMO_AGENTS)[number] }) {
           </div>
           <div>
             <dt>Bond</dt>
-            <dd>{bond === undefined || bond === 0 ? "—" : usd(bond)}</dd>
+            <dd>{bond === undefined || bond === 0 ? "None" : usd(bond)}</dd>
           </div>
           <div>
             <dt>Blocked</dt>
-            <dd>{track ? track.violationsAttempted : "—"}</dd>
+            <dd>{track ? track.violationsAttempted : "0"}</dd>
           </div>
           <div>
             <dt>Breaches</dt>

@@ -43,7 +43,8 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
     setMemoryBusy(true);
     setMemoryNote(undefined);
     try {
-      const signer = mera.account ?? (await mera.signIn());
+      // The memory key is derived from the passkey itself, so this needs a passkey sign-in, not a browser wallet.
+      const signer = mera.kind === "passkey" && mera.account?.type === "local" ? mera.account : await mera.signIn();
       if (!signer) return;
       const publicKey = bytesToHex((await memoryKeys()).publicKey);
       const signature = await signer.signMessage({ message: memoryKeyMessage(account as Address, publicKey) });
@@ -154,7 +155,7 @@ export default function AgentSplitScreen({ params }: { params: Promise<{ account
               </p>
               <p className="body-secondary">
                 {memory.publicKey
-                  ? "The agent seals its reasoning to the backer's passkey. Nobody else — not the operator's viewers, not us — can read it, on any device."
+                  ? "The agent seals its reasoning to the backer's passkey. Nobody else can read it, not the operator's viewers and not us, on any device."
                   : "Its reasoning reveals the strategy and your positions. Seal it to your passkey: only you will be able to read it, on any device."}
               </p>
               {memoryNote && <p className={s.memoryNote}>{memoryNote}</p>}
@@ -313,7 +314,7 @@ function Row({
           )}
         </p>
         {r.sealed && opened === undefined ? (
-          <p className={s.sealed}>Private — only the backer can read this reasoning.</p>
+          <p className={s.sealed}>Private. Only the backer can read this reasoning.</p>
         ) : (
           <p className={s.reasoning}>&ldquo;{opened ?? r.reasoning}&rdquo;</p>
         )}

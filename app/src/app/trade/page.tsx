@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 // Self-mandate mode (PRD 11.1): trade Perpl from a phone under rules you set yourself. Same MandateAccount and the
-// same on-chain enforcement the agent gets — you are simply your own operator, so no bond and no keeper are needed.
+// same on-chain enforcement the agent gets, you are simply your own operator, so no bond and no keeper are needed.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { erc20Abi, keccak256, parseAbi, toBytes, type Address, type Hex, type PublicClient } from "viem";
 import {
@@ -21,6 +23,8 @@ import {
   maxLeverage,
   maxNotional,
   orderDesc,
+  lossCooldown,
+  measureBlockTimeMs,
   orderRateLimit,
   priceCollar,
   perplExchangeAbi,
@@ -40,6 +44,7 @@ import {
 } from "@mandate/common";
 import { AppHeader } from "@/components/AppHeader";
 import { useMera } from "@/lib/mera";
+import { useFaucet } from "@/lib/faucet";
 import { clients, shortAddr, usd, useConfig, type AppConfig } from "@/lib/client";
 import { errorText, sendTight } from "@/lib/tx";
 import s from "./page.module.css";
@@ -72,22 +77,30 @@ interface Limits {
   markets: number[];
   /** Price protection (D14): reject orders priced more than this % from the market. 0 = off. */
   collarPct: number;
+  /** No revenge trading: after a loss of COOLDOWN_LOSS_USD or more, no new risk for this many minutes. 0 = off. */
+  cooldownMin: number;
 }
 
-const DEFAULT_LIMITS: Limits = { leverage: 3, sizeUsd: 250, markets: [], collarPct: 0 };
+const DEFAULT_LIMITS: Limits = { leverage: 3, sizeUsd: 250, markets: [], collarPct: 0, cooldownMin: 15 };
+
+/** The loss that starts a cooldown. */
+const COOLDOWN_LOSS_USD = 5;
 
 /**
  * Action rules only. They are checked inside `execute`, so a trade that breaks one reverts and nothing reaches the
- * venue — no keeper, no bond, nothing to trust. Market rules like max drawdown need a bonded operator to mean
+ * venue: no keeper, no bond, nothing to trust. Market rules like max drawdown need a bonded operator to mean
  * anything, which a self-trader does not have.
  */
-function rulesFrom(limits: Limits, markets: MarketInfo[]): Rule[] {
+function rulesFrom(limits: Limits, markets: MarketInfo[], blockMs: number): Rule[] {
   const chosen = limits.markets.length ? limits.markets : markets.map((m) => m.perpId);
+  // Windows count blocks, never seconds (CLAUDE.md rule 6); minutes are converted with the block time measured now.
+  const cooldownBlocks = Math.max(1, Math.round((limits.cooldownMin * 60_000) / blockMs));
   return [
     allowedMarkets(chosen),
     maxLeverage(limits.leverage),
     ...chosen.map((perpId) => maxNotional(perpId, usdToCns(limits.sizeUsd))),
     orderRateLimit(10, 600),
+    ...(limits.cooldownMin > 0 ? [lossCooldown(usdToCns(COOLDOWN_LOSS_USD), cooldownBlocks)] : []),
     ...(limits.collarPct > 0 ? [priceCollar(limits.collarPct)] : []),
   ];
 }
@@ -180,11 +193,12 @@ export default function SelfMandatePage() {
         args: [signer.address, SELF_SALT],
       });
       setPhase({ kind: "working", step: "Writing your rules on-chain" });
+      const blockMs = await measureBlockTimeMs(pub, 200n);
       await sendTight(pub, wallet, {
         address: dep.mandateRegistry,
         abi: mandateRegistryAbi,
         functionName: "createMandate",
-        args: [account, rulesFrom(limits, markets), NO_REPORT, DISPUTE_WINDOW],
+        args: [account, rulesFrom(limits, markets, blockMs), NO_REPORT, DISPUTE_WINDOW],
       });
       setCreated(true);
       setPhase({ kind: "idle" });
@@ -301,6 +315,7 @@ export default function SelfMandatePage() {
     <>
       <AppHeader />
       <main className={s.main}>
+        <div className="atmosphere" aria-hidden />
         {!signer && <SignIn mera={mera} />}
 
         {signer && created === false && (
@@ -308,7 +323,17 @@ export default function SelfMandatePage() {
         )}
 
         {signer && created && account && (
-          <Trade account={account} view={view} markets={markets} limits={limits} phase={phase} onFund={addFunds} onOrder={placeOrder} />
+          <Trade
+            account={account}
+            owner={signer.address}
+            faucet={Boolean(cfg?.faucet)}
+            view={view}
+            markets={markets}
+            limits={limits}
+            phase={phase}
+            onFund={addFunds}
+            onOrder={placeOrder}
+          />
         )}
 
         {error && <p className={s.error}>{error}</p>}
@@ -320,20 +345,72 @@ export default function SelfMandatePage() {
 /** Rule copy only needs market names, which the browser config already carries. */
 const netOf = (cfg: AppConfig) => ({ markets: cfg.markets });
 
+/** What this page gives a trader that an exchange account can't. Each line is something the contracts enforce. */
+const WHY = [
+  {
+    title: "Rules you can't break on a bad day",
+    body: "Leverage, position size and markets are checked inside every trade on Monad. An exchange setting changes in a click; yours can only get stricter.",
+  },
+  {
+    title: "No revenge trading",
+    body: "Choose a cooldown: after a loss, you can't add risk until it ends. Closing a position is always allowed.",
+  },
+  {
+    title: "Price protection",
+    body: "Switch it on and orders priced too far from the market are refused, so a fat finger can't fill at a silly price.",
+  },
+  {
+    title: "A record anyone can check",
+    body: "Every trade and every blocked attempt is on-chain. Your discipline is provable, not a screenshot.",
+  },
+];
+
 function SignIn({ mera }: { mera: ReturnType<typeof useMera> }) {
   return (
-    <section className={`card ${s.hero}`}>
-      <h1 className="section-heading">Trade under your own rules.</h1>
-      <p className="body-secondary">
-        Set your limits once. Trade Perpl perpetuals with Agora&rsquo;s AUSD from your phone. Any trade that would break
-        your limits is stopped on-chain, before it reaches the exchange.
-      </p>
-      <button className="button-primary" onClick={() => void mera.signIn()} disabled={mera.busy}>
-        {mera.busy ? "Waiting for your passkey" : mera.hasPasskey ? "Sign in" : "Create your account"}
-      </button>
-      <p className={s.fine}>No seed phrase. No extension. Your passkey is the account.</p>
-      {mera.error && <p className={s.error}>{mera.error}</p>}
-    </section>
+    <>
+      <section className={s.intro}>
+        <p className={s.kicker}>Self-custody perps on Monad</p>
+        <h1 className="display">Trade under your own rules.</h1>
+        <p className={s.lede}>
+          Set your limits once. Trade Perpl perpetuals with Agora&rsquo;s AUSD from your phone. Any trade that would
+          break your limits is stopped on-chain, before it reaches the exchange.
+        </p>
+      </section>
+
+      <section className={`card ${s.signin}`}>
+        <button className="button-primary" onClick={() => void mera.signIn()} disabled={mera.busy}>
+          {mera.busy ? "Waiting for your passkey" : mera.hasPasskey ? "Sign in with your passkey" : "Create your account"}
+        </button>
+        <p className={s.fine}>No seed phrase, no extension. Your face or fingerprint is the account (Mera passkeys).</p>
+        <div className={s.or}>
+          <span>or</span>
+        </div>
+        <button className={s.secondary} onClick={() => void mera.connectWallet()} disabled={mera.busy}>
+          Use a browser wallet
+        </button>
+        <p className={s.fine}>
+          MetaMask, Rabby and other browser wallets work too. We switch the wallet to Monad testnet.
+        </p>
+        {mera.error && <p className={s.error}>{mera.error}</p>}
+        <Link className={s.inlineLink} href="/agents">
+          Just looking? Watch the live agent trade
+        </Link>
+      </section>
+
+      <section className={s.why} aria-labelledby="why-h">
+        <h2 id="why-h" className={s.h2}>
+          What you get here that an exchange can&rsquo;t give you
+        </h2>
+        <ul>
+          {WHY.map((w) => (
+            <li key={w.title}>
+              <strong>{w.title}</strong>
+              <span>{w.body}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   );
 }
 
@@ -354,6 +431,7 @@ function SetRules({
   const chosen = limits.markets.length ? limits.markets : markets.map((m) => m.perpId);
   return (
     <section className={`card ${s.form}`}>
+      <p className={s.kicker}>Step 1 of 3</p>
       <h1 className="section-heading">Set your rules</h1>
       <p className="body-secondary">The chain holds you to these. You can tighten them later, never loosen them.</p>
 
@@ -399,6 +477,26 @@ function SetRules({
       </div>
 
       <div className={s.field}>
+        <span>Cooldown after a loss</span>
+        <div className={s.choices}>
+          {[0, 5, 15, 60].map((min) => (
+            <button
+              key={min}
+              type="button"
+              data-on={limits.cooldownMin === min || undefined}
+              onClick={() => setLimits({ ...limits, cooldownMin: min })}
+            >
+              {min === 0 ? "Off" : min === 60 ? "1 hour" : `${min} min`}
+            </button>
+          ))}
+        </div>
+        <p className={s.fine}>
+          After you lose ${COOLDOWN_LOSS_USD} or more on a trade, you can&rsquo;t add risk for this long. No revenge
+          trading. Closing a position is always allowed.
+        </p>
+      </div>
+
+      <div className={s.field}>
         <span>Price protection</span>
         <div className={s.choices}>
           {[0, 1, 2, 5].map((pct) => (
@@ -413,7 +511,7 @@ function SetRules({
           ))}
         </div>
         <p className={s.fine}>
-          Blocks any order priced further than this from the market — the check that would have stopped a runaway
+          Blocks any order priced further than this from the market: the check that would have stopped a runaway
           algorithm like Knight Capital's. Closing a position is never blocked.
         </p>
       </div>
@@ -428,6 +526,8 @@ function SetRules({
 
 function Trade({
   account,
+  owner,
+  faucet,
   view,
   markets,
   limits,
@@ -436,6 +536,10 @@ function Trade({
   onOrder,
 }: {
   account: Address;
+  /** The signed-in wallet that funds the account. */
+  owner: Address;
+  /** The testnet faucet is switched on. */
+  faucet: boolean;
   view?: View;
   markets: MarketInfo[];
   limits: Limits;
@@ -454,15 +558,38 @@ function Trade({
   const addable = !view ? 0 : view.venueOpen ? Math.min(50, walletUsd) : walletUsd >= minOpenUsd ? minOpenUsd : 0;
   const shortOfMinimum = Boolean(view && !view.venueOpen && walletUsd < minOpenUsd);
 
+  const { drip, getTestFunds } = useFaucet();
+  const empty = Boolean(view && view.walletAusd === 0n && view.equity <= 0n);
+
   useEffect(() => {
     if (!market && tradable[0]) setMarket(tradable[0]);
   }, [market, tradable]);
 
   return (
     <>
+      {empty && (
+        <section className={`card ${s.start}`} aria-labelledby="start-h">
+          <p className={s.kicker}>Step 2 of 3</p>
+          <h2 id="start-h" className={s.h2}>
+            Fund your account
+          </h2>
+          <p className="body-secondary">
+            Your rules are on-chain. Now it needs AUSD to trade with, and a little MON for gas. On testnet both are free.
+          </p>
+          {faucet ? (
+            <button className="button-primary" onClick={() => void getTestFunds(owner)} disabled={drip.state === "busy" || drip.state === "done"}>
+              {drip.state === "busy" ? "Sending test funds" : drip.state === "done" ? "Test funds sent" : "Get test MON and AUSD"}
+            </button>
+          ) : (
+            <p className={s.fine}>The test faucet is off right now. Send test AUSD to {shortAddr(owner)} to begin.</p>
+          )}
+          {drip.text && <p className={drip.state === "error" ? s.error : s.ok}>{drip.text}</p>}
+          <p className={s.fine}>Then open your Perpl account below and place your first trade.</p>
+        </section>
+      )}
       <section className={`card ${s.balance}`}>
         <p className={s.balanceLabel}>Your balance</p>
-        <p className={s.balanceValue}>{view ? usd(cnsToUsd(view.equity)) : "—"}</p>
+        <p className={s.balanceValue}>{view ? usd(cnsToUsd(view.equity)) : "$0.00"}</p>
         <p className="body-secondary">
           <span className="onchain">{shortAddr(account)}</span>
           {view && view.notional > 0n ? ` · ${usd(cnsToUsd(view.notional))} open` : ""}
@@ -522,7 +649,12 @@ function Trade({
 
       {view && view.rules.length > 0 && (
         <section className={`card ${s.rules}`}>
-          <h2 className={s.h2}>Your rules</h2>
+          <div className={s.rulesHead}>
+            <h2 className={s.h2}>Your rules</h2>
+            <Link className={s.inlineLink} href={`/risk/${account}`}>
+              Headroom and blocked attempts
+            </Link>
+          </div>
           <ul>
             {view.rules.map((r, i) => (
               <li key={i}>

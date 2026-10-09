@@ -91,7 +91,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ account
       breaches: acct?.breaches ?? 0,
       peakEquity: acct?.peakEquity ?? null,
       equity: acct?.lastEquity ?? null,
-      /** Worst peak-to-trough fall across the curve, in basis points — the number a backer actually judges. */
+      /** Worst peak-to-trough fall across the curve, in basis points, the number a backer actually judges. */
       maxDrawdownBps: maxDrawdownBps(curve.map((p) => BigInt(p.equity))),
       returnBps: returnBps(curve.map((p) => BigInt(p.equity))),
     },

@@ -68,7 +68,7 @@ function isLooser(r: Rule, proposed: Rule): boolean {
 export function LimitsTable(props: {
   proposal: Rule[];
   labels: string[];
-  /** One Nansen signal line per row — evidence → limit for judges. */
+  /** One Nansen signal line per row, evidence → limit for judges. */
   because?: string[];
   markets: MarketInfo[];
   draft?: Draft;

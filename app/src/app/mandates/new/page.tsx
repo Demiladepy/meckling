@@ -274,7 +274,7 @@ export default function CreateMandate() {
                     Nansen evidence
                   </h2>
                   <p className={s.blockSub}>
-                    Positioning, flows and concentration per market — the inputs behind every limit below.
+                    Positioning, flows and concentration per market: the inputs behind every limit below.
                   </p>
                 </div>
               </div>

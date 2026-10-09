@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     return jsonResponse(
       {
         error:
-          "Nansen API key is not configured. Live underwriting is required — set NANSEN_API_KEY on the server.",
+          "Nansen API key is not configured. Live underwriting is required: set NANSEN_API_KEY on the server.",
       },
       { status: 503 },
     );

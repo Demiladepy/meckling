@@ -10,7 +10,7 @@ import s from "./page.module.css";
 
 /**
  * One breach: evidence, peak vs equity, dispute-window countdown, slash outcome.
- * Named numbers for judges — e.g. bond paid $0.109218, the exact loss from peak.
+ * Named numbers for judges: e.g. bond paid $0.109218, the exact loss from peak.
  */
 export default function BreachDetail({ params }: { params: Promise<{ account: string; id: string }> }) {
   const { account, id } = use(params);
@@ -39,9 +39,9 @@ export default function BreachDetail({ params }: { params: Promise<{ account: st
   const status = useMemo(() => {
     if (!breach) return null;
     if (breach.slashed) return { tone: "held" as const, label: `Bond paid the backer ${usd(loss)}` };
-    if (breach.disputed) return { tone: "pending" as const, label: "Disputed — waiting on the arbiter" };
+    if (breach.disputed) return { tone: "pending" as const, label: "Disputed, waiting on the arbiter" };
     if (blocksLeft > 0) return { tone: "pending" as const, label: `${blocksLeft.toLocaleString("en-US")} blocks left in the dispute window` };
-    return { tone: "breach" as const, label: "Dispute window closed — ready to slash" };
+    return { tone: "breach" as const, label: "Dispute window closed, ready to pay out" };
   }, [breach, blocksLeft, loss]);
 
   return (
@@ -120,7 +120,7 @@ export default function BreachDetail({ params }: { params: Promise<{ account: st
                 </div>
               </dl>
               <p className={s.fine}>
-                When slashed, the bond pays the backer this loss — not a round marketing number.
+                When the bond pays out, the backer gets exactly this loss.
               </p>
             </section>
 
@@ -150,7 +150,7 @@ export default function BreachDetail({ params }: { params: Promise<{ account: st
                   Slash
                 </h2>
                 <p className={s.paid}>
-                  Bond paid the backer <strong>{usd(loss)}</strong> — the exact loss from peak.
+                  Bond paid the backer <strong>{usd(loss)}</strong>, the exact loss from peak.
                 </p>
                 <p className={s.fine}>Account was set close-only when the breach was flagged.</p>
               </section>
