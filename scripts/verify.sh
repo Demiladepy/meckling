@@ -17,7 +17,8 @@ step "forge test"
 # ---- job: formal
 step "halmos (symbolic proofs of the rules)"
 if command -v halmos >/dev/null; then
-  (cd contracts && halmos --contract RuleProofs --solver-command "python test/formal/yices_all_logic.py" >/dev/null)
+  # Its own build dir: forge's cache ignores --ast, so after forge test the shared out/ has no ASTs for Halmos.
+  (cd contracts && FOUNDRY_OUT=out-halmos FOUNDRY_CACHE_PATH=cache-halmos halmos --contract RuleProofs --forge-build-out out-halmos     --solver-command "python test/formal/yices_all_logic.py" >/dev/null)
 else
   echo "  halmos not installed (pip install halmos==0.3.3), runs in CI"
 fi

@@ -35,9 +35,9 @@ The last three follow in one line of arithmetic from the exact-formula proofs ab
 ```bash
 pip install halmos==0.3.3
 cd contracts
-halmos --contract RuleProofs --solver-command "python test/formal/yices_all_logic.py"
+FOUNDRY_OUT=out-halmos FOUNDRY_CACHE_PATH=cache-halmos halmos --contract RuleProofs --forge-build-out out-halmos --solver-command "python test/formal/yices_all_logic.py"
 ```
 
 **Why the wrapper:** on Windows, the yices 2.6.4 build that Halmos uses never answers a query declared `(set-logic QF_AUFBV)`, even a trivially unsatisfiable one. The same query under `(set-logic ALL)` answers in milliseconds (reproduced Sep 30 on a 7-line query: `d ≤ s ≤ l` and `d > l`). `test/formal/yices_all_logic.py` changes only that line. Without it, every proof that touches memory "times out" on Windows, and the timeouts tell you nothing about the proof.
 
-CI runs the same command on Linux (`formal` job), and `pnpm verify` runs it locally when Halmos is installed.
+Halmos builds into its own `out-halmos/` because forge's cache ignores `--ast`: after `forge test`, the shared `out/` has no syntax trees and Halmos finds no tests. CI runs the same command on Linux (`formal` job), and `pnpm verify` runs it locally when Halmos is installed.

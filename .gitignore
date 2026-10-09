@@ -41,3 +41,7 @@ indexer/envio-env.d.ts
 
 # CRE simulator build output
 .cre_build_tmp.js
+
+# Halmos builds into its own dirs (scripts/verify.sh)
+contracts/out-halmos/
+contracts/cache-halmos/

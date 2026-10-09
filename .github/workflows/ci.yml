@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install halmos==0.3.3
-      - run: halmos --contract RuleProofs --solver-command "python test/formal/yices_all_logic.py"
+      - run: FOUNDRY_OUT=out-halmos FOUNDRY_CACHE_PATH=cache-halmos halmos --contract RuleProofs --forge-build-out out-halmos --solver-command "python test/formal/yices_all_logic.py"
 
   typescript:
     runs-on: ubuntu-latest
