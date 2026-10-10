@@ -1,0 +1,276 @@
+/* The manifesto: a long read set for reading. One wide measure for prose, tables that can breathe, and colour only
+   where the paper argues against itself (ember) or states its test (green). */
+
+.main {
+  position: relative;
+  isolation: isolate;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 96px) 20px 120px;
+}
+
+/* ---------------------------------------------------------------- title */
+
+.head {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+  margin-bottom: clamp(48px, 7vw, 88px);
+}
+
+.head h1 {
+  max-width: 16ch;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--held);
+}
+
+.byline {
+  margin: 0;
+  color: var(--fog);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.meta {
+  margin: 0;
+  color: var(--graphite);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.meta a {
+  color: var(--action);
+  text-decoration: none;
+}
+
+.meta a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 720px);
+  justify-content: center;
+  gap: 64px;
+}
+
+.toc {
+  position: sticky;
+  top: 96px;
+  align-self: start;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.tocTitle {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid var(--hairline-strong);
+}
+
+.toc a {
+  display: block;
+  padding: 6px 0 6px 14px;
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+  color: var(--graphite);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.toc a:hover {
+  color: var(--ink);
+  border-left-color: var(--ink);
+}
+
+/* ---------------------------------------------------------------- the text */
+
+.article {
+  min-width: 0;
+  font-size: 17px;
+  line-height: 1.75;
+  color: #d9dde2;
+}
+
+.h2 {
+  margin: 64px 0 18px;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  scroll-margin-top: 96px;
+}
+
+.article > .h2:first-child {
+  margin-top: 0;
+}
+
+.p,
+.lead {
+  margin: 0 0 18px;
+}
+
+.lead strong {
+  color: var(--ink);
+}
+
+.article strong {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.article a {
+  color: var(--action);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.article a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.article code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.86em;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* The thesis: one sentence, set large. */
+.statement {
+  margin: 8px 0 28px;
+  font-size: clamp(24px, 3.2vw, 34px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+
+/* Where the paper argues against itself, or states its test. */
+.callout {
+  margin: 22px 0;
+  padding: 18px 22px;
+  border-radius: 14px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+}
+
+.callout[data-tone="weak"] {
+  border-color: rgba(255, 143, 94, 0.45);
+  background: rgba(255, 143, 94, 0.07);
+}
+
+.callout[data-tone="weak"] strong:first-child {
+  color: var(--breach);
+}
+
+.callout[data-tone="test"] {
+  border-color: rgba(78, 190, 150, 0.45);
+  background: rgba(78, 190, 150, 0.07);
+}
+
+.callout[data-tone="test"] strong:first-child {
+  color: var(--held);
+}
+
+.list {
+  margin: 0 0 22px;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.list li::marker {
+  color: var(--graphite);
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------- tables */
+
+.tableWrap {
+  margin: 22px 0 30px;
+  overflow-x: auto;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.table th,
+.table td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.table th {
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.table td:first-child {
+  color: var(--ink);
+  font-weight: 700;
+  min-width: 160px;
+}
+
+/* ---------------------------------------------------------------- small screens */
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: minmax(0, 720px);
+  }
+
+  .toc {
+    position: static;
+    max-height: none;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--hairline-strong);
+    background: var(--surface);
+  }
+}

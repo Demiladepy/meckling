@@ -24,6 +24,8 @@ else
 fi
 
 # ---- job: typescript
+step "the manifesto page matches docs/paper.md"
+node app/scripts/sync-paper.mjs --check
 step "ABIs are regenerated and committed"
 node services/common/scripts/gen-abi.mjs
 git diff --exit-code services/common/src/abis.ts

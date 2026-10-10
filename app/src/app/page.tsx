@@ -167,6 +167,7 @@ export default function Home() {
             <Link href="/agents">Agents</Link>
             <Link href="/mandates/new">Back an agent</Link>
             <Link href="/trade">Trade</Link>
+            <Link href="/manifesto">Manifesto</Link>
           </nav>
           <p className={s.footerNote}>
             Built for Monad Metropolis 2026 · Running on Monad testnet with test AUSD ·{" "}

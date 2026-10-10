@@ -51,6 +51,7 @@ jobs:
         with:
           version: stable
       - run: cd contracts && forge build
+      - run: node app/scripts/sync-paper.mjs --check
       - run: node services/common/scripts/gen-abi.mjs && git diff --exit-code services/common/src/abis.ts
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4

@@ -12,6 +12,7 @@ const NAV = [
   { href: "/agents", label: "Agents" },
   { href: "/mandates/new", label: "Back an agent" },
   { href: "/trade", label: "Trade" },
+  { href: "/manifesto", label: "Manifesto" },
 ];
 
 /** Quiet chrome: the brand, three destinations, and the passkey account. The current page carries the blue mark. */
