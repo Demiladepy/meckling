@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
+import { HeroBackdrop } from "@/components/HeroBackdrop";
 import { HeroFilm } from "@/components/HeroFilm";
 import s from "./page.module.css";
 
@@ -16,8 +17,10 @@ export default function Home() {
     <>
       <AppHeader />
       <main className={s.main}>
-        <div className="atmosphere" aria-hidden />
         <section className={s.hero} aria-labelledby="hero-h">
+          <div className={s.heroBand}>
+            <HeroBackdrop />
+          </div>
           <div className={s.heroCopy}>
             <p className={s.eyebrow}>
               <span className={s.liveDot} /> Live on Monad testnet

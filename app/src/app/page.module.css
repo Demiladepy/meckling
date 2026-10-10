@@ -10,8 +10,27 @@
 
 /* ---------------------------------------------------------------- hero */
 
+/* The hero is the one light surface on the site: a cool grey band with a price chart that can't cross its limit.
+   The band ends partway down the film, so the product bridges the light hero and the dark page below. */
 .hero {
+  position: relative;
+  isolation: isolate;
   padding: clamp(56px, 9vw, 112px) 0 0;
+}
+
+.heroBand {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  bottom: clamp(160px, 22vw, 300px);
+  transform: translateX(-50%);
+  background: #eceef0;
+}
+
+.heroCopy :global(.display) {
+  color: #0b0b0b;
 }
 
 /* Centred and short: the headline, one sentence of what happens, two ways in. */
@@ -33,11 +52,11 @@
   margin: 0;
   padding: 6px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--hairline-strong);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--held);
+  border: 1px solid rgba(11, 11, 11, 0.12);
+  background: #ffffff;
+  color: #1d7a5a;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .lede {
@@ -45,8 +64,31 @@
   font-size: clamp(17px, 1.6vw, 20px);
   font-weight: 600;
   line-height: 1.55;
-  color: var(--fog);
+  color: #3b4148;
   max-width: 52ch;
+}
+
+/* On the light band the main action is a black pill, the second an outlined one. */
+.heroCopy :global(.button-primary) {
+  background: #0b0b0b;
+  color: #ffffff;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.heroCopy :global(.button-primary):hover {
+  background: #262626;
+}
+
+.heroCopy :global(.button-ghost) {
+  background: #ffffff;
+  color: #0b0b0b;
+  border: 1px solid rgba(11, 11, 11, 0.16);
+  font-weight: 700;
+}
+
+.heroCopy :global(.button-ghost):hover {
+  border-color: rgba(11, 11, 11, 0.4);
 }
 
 .ctas {
@@ -95,7 +137,7 @@
 /* Fey's showcase atmosphere: warm light behind the product, never on a surface. */
 .glow {
   position: absolute;
-  inset: -12% -8% -4%;
+  inset: 40% -8% -4%;
   background: var(--ember-glow);
   filter: blur(8px);
   pointer-events: none;
