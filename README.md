@@ -1,16 +1,18 @@
-# Mandate
+# Meckling
 
 **AI traders that can't break your rules.**
+
+*Formerly Mandate. Named for Jensen & Meckling (1976): when you hand an agent your money, you pay to watch it, or it posts a bond. Meckling does both, enforced on Monad.*
 
 [![ci](https://github.com/Demiladepy/mandate/actions/workflows/ci.yml/badge.svg)](https://github.com/Demiladepy/mandate/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Monad testnet](https://img.shields.io/badge/Monad-testnet-836EF9) ![proofs: Halmos](https://img.shields.io/badge/proofs-Halmos%208%2F8-success)
 
 > Risk control should be a property of the infrastructure. It is unreasonable to expect everyone who funds an agent to become an expert in monitoring it.
 
-Mandate is a risk-enforcement layer for AI trading agents on Monad. The agent trades through an account that checks its limits inside every transaction, so a trade that breaks a rule never happens. The agent's key can trade but can never move money out. And when the market alone breaks a limit, the operator's bond pays the backer back.
+Meckling is a risk-enforcement layer for AI trading agents on Monad. The agent trades through an account that checks its limits inside every transaction, so a trade that breaks a rule never happens. The agent's key can trade but can never move money out. And when the market alone breaks a limit, the operator's bond pays the backer back.
 
 [**Live app**](https://mandate-rose.vercel.app) &nbsp;·&nbsp; [Earlier demo (Sep 27)](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp; [**Read the manifesto**](https://mandate-rose.vercel.app/manifesto) &nbsp;·&nbsp; [What each rule guarantees, and what it can't](docs/rules-spec.md) &nbsp;·&nbsp; [Postmortem](docs/postmortem.md)
 
-[![Mandate, earlier demo, Sep 27](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
+[![Meckling, earlier demo, Sep 27](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
 
 ---
 
@@ -22,13 +24,13 @@ Agents with money keep failing the same way: nothing outside the model stops the
 - **Lobstar Wilde** (Feb 22, 2026): an agent sent **52.4M of its tokens** to a stranger, $250k–$441k by different reports. ([Cointelegraph](https://www.tradingview.com/news/cointelegraph:e25e7c3ff094b:0-ai-agent-sends-441k-in-tokens-after-decimal-error/))
 - **Alpha Arena, Season 1** (Oct 18 – Nov 3, 2025): six frontier models got $10k each to trade crypto perpetuals on Hyperliquid. Four lost money, the worst **−62.66%**, and nothing enforced a drawdown floor. (Reported results from [nof1.ai](https://nof1.ai))
 
-The first two are agents whose keys could send funds anywhere. A Mandate agent's key can't. The third is agents trading badly with nothing to stop the slide. Mandate stops new exposure at the limit and insures the drawdown.
+The first two are agents whose keys could send funds anywhere. A Meckling agent's key can't. The third is agents trading badly with nothing to stop the slide. Meckling stops new exposure at the limit and insures the drawdown.
 
 Sources and the claims we checked and rejected: [`docs/research.md`](docs/research.md).
 
 ## How it works
 
-**1. Limits from evidence.** Choose the markets an agent may trade. Mandate reads Nansen smart-money flows and perp positioning, settles a regime per market, and turns it into hard numbers: leverage, position size, allowed markets, order rate, a cooldown after losses, a drawdown floor, and optional price protection. The report is fingerprinted and stored on-chain with the mandate, so anyone can check where every number came from.
+**1. Limits from evidence.** Choose the markets an agent may trade. Meckling reads Nansen smart-money flows and perp positioning, settles a regime per market, and turns it into hard numbers: leverage, position size, allowed markets, order rate, a cooldown after losses, a drawdown floor, and optional price protection. The report is fingerprinted and stored on-chain with the mandate, so anyone can check where every number came from.
 
 **2. The backer signs once, with a passkey.** No seed phrase, no extension (Mera). A trading account is created and the rules are written to Monad. From then on, rules can only be tightened, never loosened.
 
@@ -39,7 +41,7 @@ Sources and the claims we checked and rejected: [`docs/research.md`](docs/resear
 ```mermaid
 flowchart LR
     N[Nansen evidence] --> U[Underwriting<br/>limits + fingerprint]
-    U --> R[Mandate on Monad]
+    U --> R[Meckling on Monad]
     A[AI agent] -->|proposes a trade| M[Trading account]
     R --> M
     M -->|every rule holds| P[Filled on Perpl]
@@ -98,23 +100,23 @@ The first deployment (Sep 23–29, addresses below), checkable on-chain:
 - **Enforcement has to fit inside the trade.** Every rule runs inside the agent's own transaction, before Perpl sees the order. At 300 ms blocks that costs about 193k gas on a trade, measured, with no extra round trip.
 - **Its storage is priced by page (MIP-8), and we built for that.** Laying each account's rules and monitors out to share pages cut 21,342 gas per enforced trade.
 - **A clean record so far, stated honestly.** A three-year study of sandwich attacks on protected order flow across six chains ("No Place to Hide", [arXiv 2609.28115](https://arxiv.org/abs/2609.28115), Category Labs, ETH Zurich, Flashbots and the University of Lisbon, Sep 2026) found 28.0M on Solana and attacks on Ethereum, Tron and Base, over $346M to attackers, and none on Arbitrum or Monad. The authors note Monad has been live for less than a year, so this is partly youth, not proof. What makes it more than luck is Monad's stated direction: encrypted transactions until the order is final.
-- **Where Mandate stops.** Mandate isn't MEV protection. Monad's encrypted mempool is meant to protect an order before it's included; Mandate constrains what an agent's included orders can do.
+- **Where Meckling stops.** Meckling isn't MEV protection. Monad's encrypted mempool is meant to protect an order before it's included; Meckling constrains what an agent's included orders can do.
 
 ## Where this goes
 
-Monad co-founder Keone Hon describes the next phase with "fair execution should be a property of the infrastructure" (["A world computer worthy of the world's money"](https://x.com/keoneHD/status/2106670836761633202), Oct 4, 2026). Three items on that roadmap extend Mandate directly, and the third shipped as an announcement two days later:
+Monad co-founder Keone Hon describes the next phase with "fair execution should be a property of the infrastructure" (["A world computer worthy of the world's money"](https://x.com/keoneHD/status/2106670836761633202), Oct 4, 2026). Three items on that roadmap extend Meckling directly, and the third shipped as an announcement two days later:
 
 - **Encrypted transactions until the order is final.** An agent's intent with its limits ("at most X, no further than Y from the mark") is what a mandate with price protection already expresses. With encrypted submission, it also couldn't be traded ahead of.
-- **Application-specific sequencing**, such as "an exchange may need to process cancellations before new orders." Mandate's breach handling already applies one such rule inside a transaction: unwind first, then close-only. Sequencing would let it apply across transactions.
+- **Application-specific sequencing**, such as "an exchange may need to process cancellations before new orders." Meckling's breach handling already applies one such rule inside a transaction: unwind first, then close-only. Sequencing would let it apply across transactions.
 - **Private settlement.** Category Labs announced [Monad Private Settlement](https://www.category.xyz/monad-private-settlement) at Monad Open (Oct 6, 2026): institutions keep trading positions and orders encrypted in their own domain, settle against public Monad liquidity, and open specific information to regulators and auditors. A fund there can't publish its positions, but it can publish its mandate. Its limits and breach record stay public and enforced on-chain, so "this fund never exceeds 2× leverage" becomes checkable without revealing a single position.
 
-**Agent keys.** The author's Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation), found that rotation, delegation withdrawal and retirement of agent keys have no published mechanism. Mandate gives each one an on-chain answer: a scoped session key with an expiry block, replaced in one transaction, revocable by the owner or operator, with a blast radius bounded by the rules. An agent's authority lives in its account, not its key, so the key can move to a post-quantum scheme without touching the rules.
+**Agent keys.** The author's Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation), found that rotation, delegation withdrawal and retirement of agent keys have no published mechanism. Meckling gives each one an on-chain answer: a scoped session key with an expiry block, replaced in one transaction, revocable by the owner or operator, with a blast radius bounded by the rules. An agent's authority lives in its account, not its key, so the key can move to a post-quantum scheme without touching the rules.
 
-**Quantum readiness.** Monad's [post-quantum roadmap](https://monad.xyz/blog/post-quantum-roadmap) (Sep 28, 2026) puts protecting user funds first, through a draft where "an account stores its authentication configuration in state; its address stays fixed while the credentials that control it can change." Mandate refers to the owner, the agent's key and the backer only by address. So when those accounts add post-quantum credentials under that design, every Mandate account, its rules and its bond carry over unchanged: no migration, no new contracts. Until then, a stolen agent key is already bounded: it can't withdraw, and every trade still passes the rules. Today's keys are ordinary secp256k1 keys, like every other account on Monad.
+**Quantum readiness.** Monad's [post-quantum roadmap](https://monad.xyz/blog/post-quantum-roadmap) (Sep 28, 2026) puts protecting user funds first, through a draft where "an account stores its authentication configuration in state; its address stays fixed while the credentials that control it can change." Meckling refers to the owner, the agent's key and the backer only by address. So when those accounts add post-quantum credentials under that design, every Meckling account, its rules and its bond carry over unchanged: no migration, no new contracts. Until then, a stolen agent key is already bounded: it can't withdraw, and every trade still passes the rules. Today's keys are ordinary secp256k1 keys, like every other account on Monad.
 
 ## Built with
 
-| | Role in Mandate | Status |
+| | Role in Meckling | Status |
 |---|---|---|
 | [**Monad**](https://www.monad.xyz) | Where every rule is enforced. Storage laid out for MIP-8 pages | Live on testnet |
 | [**Perpl**](https://perpl.xyz) | The on-chain order book every trade goes to; the account trades in its own name | Live |
@@ -210,11 +212,11 @@ cd contracts && halmos --contract RuleProofs --solver-command "python test/forma
 
 ## How this was built
 
-**AI coding tools.** Mandate was built with heavy use of AI coding assistants, as the Metropolis rules permit and require us to disclose: **Claude Code** (Anthropic) and **Cursor** wrote much of the code, tests and documentation under the author's direction. Every contract change is covered by Foundry tests, every address and interface was checked on-chain before use (`docs/spikes.md`), and the product decisions are recorded in `docs/decisions.md`. Separately, the agent inside the product uses Claude as its reasoning model.
+**AI coding tools.** Meckling was built with heavy use of AI coding assistants, as the Metropolis rules permit and require us to disclose: **Claude Code** (Anthropic) and **Cursor** wrote much of the code, tests and documentation under the author's direction. Every contract change is covered by Foundry tests, every address and interface was checked on-chain before use (`docs/spikes.md`), and the product decisions are recorded in `docs/decisions.md`. Separately, the agent inside the product uses Claude as its reasoning model.
 
-**Build window.** All of Mandate's code was written during the hackathon. The first commit is dated September 21, 2026, and the full history is public. No pre-existing project code was reused.
+**Build window.** All of Meckling's code was written during the hackathon. The first commit is dated September 21, 2026, and the full history is public. No pre-existing project code was reused.
 
-**Third-party code.** Mandate builds on, and does not copy, the following:
+**Third-party code.** Meckling builds on, and does not copy, the following:
 
 | Component | Used for | License |
 |---|---|---|
@@ -247,11 +249,11 @@ cd contracts && halmos --contract RuleProofs --solver-command "python test/forma
 | [Benchmarks](docs/benchmarks.md) | Measured numbers and how each was measured |
 | [Research](docs/research.md) | The argument, the incidents and comparables, and the claims we rejected |
 | [Postmortem](docs/postmortem.md) | What broke while building, and what changed |
-| [Specification](docs/PRD.md) | What Mandate is, the rules it enforces, and the invariants |
+| [Specification](docs/PRD.md) | What Meckling is, the rules it enforces, and the invariants |
 | [Decisions](docs/decisions.md) | Rulings that refine the specification |
 | [Spikes](docs/spikes.md) | Measured facts about Monad, Perpl, Nansen and the rest |
 | [Plan](docs/plan.md) | Milestones, what is done and what is next |
 
 ---
 
-Built for Monad Metropolis 2026 (Track 01, Onchain Finance & Trading). An earlier version was submitted to the Nansen Meridian Buildathon in September 2026.
+Built for Monad Metropolis 2026 (Track 01, Onchain Finance & Trading). An earlier version was submitted to the Nansen Meridian Buildathon in September 2026, under the name Mandate.

@@ -162,7 +162,7 @@ export default function Home() {
 
       <footer className={s.footer}>
         <div className={s.footerInner}>
-          <span className={s.footerBrand}>Mandate</span>
+          <span className={s.footerBrand}>Meckling</span>
           <nav className={s.footerNav} aria-label="Footer">
             <Link href="/agents">Agents</Link>
             <Link href="/mandates/new">Back an agent</Link>

@@ -9,10 +9,10 @@ const sans = Montserrat({ subsets: ["latin"], variable: "--font-sans", display: 
 const mono = Fira_Code({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Mandate",
+  title: "Meckling",
   description: "AI traders that can't break your rules. Monad checks an agent's limits inside every trade, and a bond pays you back when the market breaks one.",
-  applicationName: "Mandate",
-  appleWebApp: { capable: true, title: "Mandate", statusBarStyle: "black-translucent" },
+  applicationName: "Meckling",
+  appleWebApp: { capable: true, title: "Meckling", statusBarStyle: "black-translucent" },
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],

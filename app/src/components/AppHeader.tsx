@@ -36,10 +36,10 @@ export function AppHeader() {
   return (
     <header className={s.header}>
       <div className={s.inner}>
-        <Link href="/" className={s.brand} aria-label="Mandate home">
+        <Link href="/" className={s.brand} aria-label="Meckling home">
           {/* eslint-disable-next-line @next/next/no-img-element -- a 28px static brand mark needs no optimiser */}
           <img className={s.mark} src="/brand/mandate-mark-white.png" alt="" width={28} height={28} />
-          Mandate
+          Meckling
         </Link>
         <nav className={s.nav} aria-label="Main">
           {NAV.map((n) => (

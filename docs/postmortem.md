@@ -1,6 +1,6 @@
 # Postmortem, written as we go
 
-What broke while building Mandate, why, and what changed so it doesn't happen again. Kept honest on purpose: a risk product that hides its own failures shouldn't be trusted with anyone's.
+What broke while building Meckling, why, and what changed so it doesn't happen again. Kept honest on purpose: a risk product that hides its own failures shouldn't be trusted with anyone's.
 
 ## In the product
 

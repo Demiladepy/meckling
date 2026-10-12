@@ -1,6 +1,6 @@
-# Mandate's rules: what each guarantees, and what it cannot
+# Meckling's rules: what each guarantees, and what it cannot
 
-This is the soundness argument behind Mandate. For every rule it states the guarantee, where the chain enforces it, the evidence that it holds, and, just as important, what it **cannot** prevent. A risk system that claims to stop everything is lying. This document says exactly where the edges are.
+This is the soundness argument behind Meckling. For every rule it states the guarantee, where the chain enforces it, the evidence that it holds, and, just as important, what it **cannot** prevent. A risk system that claims to stop everything is lying. This document says exactly where the edges are.
 
 Code references are to `contracts/src`. "Proven" means a Halmos symbolic proof that holds for every input within the stated bounds (`docs/formal.md`). "Fuzzed" means a property test. "Invariant" means one of the eight PRD 7.8 invariants, checked over 16,384 random calls each on every CI run.
 
@@ -26,7 +26,7 @@ Every execute measures the account's state before and after the agent's calls (e
 | Rules can only be tightened, never loosened, and only by the backer. A tightened rule keeps its kind and stays valid. | `MandateRegistry.tightenRule`, `RuleEngine.isTightening` | Invariant 4; **proven** (`tighteningKeepsKindAndValidity`) |
 | After a breach is flagged, or the mandate is ended, the account only accepts reduce-only orders and cancels, permanently. | `closeOnly()`; `_checkOrder(closeOnly)` | Invariant 7 |
 
-**What this means against real incidents.** aixbt (Mar 2025, 55.5 ETH) and Lobstar Wilde (Feb 2026) both lost funds because the agent's key could send them anywhere. A Mandate agent key cannot. See `docs/research.md` for sources.
+**What this means against real incidents.** aixbt (Mar 2025, 55.5 ETH) and Lobstar Wilde (Feb 2026) both lost funds because the agent's key could send them anywhere. A Meckling agent key cannot. See `docs/research.md` for sources.
 
 ## 3. Action rules
 
@@ -85,16 +85,16 @@ Every execute measures the account's state before and after the agent's calls (e
 ## 5. Trust assumptions, stated plainly
 
 - **The arbiter.** An operator can dispute a breach within the window; a designated arbiter resolves it. Whoever holds that role can withdraw a breach, so the payout trusts the arbiter. A decentralised resolution (for example, the oracle guard's evidence alone) is future work.
-- **Perpl.** Equity, positions and marks come from Perpl's own accounting. A Perpl failure or insolvency is outside what Mandate can enforce.
+- **Perpl.** Equity, positions and marks come from Perpl's own accounting. A Perpl failure or insolvency is outside what Meckling can enforce.
 - **The oracle guard.** It trusts Chainlink feeds within a staleness bound and a tolerance band.
 - **The owner's key.** The owner can withdraw when flat and replace the session key. A stolen owner key is game over, as for any wallet. Mera passkeys make that key a device-bound credential instead of a seed phrase.
 - **Unaudited.** The contracts have unit tests, eight invariants, symbolic proofs and fork tests. None of that is an audit.
 
 ## 6. Key lifecycle
 
-The author's Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation) (Demilade Ayeku, Sep 28, 2026), maps seven stages of an agent's signing key against published standards and finds rotation, delegation withdrawal and retirement without a published mechanism. Mandate gives each stage a concrete on-chain answer for one account:
+The author's Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation) (Demilade Ayeku, Sep 28, 2026), maps seven stages of an agent's signing key against published standards and finds rotation, delegation withdrawal and retirement without a published mechanism. Meckling gives each stage a concrete on-chain answer for one account:
 
-| Stage | Mandate |
+| Stage | Meckling |
 |---|---|
 | Created and delegated | The owner sets one session key with an expiry block. Its authority is fixed by the call allow-list and the rules, not by the key. |
 | Used | Every use is checked against the rules inside the transaction and logged on-chain. |
@@ -105,4 +105,4 @@ The author's Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocati
 
 This lines up with the direction Monad states for its next phase: "flexible and upgradeable account authorization" as the top quantum-security priority, and Mera passkey accounts with signing sessions (Keone Hon, ["A world computer worthy of the world's money"](https://x.com/keoneHD/status/2106670836761633202), Oct 4, 2026). Because an agent's authority lives in the account and its rules rather than in the key, the key can change scheme without touching the rules.
 
-**Quantum readiness.** Monad's [post-quantum roadmap](https://monad.xyz/blog/post-quantum-roadmap) (Mohsen Ahmadvand, Sep 28, 2026) makes protecting user funds priority zero, through a Flexible Authentication draft under which an account's "address stays fixed while the credentials that control it can change." `MandateAccount` stores its owner and session key, and `MandateRegistry` its backer, as addresses only. If those accounts add post-quantum credentials under that design, Mandate needs no change: the same addresses keep the same authority over the same rules and bond. What Mandate cannot do is make today's secp256k1 keys quantum-safe; that is the protocol's job, and the draft is not live yet.
+**Quantum readiness.** Monad's [post-quantum roadmap](https://monad.xyz/blog/post-quantum-roadmap) (Mohsen Ahmadvand, Sep 28, 2026) makes protecting user funds priority zero, through a Flexible Authentication draft under which an account's "address stays fixed while the credentials that control it can change." `MandateAccount` stores its owner and session key, and `MandateRegistry` its backer, as addresses only. If those accounts add post-quantum credentials under that design, Meckling needs no change: the same addresses keep the same authority over the same rules and bond. What Meckling cannot do is make today's secp256k1 keys quantum-safe; that is the protocol's job, and the draft is not live yet.

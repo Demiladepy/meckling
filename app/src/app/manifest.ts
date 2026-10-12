@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mandate",
-    short_name: "Mandate",
+    name: "Meckling",
+    short_name: "Meckling",
     description: "Trade on Perpl under rules the chain enforces.",
     start_url: "/",
     scope: "/",

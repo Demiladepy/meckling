@@ -124,8 +124,8 @@ export function MeraProvider({ children }: { children: React.ReactNode }) {
         ({ prfOutput } = await getPasskeyPrfOutput({ rpId: location.hostname, credential: stored }));
       } else {
         const created = await createPasskeyWithPrfOutput({
-          rp: { id: location.hostname, name: "Mandate" },
-          user: { name: "Mandate account", displayName: "Mandate account" },
+          rp: { id: location.hostname, name: "Meckling" },
+          user: { name: "Meckling account", displayName: "Meckling account" },
         });
         saveCredential(created);
         setHasPasskey(true);

@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   const needMon = mon < MON_LOW;
   const needAusd = ausd < AUSD_LOW;
   if (!needMon && !needAusd) {
-    return jsonResponse({ sent: false, message: "This account already has enough to try Mandate." });
+    return jsonResponse({ sent: false, message: "This account already has enough to try Meckling." });
   }
   // Gas for the faucet's own sends, so it never strands itself mid-drip.
   if ((needMon && faucetMon < MON_DRIP + parseEther("0.02")) || (needAusd && (faucetAusd < AUSD_DRIP || faucetMon < parseEther("0.02")))) {

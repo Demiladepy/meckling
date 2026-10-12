@@ -6,8 +6,8 @@ import { inline, parse, type Block } from "@/lib/markdown";
 import s from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Manifesto · Mandate",
-  description: "Spend caps changed how much an agent can move. Mandate changes what it is allowed to do over time.",
+  title: "Manifesto · Meckling",
+  description: "Spend caps changed how much an agent can move. Meckling changes what it is allowed to do over time.",
 };
 
 const sentence = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -41,7 +41,7 @@ export default function ManifestoPage() {
         <div className="atmosphere" aria-hidden />
         <header className={s.head}>
           <p className={s.kicker}>Manifesto</p>
-          <h1 className="display">{title?.kind === "h1" ? sentence(title.text.replace(/^Mandate: /, "")) : "Mandate"}</h1>
+          <h1 className="display">{title?.kind === "h1" ? sentence(title.text.replace(/^Meckling: /, "")) : "Meckling"}</h1>
           <p className={s.byline}>{inline(byline.replace(/^\*|\*$/g, ""))}</p>
           <p className={s.meta}>
             {minutes} min read ·{" "}

@@ -38,7 +38,7 @@ export function HeroFilm() {
           <i />
           <i />
         </span>
-        <span className={s.barTitle}>How Mandate works</span>
+        <span className={s.barTitle}>How Meckling works</span>
         <button type="button" className={s.toggle} onClick={() => setPlaying((p) => !p)} aria-label={playing ? "Pause" : "Play"}>
           {playing ? <PauseIcon /> : <PlayIcon />}
         </button>

@@ -1,24 +1,28 @@
-# Mandate: limits an AI trader cannot break
+# Meckling: limits an AI trader cannot break
 
 *Demilade Ayeku · Monad Metropolis 2026 · Track 01, Onchain Finance & Trading*
 
 ## A letter
 
-I started building Mandate after watching AI agents lose money in public. One was talked into sending away its wallet. One misread a post and sent a stranger a quarter of a million dollars in tokens. In a live contest, frontier models given real money to trade perpetuals lost up to 63% in about two weeks. None of these were exotic attacks. In each case, nothing outside the model said no.
+I started building Meckling after watching AI agents lose money in public. One was talked into sending away its wallet. One misread a post and sent a stranger a quarter of a million dollars in tokens. In a live contest, frontier models given real money to trade perpetuals lost up to 63% in about two weeks. None of these were exotic attacks. In each case, nothing outside the model said no.
 
-The usual answer is a dashboard: watch the agent, get an alert, step in. That asks the person who funded the agent to become a full-time risk desk. I think that is the wrong job to give them. Monad's co-founder put the general version of this well: fair execution should be a property of the infrastructure, because it is unreasonable to expect every user to become an expert before they can trade safely. Mandate applies the same idea to risk.
+The usual answer is a dashboard: watch the agent, get an alert, step in. That asks the person who funded the agent to become a full-time risk desk. I think that is the wrong job to give them. Monad's co-founder put the general version of this well: fair execution should be a property of the infrastructure, because it is unreasonable to expect every user to become an expert before they can trade safely. Meckling applies the same idea to risk.
 
-This paper explains what Mandate guarantees, how it does it on Monad, what it measured, and where it stops. Where an argument has a weak point, the weak point is stated where the argument is made, not in a footnote.
+This paper explains what Meckling guarantees, how it does it on Monad, what it measured, and where it stops. Where an argument has a weak point, the weak point is stated where the argument is made, not in a footnote.
+
+## Why the name
+
+In 1976, Michael Jensen and William Meckling described what it costs to hand someone else control of your money. The owner pays to watch the agent (monitoring costs), and the agent puts something at stake to prove it will behave (bonding costs). Fifty years later the agent is software, but the problem is the same one. Meckling, formerly called Mandate, is named for that paper: it does the monitoring inside every trade, on Monad, and holds the operator's bond until the backer is paid.
 
 ## Thesis
 
-**Spend caps changed how much an agent can move. Mandate changes what it is allowed to do over time.**
+**Spend caps changed how much an agent can move. Meckling changes what it is allowed to do over time.**
 
 A per-transaction limit made sense when a key could do one thing: send one payment. An AI trader opens, adds, closes and flips positions a hundred times a day. The risk is not any single transfer. It is leverage, concentration, the size of a losing streak, and what the agent does right after a loss. Those are properties of an account's state over time, and a spend cap cannot see them.
 
-Mandate checks those properties inside the agent's own transaction, after the trade has been applied and before it is final. A trade that would leave the account outside its rules reverts, and nothing reaches the exchange. A loss the market causes on its own, with no trade at all, is flagged by anyone, re-checked by the chain, and paid back from a bond the operator posted in advance.
+Meckling checks those properties inside the agent's own transaction, after the trade has been applied and before it is final. A trade that would leave the account outside its rules reverts, and nothing reaches the exchange. A loss the market causes on its own, with no trade at all, is flagged by anyone, re-checked by the chain, and paid back from a bond the operator posted in advance.
 
-**The test we hold ourselves to:** if a backer has to watch a dashboard to stay safe, Mandate has failed. The guarantee has to hold while they are asleep. Section 6 reports where we fell short of that test.
+**The test we hold ourselves to:** if a backer has to watch a dashboard to stay safe, Meckling has failed. The guarantee has to hold while they are asleep. Section 6 reports where we fell short of that test.
 
 ## 1. The problem, with sources
 
@@ -49,9 +53,9 @@ Rules come in two kinds:
 - **Action rules** can be enforced before the fact: max leverage, max position per market, allowed markets, an order-rate limit, a cooldown after a loss, and optional price protection.
 - **Market rules** can be broken by prices alone, with no trade: today, the drawdown floor. These cannot be prevented, only detected and insured. Anyone may call `flagBreach`; the contract recomputes the breach from live state, confirms Perpl's prices against independent Chainlink feeds, closes the positions and locks the account to closing only. After a dispute window, the operator's bond pays the backer the loss from peak, capped at the bond.
 
-**The weak point, stated here:** a gap move can jump past the drawdown floor before any check runs. Mandate does not prevent that loss. The bond caps what the backer bears, up to its size; past the bond, the backer bears the rest. A backer should size their trust by the bond, the way a Hyperliquid depositor sizes it by the vault leader's required 5% stake (Hyperliquid docs, "For vault leaders").
+**The weak point, stated here:** a gap move can jump past the drawdown floor before any check runs. Meckling does not prevent that loss. The bond caps what the backer bears, up to its size; past the bond, the backer bears the rest. A backer should size their trust by the bond, the way a Hyperliquid depositor sizes it by the vault leader's required 5% stake (Hyperliquid docs, "For vault leaders").
 
-Limits can also come from evidence: Mandate reads Nansen smart-money flows and positioning, sets a regime per market, and turns it into limits. The report is fingerprinted with keccak256 and the hash is stored on-chain, so anyone can fetch the report and check where each number came from.
+Limits can also come from evidence: Meckling reads Nansen smart-money flows and positioning, sets a regime per market, and turns it into limits. The report is fingerprinted with keccak256 and the hash is stored on-chain, so anyone can fetch the report and check where each number came from.
 
 ## 4. What each rule guarantees
 
@@ -121,12 +125,12 @@ The honest gap is step 3: the arbiter is trusted today, and an arbiter that rule
 - **Enforcement fits inside the trade.** Checking every rule in the agent's own transaction costs about 193k gas and no extra round trip, at 300 ms blocks.
 - **Its storage pricing rewards careful layout,** and we built for it (section 5).
 - **Its direction matches the product.** Monad's next phase names encrypted transactions until the order is final, application-specific sequencing, and private settlement domains with public liquidity ([Keone Hon, Oct 4, 2026](https://x.com/keoneHD/status/2106670836761633202); [Category Labs, Monad Private Settlement](https://www.category.xyz/monad-private-settlement)). A fund in a private domain can't publish its positions, but it can publish its mandate: its limits and breach record stay public and enforced, so "this fund never exceeds 2×" becomes checkable without revealing a position.
-- **A clean record, with the authors' caveat.** A three-year study of sandwich attacks on protected order flow found 28.0M on Solana and attacks on Ethereum, Tron and Base, and none on Arbitrum or Monad ([No Place to Hide, arXiv 2609.28115](https://arxiv.org/abs/2609.28115)). The authors note Monad has been live for less than a year. Mandate is not MEV protection: the encrypted mempool is meant to protect an order before inclusion; Mandate constrains what an agent's included orders can do.
-- **Quantum readiness.** Monad's [post-quantum roadmap](https://monad.xyz/blog/post-quantum-roadmap) puts user funds first, through a draft where an account's address stays fixed while its credentials change. Mandate refers to owner, agent key and backer only by address, so those accounts can move to post-quantum credentials without Mandate changing.
+- **A clean record, with the authors' caveat.** A three-year study of sandwich attacks on protected order flow found 28.0M on Solana and attacks on Ethereum, Tron and Base, and none on Arbitrum or Monad ([No Place to Hide, arXiv 2609.28115](https://arxiv.org/abs/2609.28115)). The authors note Monad has been live for less than a year. Meckling is not MEV protection: the encrypted mempool is meant to protect an order before inclusion; Meckling constrains what an agent's included orders can do.
+- **Quantum readiness.** Monad's [post-quantum roadmap](https://monad.xyz/blog/post-quantum-roadmap) puts user funds first, through a draft where an account's address stays fixed while its credentials change. Meckling refers to owner, agent key and backer only by address, so those accounts can move to post-quantum credentials without Meckling changing.
 
 ## 9. Agent keys
 
-My Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation), found that rotation, delegation withdrawal and retirement of agent keys have no published mechanism. Mandate gives each an on-chain answer for one account: a session key with an expiry block, replaced in one transaction (the old key stops working in the same block, tested), revocable by the owner or operator, with its blast radius bounded by the rules.
+My Ledger N3xt paper, ["The Agent Key Lifecycle: Rotation and Revocation"](https://www.ledger.com/academy/series/n3xt/research-agent-key-lifecycle-rotation-revocation), found that rotation, delegation withdrawal and retirement of agent keys have no published mechanism. Meckling gives each an on-chain answer for one account: a session key with an expiry block, replaced in one transaction (the old key stops working in the same block, tested), revocable by the owner or operator, with its blast radius bounded by the rules.
 
 ## Appendix A: the math
 
@@ -143,7 +147,7 @@ All amounts are in collateral base units; bps are basis points (1/10,000).
 ## Appendix B: references
 
 - Securities and Exchange Commission, Rule 15c3-5 (Market Access Rule), adopted 2010; Knight Capital settlement, Oct 16, 2013.
-- M. C. Jensen and W. H. Meckling, "Theory of the Firm: Managerial Behavior, Agency Costs and Ownership Structure", *Journal of Financial Economics*, 1976. Monitoring and bonding costs; Mandate is both, enforced by a contract.
+- M. C. Jensen and W. H. Meckling, "Theory of the Firm: Managerial Behavior, Agency Costs and Ownership Structure", *Journal of Financial Economics*, 1976. Monitoring and bonding costs; Meckling is both, enforced by a contract.
 - Incident sources: Cointelegraph and Decrypt on aixbt (Mar 18, 2025); AI Incident Database #1003; Cointelegraph on Lobstar Wilde (Feb 22, 2026); nof1.ai Alpha Arena Season 1.
 - Hyperliquid docs, vault leaders' 5% requirement. Numerai docs, staking and payouts.
 - Coinbase Developer Platform, Spend Permissions.
