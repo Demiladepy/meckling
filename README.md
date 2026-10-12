@@ -10,7 +10,7 @@
 
 Meckling is a risk-enforcement layer for AI trading agents on Monad. The agent trades through an account that checks its limits inside every transaction, so a trade that breaks a rule never happens. The agent's key can trade but can never move money out. And when the market alone breaks a limit, the operator's bond pays the backer back.
 
-[**Live app**](https://mandate-rose.vercel.app) &nbsp;·&nbsp; [Earlier demo (Sep 27)](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp; [**Read the manifesto**](https://mandate-rose.vercel.app/manifesto) &nbsp;·&nbsp; [What each rule guarantees, and what it can't](docs/rules-spec.md) &nbsp;·&nbsp; [Postmortem](docs/postmortem.md)
+[**Live app**](https://meckling.vercel.app) &nbsp;·&nbsp; [Earlier demo (Sep 27)](https://youtu.be/cfVk2hWKUEA) &nbsp;·&nbsp; [**Read the manifesto**](https://meckling.vercel.app/manifesto) &nbsp;·&nbsp; [What each rule guarantees, and what it can't](docs/rules-spec.md) &nbsp;·&nbsp; [Postmortem](docs/postmortem.md)
 
 [![Meckling, earlier demo, Sep 27](https://img.youtube.com/vi/cfVk2hWKUEA/hqdefault.jpg)](https://youtu.be/cfVk2hWKUEA)
 
@@ -67,8 +67,8 @@ The full argument, rule by rule, is in [`docs/rules-spec.md`](docs/rules-spec.md
 
 | | |
 |---|---|
-| **A live Claude agent** | Account [`0xB70a…64C3`](https://mandate-rose.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3): 8 rules from a fresh Nansen report (smart money ~77% net short BTC and ETH, so risk-off and 1.5× max) plus 1% price protection, a $50 operator bond. Claude (`claude-sonnet-5-5`) opened a $100 BTC short and an $80 ETH short through every rule, then held at 0.89× because there was no new signal. |
-| **A breach paid** | On account [`0xc7Eb…a30B`](https://mandate-rose.vercel.app/agents/0xc7Eb03EDfafF6062fE756f53e7B021B495fCa30B), a BTC long fell 0.98% from its peak, past a drawdown floor its backer had tightened to 0.01%. The keeper flagged it 17 blocks after it first saw the breach (its polling had paused for hours, so the loss grew while nobody watched; see the postmortem), the account closed out, and the bond paid the backer **0.989276 AUSD**, the exact loss from peak (slash tx `0xd6f8bd6d…81dc`). |
+| **A live Claude agent** | Account [`0xB70a…64C3`](https://meckling.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3): 8 rules from a fresh Nansen report (smart money ~77% net short BTC and ETH, so risk-off and 1.5× max) plus 1% price protection, a $50 operator bond. Claude (`claude-sonnet-5-5`) opened a $100 BTC short and an $80 ETH short through every rule, then held at 0.89× because there was no new signal. |
+| **A breach paid** | On account [`0xc7Eb…a30B`](https://meckling.vercel.app/agents/0xc7Eb03EDfafF6062fE756f53e7B021B495fCa30B), a BTC long fell 0.98% from its peak, past a drawdown floor its backer had tightened to 0.01%. The keeper flagged it 17 blocks after it first saw the breach (its polling had paused for hours, so the loss grew while nobody watched; see the postmortem), the account closed out, and the bond paid the backer **0.989276 AUSD**, the exact loss from peak (slash tx `0xd6f8bd6d…81dc`). |
 | **No false flag** | A staged breach recovered before the CRE workflow ran; the workflow checked the account and correctly took no action. |
 
 The first deployment (Sep 23–29, addresses below), checkable on-chain:
@@ -131,7 +131,7 @@ Monad co-founder Keone Hon describes the next phase with "fair execution should 
 
 ## Try it (judges)
 
-1. Open the [live app](https://mandate-rose.vercel.app) and sign in with a passkey. Nothing to install.
+1. Open the [live app](https://meckling.vercel.app) and sign in with a passkey. Nothing to install.
 2. Tap **Get test funds**: the faucet sends test MON and AUSD to your new account (rate-limited). *The faucet switches on with the next deploy, planned for Oct 5.*
 3. Go to **Trade**, set your own limits, and try a trade over them. It reverts on-chain.
 
