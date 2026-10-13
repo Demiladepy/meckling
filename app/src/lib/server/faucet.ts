@@ -5,8 +5,10 @@ import { parseEther } from "viem";
 import { NETWORK } from "@/lib/server/env";
 
 /** How much one drip sends, and the balances below which a wallet counts as short. */
-export const MON_DRIP = parseEther(process.env.FAUCET_MON || "0.25");
-export const MON_LOW = parseEther("0.1");
+/** Onboarding (create the account, write the rules, open Perpl, two trades) takes about 5M gas, about 0.6 MON on
+ *  Monad, and the account creation alone needs about 0.4 MON up front because Monad charges the whole gas limit. */
+export const MON_DRIP = parseEther(process.env.FAUCET_MON || "0.8");
+export const MON_LOW = parseEther("0.6");
 export const AUSD_DRIP = BigInt(Math.round(Number(process.env.FAUCET_AUSD || "150") * 1e6));
 /** Perpl's minimum to open an account on testnet (getMinAccountOpenCNS, docs/spikes.md S1). */
 export const AUSD_LOW = 100_000_000n;
