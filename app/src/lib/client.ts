@@ -20,7 +20,8 @@ export interface AppConfig {
   rpcUrl: string;
   markets: MarketInfo[];
   deployment: Deployment | null;
-  agent: { operator: Address; sessionKey: Address };
+  /** Null on a real network when the deployment has no agent configured (see lib/server/env.ts). */
+  agent: { operator: Address | null; sessionKey: Address | null };
   devFaucet: boolean;
   /** Testnet judge faucet is available (api/faucet). */
   faucet?: boolean;

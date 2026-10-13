@@ -9,7 +9,7 @@ export const net = loadNetwork(NETWORK);
 
 /**
  * Repo-level data/ shared with the agent locally. On Vercel the filesystem is read-only except /tmp,
- * so reports land there (plus an in-memory cache — see reportsStore).
+ * so reports land there (plus an in-memory cache: see reportsStore).
  */
 export const DATA_DIR =
   process.env.DATA_DIR ||
@@ -22,10 +22,15 @@ export const pub = createPublicClient({
   transport: http(net.rpcUrl, { batch: { wait: 20 }, retryCount: 3, retryDelay: 250, timeout: 20_000 }),
 }) as PublicClient;
 
-/** The agent this deployment offers to backers: its operator and session key addresses. */
+/**
+ * The agent this deployment offers to backers: its operator and session key addresses. The fallbacks are Anvil's
+ * well-known test accounts, whose private keys are public, so they apply on a local fork only. On a real network a
+ * missing setting is null and the app refuses to create a mandate, rather than handing trading rights to a public key.
+ */
+const ANVIL_DEFAULT = NETWORK === "local";
 export const AGENT = {
-  operator: (process.env.AGENT_OPERATOR_ADDRESS || "0x90F79bf6EB2c4f870365E785982E1f101E93b906") as Address,
-  sessionKey: (process.env.AGENT_SESSION_ADDRESS || "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC") as Address,
+  operator: (process.env.AGENT_OPERATOR_ADDRESS || (ANVIL_DEFAULT ? "0x90F79bf6EB2c4f870365E785982E1f101E93b906" : null)) as Address | null,
+  sessionKey: (process.env.AGENT_SESSION_ADDRESS || (ANVIL_DEFAULT ? "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC" : null)) as Address | null,
 };
 
 export function deployment() {

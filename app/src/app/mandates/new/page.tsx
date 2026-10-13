@@ -79,6 +79,8 @@ export default function CreateMandate() {
     setError(undefined);
     const dep = cfg.deployment;
     try {
+      const { operator, sessionKey } = cfg.agent;
+      if (!operator || !sessionKey) throw new Error("This deployment has no agent configured, so there is no one to back yet.");
       const account = mera.account ?? (await mera.signIn());
       if (!account) return;
       if (cfg.devFaucet) {
@@ -94,9 +96,9 @@ export default function CreateMandate() {
         address: dep.mandateAccountFactory,
         abi: mandateAccountFactoryAbi,
         functionName: "predictAddress",
-        args: [account.address, cfg.agent.operator, salt],
+        args: [account.address, operator, salt],
       })) as Address;
-      txs.push((await sendTight(pub, wallet, { address: dep.mandateAccountFactory, abi: mandateAccountFactoryAbi, functionName: "createAccount", args: [cfg.agent.operator, salt] })).hash);
+      txs.push((await sendTight(pub, wallet, { address: dep.mandateAccountFactory, abi: mandateAccountFactoryAbi, functionName: "createAccount", args: [operator, salt] })).hash);
 
       setPhase({ kind: "working", step: "Writing the mandate on-chain" });
       txs.push(
@@ -119,7 +121,7 @@ export default function CreateMandate() {
 
       setPhase({ kind: "working", step: "Giving the agent its trading key" });
       const head = await pub.getBlockNumber();
-      txs.push((await sendTight(pub, wallet, { address: predicted, abi: mandateAccountAbi, functionName: "setSessionKey", args: [cfg.agent.sessionKey, head + SESSION_KEY_BLOCKS] })).hash);
+      txs.push((await sendTight(pub, wallet, { address: predicted, abi: mandateAccountAbi, functionName: "setSessionKey", args: [sessionKey, head + SESSION_KEY_BLOCKS] })).hash);
 
       setPhase({ kind: "approved", account: predicted, mandateId, txs, onChainReportHash: mandate.reportHash });
     } catch (e) {

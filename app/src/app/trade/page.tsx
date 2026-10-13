@@ -588,11 +588,14 @@ function Trade({
         </section>
       )}
       <section className={`card ${s.balance}`}>
-        <p className={s.balanceLabel}>Your balance</p>
-        <p className={s.balanceValue}>{view ? usd(cnsToUsd(view.equity)) : "$0.00"}</p>
+        <p className={s.balanceLabel}>Trading account balance</p>
+        <p className={s.balanceValue}>
+          {view ? cnsToUsd(view.equity).toFixed(2) : "0.00"} <span className={s.unit}>AUSD</span>
+        </p>
         <p className="body-secondary">
+          Wallet: {view ? cnsToUsd(view.walletAusd).toFixed(2) : "0.00"} AUSD ·{" "}
           <span className="onchain">{shortAddr(account)}</span>
-          {view && view.notional > 0n ? ` · ${usd(cnsToUsd(view.notional))} open` : ""}
+          {view && view.notional > 0n ? ` · ${usd(cnsToUsd(view.notional))} open on Perpl` : ""}
         </p>
         {addable > 0 && (
           <button className={s.secondary} onClick={() => onFund(addable)} disabled={working}>

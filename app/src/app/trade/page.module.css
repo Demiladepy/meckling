@@ -346,3 +346,10 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+
+.unit {
+  font-size: 0.45em;
+  font-weight: 800;
+  color: var(--graphite);
+  letter-spacing: 0;
+}
