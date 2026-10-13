@@ -171,7 +171,7 @@ export default function Home() {
           </nav>
           <p className={s.footerNote}>
             Built for Monad Metropolis 2026 · Running on Monad testnet with test AUSD ·{" "}
-            <a href="https://github.com/Demiladepy/mandate">Source</a>
+            <a href="https://github.com/Demiladepy/meckling">Source</a>
           </p>
         </div>
       </footer>

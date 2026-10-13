@@ -1,7 +1,7 @@
 # Metropolis submission kit
 
 Everything for the form, in the order it asks. Copy, then edit into your own words where it says so.
-Live app: **https://meckling.vercel.app** · Code: **https://github.com/Demiladepy/mandate** · Paper: **https://meckling.vercel.app/manifesto**
+Live app: **https://meckling.vercel.app** · Code: **https://github.com/Demiladepy/meckling** · Paper: **https://meckling.vercel.app/manifesto**
 
 ## The next 16 hours, in order
 
@@ -56,13 +56,23 @@ Video: the phone demo below.
 
 ### Perpl: trading bot
 
-> The bot is a Claude agent that trades Perpl perpetuals through a Meckling account. It reads a Nansen-based underwriting report, proposes an order, and every order passes eight on-chain rules before it reaches Perpl. Live agent: https://meckling.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3 (two real fills: a $100 BTC short and an $80 ETH short, then holds when there is no new signal). Code: https://github.com/Demiladepy/mandate/tree/main/services/agent
+**The link field takes the bare URL only.** Paste: `https://meckling.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3`
+
+> The bot is a Claude agent that trades Perpl perpetuals through a Meckling account. It reads a Nansen-based underwriting report, proposes an order, and every order passes eight on-chain rules before it reaches Perpl. Live agent: https://meckling.vercel.app/agents/0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3 (two real fills: a $100 BTC short and an $80 ETH short, then holds when there is no new signal). Code: https://github.com/Demiladepy/meckling/tree/main/services/agent
 
 ### Nansen
 
 Be exact here: we use the **API endpoints**, not the MCP tools or the CLI.
 
 > Meckling turns Nansen data into limits a smart contract enforces. When a backer chooses markets, the underwriter calls four Nansen API endpoints: `/smart-money/netflow`, `/tgm/holders`, `/tgm/perp-positions` and `/smart-money/pnl-leaderboard`. It scores each market's regime (risk-on, neutral, risk-off) and sets leverage, position size, cooldown and a drawdown floor from it, with the reason for every limit shown. The full report is hashed (keccak256) and the hash is written on-chain with the mandate, so anyone can recompute it in the browser. The agent then reasons from the same report. We use the API endpoints only, not the MCP tools or the CLI.
+
+### Envio: best use of HyperIndex
+
+> Monad full nodes don't serve historical state, so without an indexer Meckling could show what an account holds right now but not its track record, which is the thing a backer judges an agent by. Meckling's Envio HyperIndex indexer is what makes track records possible. It listens to 19 events across the registry, the account factory, every trading account and the bond vault. It discovers each new trading account the moment the factory creates it, with a dynamic `contractRegister` on `AccountCreated`, so accounts created by users from the app are indexed with no config change. It builds eight entities: Account, Mandate, Rule, Execution, Violation, EquityPoint, Breach and Bond.
+>
+> The app reads them through the GraphQL endpoint (`/api/accounts/[account]/history`) to drive real features: each agent's track record (executions, blocked attempts, breaches, return and max drawdown), its equity curve against its peak, the list of trades the chain refused, and each breach's timeline from flag to payout. On the live site today it serves the Claude agent's 3 executions and equity curve and the paid breach. Deployed on Envio's hosted service from the `envio` branch, synced to the chain head: https://indexer.dev.hyperindex.xyz/c045c00/v1/graphql
+
+Video (optional): reuse the technical demo, or a 1-minute clip of an agent's page and its Risk page, then the same query in the GraphQL endpoint.
 
 ### Chainlink CRE
 
@@ -79,6 +89,30 @@ Video: the Mera clip below.
 **Remove this bounty** unless your community group is on the onboarded list. Nothing in the build can substitute for that.
 
 ---
+
+## Which videos you need
+
+| Video | Required | Length | What it is |
+|---|---|---|---|
+| Pitch | yes | about 2 min | The treatment below |
+| Technical demo | yes | up to 3 min | Web walk-through (script below) |
+| Agora | yes | up to 2 min | The phone demo |
+| Chainlink CRE | yes | up to 2 min | The terminal simulation |
+| Perpl | yes | up to 2 min | The agent running, plus its fills (below) |
+| Envio | optional | up to 2 min | Reuse the technical demo |
+| Mera (One Passkey, Many Keys) | optional | up to 2 min | Skip unless you have time |
+
+That is five recordings, and three of them are screen recordings.
+
+### Perpl clip
+
+On your laptop, in the repo, start a screen recording, then run:
+
+```bash
+NETWORK=testnet MANDATE_ACCOUNT=0xB70a5C4A6af38Acc1a69bAf34224ED22e8B964C3 LLM_PROVIDER=claude CLAUDE_MODEL=claude-sonnet-5-5 AGENT_LOOP_BLOCKS=60 AGENT_MAX_ROUNDS=3 AGENT_VENUE_LEVERAGE=3 AGENT_SLIPPAGE_BPS=50 pnpm --filter agent start
+```
+
+Narrate what the agent decides. It may hold, since it already has positions; that is its rule-following, not a failure. Then open the agent page and show its two Perpl fills and their transaction hashes. "Every order this bot sends passes eight rules on Monad before Perpl sees it."
 
 ## Video scripts
 
@@ -128,17 +162,37 @@ Press Enter when it says "Press Enter to skip waiting". It prints `Workflow Simu
 3. Send me the account address. I'll run the Claude agent on it for a few decisions.
 4. Its new reasoning shows as private. Tap **Unlock with passkey**: it decrypts. "Only my passkey can read what the agent was thinking."
 
-### Pitch (in the car, about 2 minutes)
+### Pitch: "The seatbelt" (a treatment, about 2 minutes)
 
-In your own words; these are beats, not lines to read.
+**The idea.** Shoot it in your car, and make the car the metaphor. Nobody thinks a seatbelt makes them a worse driver; it is what lets you drive fast. Monad is the fast car (a block every 300 ms). AI agents are now driving people's money. Meckling is the seatbelt, and the bond is the insurance. The car gives you the setting, the metaphor and the one image judges will remember: the click of a seatbelt.
 
-1. **Who you are** (10s). Your name, where you're building from, and that you build at the edge of AI and finance.
-2. **The problem** (25s). Agents with money keep failing the same way: aixbt sent away 55 ETH, an agent sent a stranger a quarter of a million in tokens, frontier models lost up to 63% trading perps. Nothing outside the model said no.
-3. **The insight** (20s). Spend caps limit how much an agent can move; the real risk is what it does over time. And the fix is fifty years old: Jensen and Meckling showed that when you hand someone your money, you pay to watch them or they post a bond. That's why it's called Meckling.
-4. **How you got here** (30s). Be specific and honest: you read SEC Rule 15c3-5 and the Knight Capital case, studied what Monad's team is building (Keone's post on fair execution as a property of the infrastructure, the post-quantum roadmap, private settlement), read the mentors' feedback and rebuilt around it, and threw away claims you couldn't verify.
-5. **Proof** (20s). Live on Monad testnet: a Claude agent trading under eight on-chain rules, two breaches paid from a bond, eight formal proofs, gas measured on Monad.
-6. **Where it goes** (15s). From self-traders and agent builders to institutions that need pre-trade controls their allocators can verify, without revealing positions.
-7. **Close** (5s). "Meckling. AI traders that can't break your rules."
+**Why it suits you.** You talk on camera for only about 30 seconds in total. Everything else is voice-over over close-ups and screen recordings, so your mouth is rarely the focus, and you can re-record any line until it is right.
+
+**Setup**
+- Park in daylight, engine off (a parked car is a quiet room and a good place to record voice).
+- Camera A: your phone on the dashboard or the passenger headrest, at a three-quarter angle, not straight on. Eyes slightly off the lens, as if talking to a passenger.
+- Camera B: a second phone, or the same one later, for close-ups: your hand, the seatbelt, the ignition, the dashboard.
+- Record the voice-over separately: phone 20 cm from your mouth, in the parked car, each line three times.
+- Edit in CapCut (free): auto-captions, simple white text cards in Montserrat Bold, no music for the first 5 seconds, then something low and steady.
+
+**The shots and the words**
+
+| Time | Picture | Sound |
+|---|---|---|
+| 0:00 | Black. Then a close-up: your hand pulls the seatbelt across and clicks it. | The click, and silence. |
+| 0:04 | Text card: "Nobody buckles up because they plan to crash." | Silence. |
+| 0:08 | Camera A, you. | **On camera:** "I'm Demilade. I build at the edge of AI and money, and I keep seeing the same crash." |
+| 0:16 | Screenshots, one per beat: aixbt, Lobstar Wilde, Alpha Arena. | **Voice-over:** "An AI agent was tricked into sending away 55 ETH. Another sent a stranger a quarter of a million dollars in tokens. Frontier models given real money to trade lost up to 63 percent in two weeks. Nothing outside the model said no." |
+| 0:34 | Close-up: hands on the wheel, then the empty passenger seat. | **VO:** "We're handing AI agents the keys to our money, and the car has no seatbelt." |
+| 0:42 | Text card: "1976. Jensen & Meckling." Then: "Watch the agent, or make it post a bond." | **VO:** "Economists solved this fifty years ago. When you hand someone your money, you either pay to watch them, or they put something at stake. I built both into the chain, and named it after the paper." |
+| 0:58 | Screen recording: the agent proposes 12x, the chain blocks it. | **VO:** "Meckling checks an agent's limits inside every trade. Twelve times leverage against a one-and-a-half limit: refused, on Monad, before the exchange ever sees it." |
+| 1:10 | Screen recording: the breach page, "Bond paid 0.989276 AUSD". | **VO:** "And when the market breaks a rule on its own, the operator's bond pays you back. To the cent." |
+| 1:20 | Close-up: the speedometer, or the dashboard lights. | **VO:** "Monad makes a block every 300 milliseconds. Faster cars need better brakes." |
+| 1:28 | Fast montage: the manifesto scrolling, the research doc, the green CI run, Keone's post. | **VO:** "I read the SEC's pre-trade rule written after Knight Capital lost 460 million dollars in 45 minutes. I read everything Monad's team published. I checked every claim, and threw out the ones that didn't hold. Eight rule properties are proven for every input." |
+| 1:45 | Camera A, you. | **On camera:** "This starts with traders and AI agents. It ends with institutions that need limits their investors can verify, without showing a single position." |
+| 1:55 | Close-up: your hand unclicks the seatbelt. Cut to the logo. Text: "Meckling. AI traders that can't break your rules." | The click. Silence. |
+
+**Rules for the edit:** never more than four seconds on one shot; every number on screen as text when you say it; end on silence, not music.
 
 ---
 
@@ -161,7 +215,11 @@ Send them this:
 
 ---
 
-## The custom domain (optional, only if bought in the next hour)
+## The custom domain
+
+Skipped for the submission: registrars wanted ID checks the deadline didn't allow. `meckling.vercel.app` is the address. Buy `meckling.xyz` after the hackathon.
+
+## (Old notes) The custom domain
 
 `meckling.xyz` is free: $2.04 for the first year at Porkbun, $14.21 to renew.
 

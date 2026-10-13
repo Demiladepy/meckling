@@ -158,4 +158,4 @@ All amounts are in collateral base units; bps are basis points (1/10,000).
 - Monad docs, opcode pricing (MIP-8 storage pages).
 - D. Ayeku, "The Agent Key Lifecycle: Rotation and Revocation", Ledger N3xt, Sep 28, 2026.
 
-Code, tests and every number above: [github.com/Demiladepy/mandate](https://github.com/Demiladepy/mandate). Checked claims and rejected ones: [`research.md`](research.md).
+Code, tests and every number above: [github.com/Demiladepy/meckling](https://github.com/Demiladepy/meckling). Checked claims and rejected ones: [`research.md`](research.md).

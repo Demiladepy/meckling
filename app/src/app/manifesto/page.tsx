@@ -45,7 +45,7 @@ export default function ManifestoPage() {
           <p className={s.byline}>{inline(byline.replace(/^\*|\*$/g, ""))}</p>
           <p className={s.meta}>
             {minutes} min read ·{" "}
-            <a href="https://github.com/Demiladepy/mandate/blob/main/docs/paper.md" target="_blank" rel="noreferrer">
+            <a href="https://github.com/Demiladepy/meckling/blob/main/docs/paper.md" target="_blank" rel="noreferrer">
               Read on GitHub
             </a>{" "}
             · <Link href="/trade">Try it</Link>

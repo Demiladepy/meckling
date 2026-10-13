@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
  * output is ordinary JSX the page can style.
  */
 
-const REPO = "https://github.com/Demiladepy/mandate/blob/main/docs/";
+const REPO = "https://github.com/Demiladepy/meckling/blob/main/docs/";
 
 export type Block =
   | { kind: "h1" | "h2"; text: string; id: string }

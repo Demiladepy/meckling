@@ -4,7 +4,7 @@
 
 *Formerly Mandate. Named for Jensen & Meckling (1976): when you hand an agent your money, you pay to watch it, or it posts a bond. Meckling does both, enforced on Monad.*
 
-[![ci](https://github.com/Demiladepy/mandate/actions/workflows/ci.yml/badge.svg)](https://github.com/Demiladepy/mandate/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Monad testnet](https://img.shields.io/badge/Monad-testnet-836EF9) ![proofs: Halmos](https://img.shields.io/badge/proofs-Halmos%208%2F8-success)
+[![ci](https://github.com/Demiladepy/meckling/actions/workflows/ci.yml/badge.svg)](https://github.com/Demiladepy/meckling/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Monad testnet](https://img.shields.io/badge/Monad-testnet-836EF9) ![proofs: Halmos](https://img.shields.io/badge/proofs-Halmos%208%2F8-success)
 
 > Risk control should be a property of the infrastructure. It is unreasonable to expect everyone who funds an agent to become an expert in monitoring it.
 
@@ -192,7 +192,7 @@ docs/               Spec, rule guarantees, proofs, benchmarks, research, postmor
 Requirements: Node 22+, pnpm 10, Foundry, and a Nansen API key.
 
 ```bash
-git clone --recurse-submodules https://github.com/Demiladepy/mandate.git
+git clone --recurse-submodules https://github.com/Demiladepy/meckling.git
 cd mandate
 cp .env.example .env        # add NANSEN_API_KEY, and a Monad testnet RPC if you have one
 pnpm install
