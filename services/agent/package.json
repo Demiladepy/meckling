@@ -10,7 +10,8 @@
     "fork:sync": "node --env-file-if-exists=../../.env --experimental-strip-types src/fork-sync.ts",
     "setup:network": "node --env-file-if-exists=../../.env --experimental-strip-types src/setup-network.ts",
     "stage:breach": "node --env-file-if-exists=../../.env --experimental-strip-types src/stage-breach.ts",
-    "measure:gas": "node --env-file-if-exists=../../.env --experimental-strip-types src/measure-gas.ts"
+    "measure:gas": "node --env-file-if-exists=../../.env --experimental-strip-types src/measure-gas.ts",
+    "smoke:trade": "node --env-file-if-exists=../../.env --experimental-strip-types src/smoke-trade.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
