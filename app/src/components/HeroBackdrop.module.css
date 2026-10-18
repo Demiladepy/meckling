@@ -1,4 +1,5 @@
-/* Light hero backdrop. The chart is decoration: it fades out behind the headline so the text always reads. */
+/* Light hero backdrop: one price line on a chart grid. Decoration only; it dims behind the headline so the text
+   always reads, and fades out toward the film at the bottom. */
 
 .backdrop {
   position: absolute;
@@ -7,79 +8,177 @@
   pointer-events: none;
 }
 
-.dots {
+/* The chart covers the first screen only; below it the band is plain, behind the film. */
+.stage {
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(11, 11, 11, 0.12) 1.2px, transparent 1.4px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(70% 80% at 50% 40%, transparent 30%, #000 85%);
-  -webkit-mask-image: radial-gradient(70% 80% at 50% 40%, transparent 30%, #000 85%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: clamp(420px, 44.5vw, 700px);
 }
 
 .chart {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
-  /* The chart's own proportions, pinned to the first screen; the band below it is plain grey. */
-  height: auto;
-  aspect-ratio: 1440 / 640;
-  /* Fade toward the film at the bottom and toward the headline column. */
-  mask-image: linear-gradient(90deg, #000 23%, transparent 29%, transparent 71%, #000 77%),
-    linear-gradient(180deg, #000 70%, transparent 100%);
+  height: 100%;
+  mask-image:
+    linear-gradient(
+      90deg,
+      #000 18%,
+      rgba(0, 0, 0, 0.18) 34%,
+      rgba(0, 0, 0, 0.18) 66%,
+      #000 82%
+    ),
+    linear-gradient(180deg, #000 72%, transparent 100%);
   mask-composite: intersect;
-  -webkit-mask-image: linear-gradient(90deg, #000 23%, transparent 29%, transparent 71%, #000 77%),
-    linear-gradient(180deg, #000 70%, transparent 100%);
+  -webkit-mask-image:
+    linear-gradient(
+      90deg,
+      #000 18%,
+      rgba(0, 0, 0, 0.18) 34%,
+      rgba(0, 0, 0, 0.18) 66%,
+      #000 82%
+    ),
+    linear-gradient(180deg, #000 72%, transparent 100%);
   -webkit-mask-composite: source-in;
 }
 
-.wick {
-  stroke-width: 2;
+.grid {
+  stroke: rgba(11, 11, 11, 0.07);
+  stroke-width: 1;
 }
 
-.up rect,
-.up .wick {
-  fill: #2f9e78;
+/* What happened: the price, never above the limit. Drawn once, left to right. */
+.line {
+  fill: none;
   stroke: #2f9e78;
-  opacity: 0.7;
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+  animation: draw 1.8s cubic-bezier(0.33, 0, 0.2, 1) both;
 }
 
-.down rect,
-.down .wick {
-  fill: #a9b0b8;
-  stroke: #a9b0b8;
-  opacity: 0.8;
+.area {
+  animation: appear 1.2s ease-out 0.8s both;
 }
 
-/* A candle that reached the limit: cut off at the line, capped in ember. */
-.blocked rect,
-.blocked .wick {
-  fill: #2f9e78;
-  stroke: #2f9e78;
-  opacity: 0.55;
-}
-
-.blocked .stop {
-  fill: #f0703c;
-  stroke: none;
-  opacity: 0.95;
+/* What the agent tried: the part above the limit stays as a ghost. */
+.tried {
+  fill: none;
+  stroke: rgba(11, 11, 11, 0.36);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 5;
+  animation: appear 0.8s ease-out 1.4s both;
 }
 
 .limit {
   stroke: #f0703c;
-  stroke-width: 2;
-  stroke-dasharray: 10 8;
+  stroke-width: 1.5;
+  stroke-dasharray: 8 6;
 }
 
-.limitText {
-  fill: #e4612c;
-  font-size: 15px;
-  font-weight: 800;
+.refused {
+  stroke: #f0703c;
+  stroke-width: 3;
+  stroke-linecap: round;
+  animation: appear 0.4s ease-out 1.7s both;
 }
 
-/* On a phone the flanks would sit behind the headline: keep only the dot texture there. */
+/* The latest price, breathing. */
+.now {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: #2f9e78;
+  box-shadow: 0 0 0 0 rgba(47, 158, 120, 0.45);
+  animation:
+    appear 0.3s ease-out 1.8s both,
+    pulse 2.4s ease-out 2.1s infinite;
+}
+
+.axis span {
+  position: absolute;
+  right: 20px;
+  transform: translateY(-130%);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: rgba(11, 11, 11, 0.38);
+}
+
+.limitTag,
+.refusedTag {
+  position: absolute;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.limitTag {
+  left: 20px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f0703c;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+.refusedTag {
+  margin-top: -24px;
+  transform: translate(-50%, -50%);
+  color: #d9582a;
+  animation: appear 0.4s ease-out 1.9s both;
+}
+
+@keyframes draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 10px rgba(47, 158, 120, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(47, 158, 120, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .area,
+  .tried,
+  .refused,
+  .now,
+  .refusedTag {
+    animation: none;
+  }
+}
+
+/* On a phone the headline covers the chart: keep a quiet line and limit, drop the labels. */
 @media (max-width: 760px) {
-  .chart {
+  .axis,
+  .limitTag,
+  .refusedTag,
+  .now {
     display: none;
+  }
+
+  .chart {
+    opacity: 0.45;
   }
 }
