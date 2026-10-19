@@ -2,6 +2,7 @@
 // (the app runs on Vercel and never sees this machine's disk). Keys are shared with app/src/lib/server/records.ts.
 import { Redis } from "@upstash/redis";
 import { hexToBytes, isHex, type Address } from "viem";
+import { sealRecord } from "@mandate/common";
 
 export const logKey = (account: Address) => `agent:log:${account.toLowerCase()}`;
 /** The backer's memory public key for this agent (D13), registered from the app after a signed check. */
@@ -37,4 +38,12 @@ export function recordSink(env: NodeJS.ProcessEnv, account: Address): RecordSink
       return key;
     },
   };
+}
+
+/**
+ * The copy of a record the public app gets. With no memory key it is the record as logged. When the backer made
+ * reasoning private (D13), the reasoning is sealed to their key and the public copy keeps only the verdict.
+ */
+export function publicRecord<T extends { reasoning: string }>(rec: T, memoryKey: Uint8Array | undefined) {
+  return memoryKey ? { ...rec, reasoning: "", sealed: sealRecord(memoryKey, rec.reasoning) } : rec;
 }

@@ -25,7 +25,6 @@ import {
   readMonitors,
   readRules,
   revertData,
-  sealRecord,
   shortError,
   slippageWithinCollar,
   usdToLots,
@@ -37,7 +36,7 @@ import {
   type SealedRecord,
 } from "@mandate/common";
 import type { Decision, DecisionContext, DecisionProvider } from "./decision.ts";
-import type { RecordSink } from "./records.ts";
+import { publicRecord, type RecordSink } from "./records.ts";
 
 export interface AgentConfig {
   net: NetworkConfig;
@@ -313,9 +312,18 @@ export class AgentRuntime {
     });
   }
 
-  private log(rec: LogRecord) {
+  private async log(rec: LogRecord) {
     mkdirSync(dirname(this.cfg.logPath), { recursive: true });
     appendFileSync(this.cfg.logPath, `${JSON.stringify(rec)}\n`);
+    // The public app runs on Vercel and can't read this disk: publish the record (sealed, if the backer asked) so the
+    // agent's screen shows live reasoning. A failed publish never stops the agent.
+    if (this.cfg.sink) {
+      try {
+        await this.cfg.sink.publish(publicRecord(rec, await this.cfg.sink.memoryKey()));
+      } catch (err) {
+        console.log(`  publish failed: ${err instanceof Error ? err.message.split("\n")[0] : String(err)}`);
+      }
+    }
     const tag = rec.result === "blocked" ? "BLOCKED" : rec.result === "no-fill" ? "NO FILL" : rec.result.toUpperCase();
     console.log(`[block ${rec.block}] ${tag} ${rec.intent.action} ${rec.intent.market} $${rec.intent.size_usd}, ${rec.reasoning}`);
     if (rec.violation) console.log(`  ${rec.violation.message}`);

@@ -39,9 +39,10 @@ case "$(uname -s)" in
 esac
 step "typecheck"
 pnpm typecheck
-step "common + underwriter tests"
+step "common, underwriter and agent tests"
 pnpm --filter @mandate/common test
 pnpm --filter underwriter test
+pnpm --filter agent test
 step "app build"
 pnpm --filter app build >/dev/null
 
