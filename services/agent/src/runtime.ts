@@ -77,6 +77,9 @@ export interface LogRecord {
 
 /** A reverting execute costs gas on Monad (charged on the limit), so demo sends use this fixed, tight limit. */
 const DEMO_REVERT_GAS = 1_500_000n;
+/** How long to wait after a network error before trying again. */
+const RETRY_MS = 15_000;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export class AgentRuntime {
   readonly pub: PublicClient;
@@ -113,14 +116,22 @@ export class AgentRuntime {
     let rounds = 0;
     let next = await this.pub.getBlockNumber();
     while (!this.stopped && rounds < maxRounds) {
-      const block = await this.pub.getBlockNumber();
-      if (block < next) {
-        await new Promise((r) => setTimeout(r, 250));
-        continue;
+      try {
+        const block = await this.pub.getBlockNumber();
+        if (block < next) {
+          await sleep(250);
+          continue;
+        }
+        await this.round();
+        rounds++;
+        next = (await this.pub.getBlockNumber()) + BigInt(this.cfg.loopBlocks);
+      } catch (err) {
+        // A dropped connection or a DNS hiccup must not end a long-running agent: say so, wait, try again. Only the
+        // short message is printed, because a full RPC error carries the endpoint URL, which can include a key.
+        const e = err as { shortMessage?: string; message?: string };
+        console.log(`  network error, retrying in ${RETRY_MS / 1000} s: ${e.shortMessage ?? e.message?.split("\n")[0] ?? String(err)}`);
+        await sleep(RETRY_MS);
       }
-      await this.round();
-      rounds++;
-      next = (await this.pub.getBlockNumber()) + BigInt(this.cfg.loopBlocks);
     }
   }
 
