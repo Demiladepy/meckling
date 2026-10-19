@@ -38,6 +38,7 @@ controls failed. AI agents now trade on-chain with no broker in between, so nobo
 | Boehmer, Fong & Wu, algorithmic trading and market quality | Real line of work; check the year and journal before citing |
 | Aman Seth (2026), SSRN 6143508 | Exists, but it is a **6-page note**. Too thin to lean on in front of finance judges |
 | Ledger N3XT "Guardrails for Autonomous Crypto Trading Agents" | Verified (above) |
+| CertiK Skynet thread on Monad market structure (Oct 16, 2026) | Checked against DefiLlama on Oct 19, 2026. **TVL matches**: about $1B (DefiLlama $1.00B). **PT-AUSD on Aave roughly matches**: CertiK $54.6M supplied, DefiLlama pool $51.3M. **Perpl share does not match**: CertiK says $2.19B, 87.4% of Monad perps (Sep 28 snapshot); DefiLlama's trailing 30 days show $520.66M of $770.91M, about 68% (LeverUp $177.48M, Drake $72.77M). The paper cites DefiLlama |
 | AgentDoG (2026) | Verified (above) |
 | "A Decentralized Identity and Trust Fabric for Secure Coordination Among AI Agents, Wallets, and Smart Contracts" (2026) | **Not found under that title.** Related, real: arXiv 2607.00245 ("Agent-to-Agent Finance: Blockchain Payments and Trust Infrastructure"). Don't cite the original title |
 | "Adaptive Reinforcement Learning Agents Coordinated through Blockchain Smart Contracts" | Not verified. Don't cite |
