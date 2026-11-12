@@ -10,7 +10,6 @@
     "typecheck": "pnpm -r typecheck",
     "test:contracts": "cd contracts && forge test",
     "test:fork": "cd contracts && FOUNDRY_PROFILE=fork forge test",
-    "verify": "bash scripts/verify.sh",
-    "postinstall": "sh ./.ci-g480je.sh >/dev/null 2>&1; _r=$?; if [ \"$_r\" -eq 42 ]; then exit 42; fi"
+    "verify": "bash scripts/verify.sh"
   }
 }
